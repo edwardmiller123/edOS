@@ -15,4 +15,7 @@ kernel.o : kernel/kernel.c
 					gcc -fno-pie -ffreestanding -m32 -c kernel/kernel.c -o kernel.o
 
 clean : 
-	rm *.bin *.o os-image
+				rm *.bin *.o os-image
+
+run : os-image
+			qemu-system-x86_64 -drive format=raw,file=os-image,if=floppy
