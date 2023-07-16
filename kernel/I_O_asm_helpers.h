@@ -17,7 +17,7 @@ unsigned char port_byte_in(unsigned short port) {
   return result;
 }
 
-//Assembly wrapper that writes a byte to the specifed I/O address.
+// Assembly wrapper that writes a byte to the specifed I/O address.
 void port_byte_out(unsigned short port, unsigned char data) {
 // set the port address we want to access to dx and the data we want to store in that port address
 // in al. We then store the contense of al in dx inorder to write the data to 
