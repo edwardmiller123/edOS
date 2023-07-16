@@ -1,3 +1,4 @@
+#include "../drivers/screen.h"
 void main()
 {
   // Create a pointer to a char and point it to a text cell in video memory.
