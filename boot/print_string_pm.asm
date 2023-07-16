@@ -1,4 +1,4 @@
-; In 32 bit protected mdoe we can no longer use the 616 bit bios routines.
+; In 32 bit protected mdoe we can no longer use the 16 bit bios routines.
 ; When the computer boots it begins in a simple VGA mode, if set in text mode
 ; each character cell on the screen is represented by 2 bytes in memory.
 ; In order to print a string then, we therefore have to set our string to the 
