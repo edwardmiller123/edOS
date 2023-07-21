@@ -12,6 +12,8 @@ unsigned char port_byte_in(unsigned short port) {
   in al, dx
   */ 
 
+  // inline assembly uses reversed syntax order i.e
+  // mov src, dest
   unsigned char result;
   __asm__("in %%dx, %%al" : "=a" (result) : "d" (port));
   return result;
