@@ -13,7 +13,7 @@
 
 // This maps the row and column coordinates to the corresponding memory address in
 // video memory.
-int get_screen_address(int col, int row) {
+int cell_to_mem_address(int col, int row) {
   int memoryAddress;
   memoryAddress = (row * MAX_COLS + col) * 2;
   return memoryAddress;
@@ -40,33 +40,29 @@ int get_cursor() {
 
 // Sets the new position of the cursor to the provided memory address. Similar to
 // get_cursor but instead writing to the I/O registers
+// TODO: understand whats happing with the bitwise operations.
 void set_cursor(int newCursorAddress) {
   newCursorAddress /= 2;
-  port_byte_out(REG_SCREEN_CTRL, 14);
-  port_byte_out(REG_SCREEN_DATA, (unsigned char)(newCursorAddress >> 8));
   port_byte_out(REG_SCREEN_CTRL, 15);
+  port_byte_out(REG_SCREEN_DATA, (unsigned char) (newCursorAddress & 0xFF));
+  port_byte_out(REG_SCREEN_CTRL, 14);
+  port_byte_out(REG_SCREEN_DATA, (unsigned char)((newCursorAddress >> 8) & 0xFF));
 }
 
-void print_char(char character, int col, int row, char attribute_byte) {
+// print_char takes a character and prints it at the current location of the cursor.
+void print_char(char character, char attribute_byte) {
   unsigned char *videoMemory = (unsigned char *) VIDEO_MEMORY_START;
 
   if (!attribute_byte) {
     attribute_byte = WHITE_ON_BLACK;
   }
 
-  int screenAddress;
+  int screenAddress = get_cursor();
 
-  // Only use col and row for position if they are positive
-  if (col > 0 && row > 0) {
-    screenAddress = get_screen_address(col, row);
-  } else {
-    screenAddress = get_cursor();
-  }
-
-  // Check move to the start of the next row for a new line character
+  // Move to the start of the next row for a new line character
   if (character == '\n') {
     int rows = screenAddress / (2 * MAX_COLS);
-    screenAddress = get_screen_address(79, rows);
+    screenAddress = cell_to_mem_address(79, rows);
   } else {
     videoMemory[screenAddress] = character;
     videoMemory[screenAddress + 1] = attribute_byte;
@@ -77,6 +73,30 @@ void print_char(char character, int col, int row, char attribute_byte) {
 
   // finally update the cursor position.
   set_cursor(screenAddress);
+}
+
+// print_char_at prints the given character at the given position on screen.
+// Does this by setting the cursor position then printing the character.
+void print_char_at(char character, int col, int row, char attribute_byte) {
+  int screenAddress;
+  if (col > 0 && row > 0) {
+    screenAddress = cell_to_mem_address(col, row);
+    set_cursor(cell_to_mem_address(col, row));
+  }
+  print_char(character, attribute_byte);
+}
+
+// print_string prints the provided string at the given position on screen.
+void print_string(char* message, int col, int row) {
+  if (col >= 0 && row >= 0) {
+    set_cursor(cell_to_mem_address(col, row));
+  }
+
+  int i = 0;
+  while (message[i] != 0) {
+    print_char(message[i], 0);
+    i++;
+  }
 }
 
 
