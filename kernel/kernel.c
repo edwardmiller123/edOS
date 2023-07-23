@@ -1,6 +1,8 @@
-#include "../drivers/screen.h"
+#include "kernel_checks.h"
+
 void main()
 {
   clear_screen();
-  print_string("Welcome to edOS", 0, 1);
+  print_string_at("edOS.v1.0\n", 0, 1);
+  testControllers();
 }

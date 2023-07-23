@@ -97,19 +97,24 @@ void print_char_at(char character, int col, int row, char attribute_byte)
 }
 
 // print_string prints the provided string at the given position on screen.
-void print_string(char *message, int col, int row)
+void print_string(char *message)
 {
-  if (col >= 0 && row >= 0)
-  {
-    set_cursor(cell_to_mem_address(col, row));
-  }
-
   int i = 0;
   while (message[i] != 0)
   {
     print_char(message[i], 0);
     i++;
   }
+}
+
+void print_string_at(char *message, int col, int row)
+{
+  if (col >= 0 && row >= 0)
+  {
+    set_cursor(cell_to_mem_address(col, row));
+  }
+
+  print_string(message);
 }
 
 void clear_screen()

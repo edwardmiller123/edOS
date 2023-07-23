@@ -1,3 +1,5 @@
+#ifndef I_O_ASM_HELPERS
+#define I_O_ASM_HELPERS
 // Wrapper functions for accesing the I/O addresses or decice controllers.
 // word = 2bytes (16-bits)
 // a refers to register eax and d edx
@@ -38,3 +40,5 @@ return result;
 void port_word_out(unsigned short port, unsigned char data) {
   __asm__("out %%ax, %%dx" : : "a" (data), "d" (port));
 }
+
+#endif
