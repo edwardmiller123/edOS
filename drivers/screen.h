@@ -96,7 +96,7 @@ void print_char_at(char character, int col, int row, char attribute_byte)
   print_char(character, attribute_byte);
 }
 
-// print_string prints the provided string at the given position on screen.
+// print_string prints the provided string at the current cursor on screen.
 void print_string(char *message)
 {
   int i = 0;
@@ -107,6 +107,7 @@ void print_string(char *message)
   }
 }
 
+// print_string_at prints the provided string at the specifed position on screen.
 void print_string_at(char *message, int col, int row)
 {
   if (col >= 0 && row >= 0)
@@ -117,6 +118,8 @@ void print_string_at(char *message, int col, int row)
   print_string(message);
 }
 
+// clear_screen clears the screen by printing empty spaces at 
+// all points on the screen.
 void clear_screen()
 {
   set_cursor(cell_to_mem_address(0, 0));
@@ -129,3 +132,26 @@ void clear_screen()
     }
   }
 }
+
+// intToString converts a base 10 integer to a string.
+// TODO: Fix random characters at end of string.
+char * intToString(int integer)
+{
+  char* string;
+  int n = integer;
+  int i = 0;
+  int a = integer;
+  int b;
+
+  while (n > 0)
+  {
+    b = a % 10;
+    string[i] = b + 0x30;
+    a /= 10;
+    
+    i++;
+    n /= 10;
+  }
+  return string;
+}
+
