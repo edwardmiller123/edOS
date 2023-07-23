@@ -1,4 +1,8 @@
+#ifndef KEYBOARD
+#define KEYBOARD
+
 #include "../kernel/I_O_asm_helpers.h"
+#include "screen.h"
 
 #define PS2_DATA_PORT 0x60
 #define PS2_STATUS_AND_COMMAND_REGISTER 0x64
@@ -20,6 +24,33 @@ int testPS2Controller()
   }
 }
 
+int checkResponse(int expectedResonse)
+{
+  int response = port_byte_in(PS2_DATA_PORT);
+  if (response == expectedResonse)
+  {
+    return 1;
+  }
+  return response;
+}
+
+int initPS2Controller()
+{
+
+  // Enable first ps/2 port.
+  port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAE);
+
+  // Select scan code set 2. Command byte sets scan code set and the data byte chooses the set.
+  // port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xF0);
+  // port_byte_out(PS2_DATA_PORT, 2);
+
+  // Set the keyboard to send scan codes.
+  // port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xF4);
+  return checkResponse(0);
+}
+
 void updateCommandQueue()
 {
 }
+
+#endif

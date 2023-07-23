@@ -1,3 +1,6 @@
+#ifndef SCREEN
+#define SCREEN
+
 #include "../kernel/I_O_asm_helpers.h"
 // Can print using simple VGA mode in text mode.
 // Screen divided into a grid with each cell represented by two bytes in memory
@@ -154,4 +157,6 @@ char * intToString(int integer)
   }
   return string;
 }
+
+#endif
 

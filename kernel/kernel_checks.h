@@ -1,6 +1,3 @@
-#ifndef KERNEL_CHECKS
-#define KERNEL_CHECKS
-
 #include "../drivers/screen.h"
 #include "../drivers/keyboard.h"
 
@@ -19,5 +16,3 @@ void testControllers() {
     print_string("PS/2 failed with unexpected result.\n");
   }
 }
-
-#endif
