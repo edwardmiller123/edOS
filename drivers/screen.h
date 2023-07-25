@@ -140,22 +140,30 @@ void clear_screen()
 // TODO: Fix random characters at end of string.
 char * intToString(int integer)
 {
-  char* string;
+  char* reverseString;
+  char* resultString;
   int n = integer;
   int i = 0;
+  int j = 0;
   int a = integer;
   int b;
 
   while (n > 0)
   {
     b = a % 10;
-    string[i] = b + 0x30;
+    reverseString[i] = b + 0x30;
     a /= 10;
-    
     i++;
     n /= 10;
   }
-  return string;
+  
+  while (i > 0) {
+    resultString[j] = reverseString[i - 1];
+    i--;
+    j++;
+  }
+
+  return resultString;
 }
 
 #endif
