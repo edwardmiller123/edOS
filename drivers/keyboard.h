@@ -7,39 +7,73 @@
 #define PS2_DATA_PORT 0x60
 #define PS2_STATUS_AND_COMMAND_REGISTER 0x64
 
-// testPS2Controller runs a simple test to see if the ps2 controller is working.
-void testPS2Controller()
-{
+void testController() {
   // test ps2 controller
   port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAA);
   int testResult = port_byte_in(PS2_DATA_PORT);
   switch (testResult)
   {
   case 0x55:
-    print_string("PS/2 Controller Operational.\n");
+    print_string("Controller Operational.\n");
     break;
   case 0xFC:
-    print_string("PS/2 failed with fault.\n");
+    print_string("Controller failed with fault.\n");
     break;
   default:
-    print_string("PS/2 failed with unexpected result.\n");
+    print_string("Controller failed with unexpected result.\n");
+    printInt(testResult);
     break;
   }
-  printInt(testResult);
 }
 
-int checkResponse(int expectedResonse)
-{
-  int response = port_byte_in(PS2_DATA_PORT);
-  if (response == expectedResonse)
+void testPort1() {
+  // test ps2 port 1
+  port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAB);
+  int testResult = port_byte_in(PS2_DATA_PORT);
+  switch (testResult)
   {
-    return 1;
+  case 0x00:
+    print_string("Port 1 Operational.\n");
+    break;
+  default:
+    print_string("Port 1 failed with unexpected result.\n");
+    printInt(testResult);
+    break;
   }
-  return response;
 }
 
-int initPS2Controller()
+void testPort2() {
+  // test ps2 port 1
+  port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xA9);
+  int testResult = port_byte_in(PS2_DATA_PORT);
+  switch (testResult)
+  {
+  case 0x00:
+    print_string("Port 2 Operational.\n");
+    break;
+  default:
+    print_string("Port 2 failed with unexpected result.\n");
+    printInt(testResult);
+    break;
+  }
+}
+
+// testPS2Controller runs a simple test to see if the ps2 controller is working.
+void testPS2Controller()
 {
+  // test ps2 controller and ports.
+  print_string("Running PS/2 Controller tests...\n");
+  testController();
+  testPort1();
+  testPort2();
+
+}
+
+void initPS2Controller()
+{
+
+  // Disable second ps/2 port.
+  port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xA7);
 
   // Enable first ps/2 port.
   port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAE);
@@ -50,7 +84,6 @@ int initPS2Controller()
 
   // Set the keyboard to send scan codes.
   // port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xF4);
-  return checkResponse(0);
 }
 
 void updateCommandQueue()
