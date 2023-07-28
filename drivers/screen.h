@@ -121,7 +121,7 @@ void print_string_at(char *message, int col, int row)
   print_string(message);
 }
 
-// clear_screen clears the screen by printing empty spaces at 
+// clear_screen clears the screen by printing empty spaces at
 // all points on the screen.
 void clear_screen()
 {
@@ -136,12 +136,11 @@ void clear_screen()
   }
 }
 
-// intToString converts a base 10 integer to a string.
-// TODO: Fix random characters at end of string.
-char * intToString(int integer)
+// intToString converts an integer to a string.
+char *intToString(int integer)
 {
-  char* reverseString;
-  char* resultString;
+  char *reverseString;
+  char *resultString;
   int n = integer;
   int i = 0;
   int j = 0;
@@ -156,8 +155,9 @@ char * intToString(int integer)
     i++;
     n /= 10;
   }
-  
-  while (i > 0) {
+
+  while (i > 0)
+  {
     resultString[j] = reverseString[i - 1];
     i--;
     j++;
@@ -166,5 +166,10 @@ char * intToString(int integer)
   return resultString;
 }
 
-#endif
+// printInt prints the given integer by converting it to a string.
+void printInt(int integer)
+{
+  print_string(intToString(integer));
+}
 
+#endif
