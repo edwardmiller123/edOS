@@ -1,9 +1,9 @@
-#include "kernel_checks.h"
+#include "../drivers/screen.h"
+#include "../drivers/keyboard.h"
 
 void main()
 {
   clear_screen();
   print_string_at("edOS.v1.0\n", 0, 1);
-  testControllers();
-  print_string(intToString(162343));
+  testPS2Controller();
 }
