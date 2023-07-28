@@ -2,6 +2,7 @@
 #define SCREEN
 
 #include "../kernel/I_O_asm_helpers.h"
+#include "../kernel/utils.h"
 // Can print using simple VGA mode in text mode.
 // Screen divided into a grid with each cell represented by two bytes in memory
 // the first is the character to be displayed the second is the attribute to be applied.
@@ -55,6 +56,33 @@ void set_cursor(int newCursorAddress)
   port_byte_out(REG_SCREEN_DATA, (unsigned char)((newCursorAddress >> 8) & 0xFF));
 }
 
+int handleScreenScroll(int cursorAddress) {
+  // If the currentAddress about to be accessed is on screen then leave
+  // it unmodifed.
+  if (cursorAddress < MAX_ROWS * MAX_COLS * 2) {
+    return cursorAddress;
+  }
+
+  // Copy each line to the line above. 
+  for (int i = 0; i < MAX_ROWS; i++) {
+    memoryCopy(
+      (char*)(cell_to_mem_address(0, i) + VIDEO_MEMORY_START),
+      (char*)(cell_to_mem_address(0, i - 1) + VIDEO_MEMORY_START),
+      MAX_COLS * 2
+    );
+  }
+
+  // Clear the last line for printing too.
+  char * lastLine = (char*)(cell_to_mem_address(0, MAX_ROWS - 1) + VIDEO_MEMORY_START);
+  for (int i = 0; i < MAX_COLS * 2; i++) {
+    *(char*)(lastLine[i]) = 0;
+  }
+
+  // Finally move the cursor back one row
+  cursorAddress -= 2 * MAX_COLS;
+  return cursorAddress;
+}
+
 // print_char takes a character and prints it at the current location of the cursor.
 void print_char(char character, char attribute_byte)
 {
@@ -65,25 +93,29 @@ void print_char(char character, char attribute_byte)
     attribute_byte = WHITE_ON_BLACK;
   }
 
-  int screenAddress = get_cursor();
+  int cursorAddress = get_cursor();
 
   // Move to the start of the next row for a new line character
   if (character == '\n')
   {
-    int rows = screenAddress / (2 * MAX_COLS);
-    screenAddress = cell_to_mem_address(79, rows);
+    int rows = cursorAddress / (2 * MAX_COLS);
+    cursorAddress = cell_to_mem_address(79, rows);
   }
   else
   {
-    videoMemory[screenAddress] = character;
-    videoMemory[screenAddress + 1] = attribute_byte;
+    videoMemory[cursorAddress] = character;
+    videoMemory[cursorAddress + 1] = attribute_byte;
   }
 
   // update the screen address to the next character cell.
-  screenAddress += 2;
+  cursorAddress += 2;
+
+  // Check to see if we have reached the bottom of the srceen and if so
+  // scroll it.
+  cursorAddress = handleScreenScroll(cursorAddress);
 
   // finally update the cursor position.
-  set_cursor(screenAddress);
+  set_cursor(cursorAddress);
 }
 
 // print_char_at prints the given character at the given position on screen.
