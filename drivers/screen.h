@@ -56,6 +56,8 @@ void set_cursor(int newCursorAddress)
   port_byte_out(REG_SCREEN_DATA, (unsigned char)((newCursorAddress >> 8) & 0xFF));
 }
 
+// handleScreenScroll checks if the provided cursor address is on screen and if not
+// scrolls the screen down by one line.
 int handleScreenScroll(int cursorAddress) {
   // If the currentAddress about to be accessed is on screen then leave
   // it unmodifed.
