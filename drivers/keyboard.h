@@ -8,7 +8,7 @@
 #define PS2_STATUS_AND_COMMAND_REGISTER 0x64
 
 // testPS2Controller runs a simple test to see if the ps2 controller is working.
-int testPS2Controller()
+void testPS2Controller()
 {
   // test ps2 controller
   port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAA);
@@ -16,12 +16,16 @@ int testPS2Controller()
   switch (testResult)
   {
   case 0x55:
-    return 1;
+    print_string("PS/2 Controller Operational.\n");
+    break;
   case 0xFC:
-    return 0;
+    print_string("PS/2 failed with fault.\n");
+    break;
   default:
-    return 2;
+    print_string("PS/2 failed with unexpected result.\n");
+    break;
   }
+  printInt(testResult);
 }
 
 int checkResponse(int expectedResonse)
