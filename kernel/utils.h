@@ -9,7 +9,7 @@ void memoryCopy(char * source, char * destination, int numberOfBytes) {
   }
 }
 
-// intToString converts an integer to a string.
+// intToString converts a base 10 integer to a string.
 char *intToString(int integer)
 {
   char *reverseString;

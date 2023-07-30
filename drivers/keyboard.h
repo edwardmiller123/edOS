@@ -78,6 +78,10 @@ void initPS2Controller()
   // Enable first ps/2 port.
   port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAE);
 
+  // Reset keyboard
+  int response = checkResponse(0xFF, PS2_DATA_PORT, PS2_STATUS_AND_COMMAND_REGISTER);
+  printInt(response);
+
   // Select scan code set 2. Command byte sets scan code set and the data byte chooses the set.
   // port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xF0);
   // port_byte_out(PS2_DATA_PORT, 2);
