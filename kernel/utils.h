@@ -10,7 +10,7 @@ void memoryCopy(char * source, char * destination, int numberOfBytes) {
 }
 
 // intToString converts a base 10 integer to a string.
-char *intToString(int integer)
+char * intToString(int integer)
 {
   char *reverseString;
   char *resultString;
