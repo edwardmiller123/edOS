@@ -36,8 +36,8 @@ void port_byte_out(unsigned short port, unsigned char data)
 }
 
 // checkResponse is a wrapper around the asm helpers that writes data to a specified
-// port and returns the response.
-int checkResponse(unsigned char dataToSend, unsigned short readPort, unsigned short writePort)
+// port and reads the response from the soecified port.
+int sendAndCheckResponseByte(unsigned char dataToSend, unsigned short readPort, unsigned short writePort)
 {
   port_byte_out(writePort, dataToSend);
   int result = port_byte_in(readPort);

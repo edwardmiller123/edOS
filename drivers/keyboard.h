@@ -4,10 +4,13 @@
 #include "../kernel/I_O_asm_helpers.h"
 #include "screen.h"
 
+// To talk to the keyboard directly we read data and write command codes
+// both to 0x60
 #define PS2_DATA_PORT 0x60
 #define PS2_STATUS_AND_COMMAND_REGISTER 0x64
 
-void testController() {
+void testController()
+{
   // test ps2 controller
   port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAA);
   int testResult = port_byte_in(PS2_DATA_PORT);
@@ -26,7 +29,8 @@ void testController() {
   }
 }
 
-void testPort1() {
+void testPort1()
+{
   // test ps2 port 1
   port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAB);
   int testResult = port_byte_in(PS2_DATA_PORT);
@@ -42,7 +46,8 @@ void testPort1() {
   }
 }
 
-void testPort2() {
+void testPort2()
+{
   // test ps2 port 1
   port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xA9);
   int testResult = port_byte_in(PS2_DATA_PORT);
@@ -66,7 +71,6 @@ void testPS2Controller()
   testController();
   testPort1();
   testPort2();
-
 }
 
 void initPS2Controller()
@@ -76,11 +80,35 @@ void initPS2Controller()
   port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xA7);
 
   // Enable first ps/2 port.
-  port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAE);
+  // port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAE);
+
+  // Disable keyboard scanning.
+  int disableScanningResponse = sendAndCheckResponseByte(0xF5, PS2_DATA_PORT, PS2_DATA_PORT);
+  switch (disableScanningResponse)
+  {
+    case 0xFA:
+      print_string("Keyboard scanning disabled.\n");
+      break;
+    case 0:
+      print_string("Keyboard not found.\n");
+      break;
+    default:
+      print_string("Error disabling scan codes.\n");
+  }
 
   // Reset keyboard
-  int response = checkResponse(0xFF, PS2_DATA_PORT, PS2_STATUS_AND_COMMAND_REGISTER);
-  printInt(response);
+  int response = sendAndCheckResponseByte(0xFF, PS2_DATA_PORT, PS2_DATA_PORT);
+  switch (response)
+  {
+  case 0xFA:
+    print_string("Keyboard sucessfully reset.\n");
+    break;
+  case 0:
+    print_string("Keyboard not found.\n");
+    break;
+  default:
+    print_string("Error resetting keyboard.\n");
+  }
 
   // Select scan code set 2. Command byte sets scan code set and the data byte chooses the set.
   // port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xF0);
