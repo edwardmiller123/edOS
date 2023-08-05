@@ -125,8 +125,20 @@ void initPS2Controller()
   default:
     print_string("Error setting scan code\n");
   }
+
   // Set the keyboard to send scan codes.
-  // port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xF4);
+  int enableScanningResponse = sendCommand(0xF4, PS2_DATA_PORT, PS2_DATA_PORT);
+  switch (enableScanningResponse)
+  {
+  case 0xFA:
+    print_string("Scanning enabled\n");
+    break;
+  case 0:
+    print_string("Keyboard not found\n");
+    break;
+  default:
+    print_string("Error enabling scanning\n");
+  }
 }
 
 void updateCommandQueue()
