@@ -12,7 +12,7 @@
 void testController()
 {
   // test ps2 controller
-  int testResult = sendAndCheckResponseByte(0xAA, PS2_DATA_PORT, PS2_STATUS_AND_COMMAND_REGISTER);
+  int testResult = sendCommand(0xAA, PS2_DATA_PORT, PS2_STATUS_AND_COMMAND_REGISTER);
   switch (testResult)
   {
   case 0x55:
@@ -84,7 +84,7 @@ void initPS2Controller()
   // port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAE);
 
   // Disable keyboard scanning.
-  int disableScanningResponse = sendAndCheckResponseByte(0xF5, PS2_DATA_PORT, PS2_DATA_PORT);
+  int disableScanningResponse = sendCommand(0xF5, PS2_DATA_PORT, PS2_DATA_PORT);
   switch (disableScanningResponse)
   {
     case 0xFA:
@@ -98,8 +98,8 @@ void initPS2Controller()
   }
 
   // Reset keyboard
-  int response = sendAndCheckResponseByte(0xFF, PS2_DATA_PORT, PS2_DATA_PORT);
-  switch (response)
+  int resetResponse = sendCommand(0xFF, PS2_DATA_PORT, PS2_DATA_PORT);
+  switch (resetResponse)
   {
   case 0xFA:
     print_string("Keyboard reset\n");
@@ -111,10 +111,20 @@ void initPS2Controller()
     print_string("Error resetting keyboard\n");
   }
 
-  // Select scan code set 2. Command byte sets scan code set and the data byte chooses the set.
-  // port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xF0);
-  // port_byte_out(PS2_DATA_PORT, 2);
 
+  // Select scan code set 2. Command byte sets scan code set and the data byte chooses the set.
+  int selectScanCodeResponse = sendCommandWithData(0xF0, 2, PS2_DATA_PORT, PS2_DATA_PORT);
+  switch (resetResponse)
+  {
+  case 0xFA:
+    print_string("Scan code set\n");
+    break;
+  case 0:
+    print_string("Keyboard not found\n");
+    break;
+  default:
+    print_string("Error setting scan code\n");
+  }
   // Set the keyboard to send scan codes.
   // port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xF4);
 }
