@@ -4,26 +4,25 @@
 #include "../kernel/I_O_asm_helpers.h"
 #include "screen.h"
 
-// To talk to the keyboard directly we read data and write command codes
-// both to 0x60
+// To talk to the keyboard controller directly
+// we read data and write command codes both to 0x60.
 #define PS2_DATA_PORT 0x60
 #define PS2_STATUS_AND_COMMAND_REGISTER 0x64
 
 void testController()
 {
   // test ps2 controller
-  port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAA);
-  int testResult = port_byte_in(PS2_DATA_PORT);
+  int testResult = sendAndCheckResponseByte(0xAA, PS2_DATA_PORT, PS2_STATUS_AND_COMMAND_REGISTER);
   switch (testResult)
   {
   case 0x55:
-    print_string("Controller Operational.\n");
+    print_string("Controller Operational\n");
     break;
   case 0xFC:
-    print_string("Controller failed with fault.\n");
+    print_string("Controller failed with fault\n");
     break;
   default:
-    print_string("Controller failed with unexpected result.\n");
+    print_string("Controller failed with unexpected result\n");
     printInt(testResult);
     break;
   }
@@ -37,10 +36,10 @@ void testPort1()
   switch (testResult)
   {
   case 0x00:
-    print_string("Port 1 Operational.\n");
+    print_string("Port 1 Operational\n");
     break;
   default:
-    print_string("Port 1 failed with unexpected result.\n");
+    print_string("Port 1 failed with unexpected result\n");
     printInt(testResult);
     break;
   }
@@ -54,10 +53,10 @@ void testPort2()
   switch (testResult)
   {
   case 0x00:
-    print_string("Port 2 Operational.\n");
+    print_string("Port 2 Operational\n");
     break;
   default:
-    print_string("Port 2 failed with unexpected result.\n");
+    print_string("Port 2 failed with unexpected result\n");
     printInt(testResult);
     break;
   }
@@ -75,6 +74,8 @@ void testPS2Controller()
 
 void initPS2Controller()
 {
+  // Test the controller and ports are working.
+  testPS2Controller();
 
   // Disable second ps/2 port.
   port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xA7);
@@ -87,13 +88,13 @@ void initPS2Controller()
   switch (disableScanningResponse)
   {
     case 0xFA:
-      print_string("Keyboard scanning disabled.\n");
+      print_string("Keyboard scanning disabled\n");
       break;
     case 0:
-      print_string("Keyboard not found.\n");
+      print_string("Keyboard not found\n");
       break;
     default:
-      print_string("Error disabling scan codes.\n");
+      print_string("Error disabling scan codes\n");
   }
 
   // Reset keyboard
@@ -101,13 +102,13 @@ void initPS2Controller()
   switch (response)
   {
   case 0xFA:
-    print_string("Keyboard sucessfully reset.\n");
+    print_string("Keyboard reset\n");
     break;
   case 0:
-    print_string("Keyboard not found.\n");
+    print_string("Keyboard not found\n");
     break;
   default:
-    print_string("Error resetting keyboard.\n");
+    print_string("Error resetting keyboard\n");
   }
 
   // Select scan code set 2. Command byte sets scan code set and the data byte chooses the set.
