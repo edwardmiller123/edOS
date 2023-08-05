@@ -91,7 +91,7 @@ void initPS2Controller()
       print_string("Keyboard scanning disabled\n");
       break;
     case 0:
-      print_string("Keyboard not found\n");
+      print_string("Keyboard not found (empty response)\n");
       break;
     default:
       print_string("Error disabling scan codes\n");
@@ -105,7 +105,7 @@ void initPS2Controller()
     print_string("Keyboard reset\n");
     break;
   case 0:
-    print_string("Keyboard not found\n");
+    print_string("Keyboard not found (empty response)\n");
     break;
   default:
     print_string("Error resetting keyboard\n");
@@ -120,7 +120,7 @@ void initPS2Controller()
     print_string("Scan code set\n");
     break;
   case 0:
-    print_string("Keyboard not found\n");
+    print_string("Keyboard not found (empty response)\n");
     break;
   default:
     print_string("Error setting scan code\n");
@@ -134,7 +134,7 @@ void initPS2Controller()
     print_string("Scanning enabled\n");
     break;
   case 0:
-    print_string("Keyboard not found\n");
+    print_string("Keyboard not found (empty response)\n");
     break;
   default:
     print_string("Error enabling scanning\n");
