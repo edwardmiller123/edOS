@@ -4,7 +4,7 @@
 #include "../kernel/I_O_asm_helpers.h"
 #include "screen.h"
 
-// To talk to the keyboard controller directly
+// To talk to the keyboard encoder directly
 // we read data and write command codes both to 0x60.
 #define PS2_DATA_PORT 0x60
 #define PS2_STATUS_AND_COMMAND_REGISTER 0x64
