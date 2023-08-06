@@ -152,9 +152,9 @@ void addToQueue(int keyCommand, int *front, int *rear, int commandQueue[])
     *rear = *rear + 1;
     commandQueue[*rear] = keyCommand;
   }
-  print_string('queue full');
 }
 
+// removeFromQueue removes the front element by decreasing the accesible size of the queue.
 void removeFromQueue(int *front)
 {
   *front = *front + 1;
@@ -179,6 +179,9 @@ void applyKeyPress(int keyCode)
   case 0x12:
     print_char('E', 0);
     break;
+  case 0x20:
+    print_char('D', 0);
+    break;  
   }
 }
 
