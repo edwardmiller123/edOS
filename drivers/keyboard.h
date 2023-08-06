@@ -8,7 +8,7 @@
 // we read data and write command codes both to 0x60.
 #define PS2_DATA_PORT 0x60
 #define PS2_STATUS_AND_COMMAND_REGISTER 0x64
-#define QUEUE_SIZE 10
+#define QUEUE_SIZE 100
 
 void testController()
 {
@@ -141,26 +141,28 @@ void initPS2Keyboard()
   }
 }
 
-void addToQueue(int keyCommand, int front, int rear, int commandQueue[])
+void addToQueue(int keyCommand, int *front, int *rear, int commandQueue[])
 {
-  if (rear < QUEUE_SIZE)
+  if (*rear < QUEUE_SIZE)
   {
-    print_char('A', 0);
-    if (front == -1)
+    if (*front == -1)
     {
-      front = 0;
+      *front = 0;
     }
-    rear++;
-    commandQueue[rear] = keyCommand;
+    *rear = *rear + 1;
+    commandQueue[*rear] = keyCommand;
   }
+  print_string('queue full');
 }
 
-void removeFromQueue(int front)
+void removeFromQueue(int *front)
 {
-  front++;
+  *front = *front + 1;
 }
 
-void pollKeyboard(int front, int rear, int commandQueue[])
+// pollKeyboard checks the data byte from the keyboard controller and if its not
+// empty adds it to the command queue.
+void pollKeyboard(int *front, int *rear, int commandQueue[])
 {
   int keyCode = port_byte_in(PS2_DATA_PORT);
   if (keyCode != 0)
@@ -182,9 +184,9 @@ void applyKeyPress(int keyCode)
 
 // handleKeyPress applys the keyCode at the front of the queue then removes it from
 // the queue.
-void handleKeyPress(int front, int commandQueue[])
+void handleKeyPress(int *front, int commandQueue[])
 {
-  applyKeyPress(commandQueue[front]);
+  applyKeyPress(commandQueue[*front]);
   removeFromQueue(front);
 }
 
@@ -199,8 +201,8 @@ void handleKeyboardInput()
 
   while (1)
   {
-    pollKeyboard(queueFront, queueRear, commandQueue);
-    handleKeyPress(queueFront, commandQueue);
+    pollKeyboard(&queueFront, &queueRear, commandQueue);
+    handleKeyPress(&queueFront, commandQueue);
   }
 }
 
