@@ -186,6 +186,18 @@ void applyKeyPress(int keyCode)
   case 0x10:
     print_char('Q', 0);
     break;
+  case 0x11:
+    print_char('W', 0);
+    break;
+  case 0x13:
+    print_char('R', 0);
+    break;
+  case 0x14:
+    print_char('T', 0);
+    break;
+  case 0x15:
+    print_char('Y', 0);
+    break;
   default:
     break;
   }
@@ -198,7 +210,10 @@ void handleKeyPress(int *front, int *rear, int commandQueue[])
   if (*front != -1 && *rear >= *front)
   {
     applyKeyPress(commandQueue[*front]);
-    removeFromQueue(front);
+    if (commandQueue[*front] != 0)
+    {
+      removeFromQueue(front);
+    }
   }
 }
 
@@ -218,7 +233,7 @@ void resetCommandQueue(int *front, int *rear, int commandQueue[])
 // which are then translated to a character to print.
 void handleKeyboardInput()
 {
-  int commandQueue[QUEUE_SIZE];
+  int commandQueue[QUEUE_SIZE] = {0};
   int queueFront = -1;
   int queueRear = -1;
 
