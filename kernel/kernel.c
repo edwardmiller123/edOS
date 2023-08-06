@@ -5,5 +5,6 @@ void main()
 {
   clear_screen();
   print_string_at("edOS.v0.1\n", 0, 0);
-  initPS2Controller();
+  initPS2Keyboard();
+  handleKeyboardInput();
 }

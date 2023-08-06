@@ -8,6 +8,7 @@
 // we read data and write command codes both to 0x60.
 #define PS2_DATA_PORT 0x60
 #define PS2_STATUS_AND_COMMAND_REGISTER 0x64
+#define QUEUE_SIZE 10
 
 void testController()
 {
@@ -72,7 +73,7 @@ void testPS2Controller()
   testPort2();
 }
 
-void initPS2Controller()
+void initPS2Keyboard()
 {
   // Test the controller and ports are working.
   testPS2Controller();
@@ -87,14 +88,14 @@ void initPS2Controller()
   int disableScanningResponse = sendCommand(0xF5, PS2_DATA_PORT, PS2_DATA_PORT);
   switch (disableScanningResponse)
   {
-    case 0xFA:
-      print_string("Keyboard scanning disabled\n");
-      break;
-    case 0:
-      print_string("Keyboard not found (empty response)\n");
-      break;
-    default:
-      print_string("Error disabling scan codes\n");
+  case 0xFA:
+    print_string("Keyboard scanning disabled\n");
+    break;
+  case 0:
+    print_string("Keyboard not found (empty response)\n");
+    break;
+  default:
+    print_string("Error disabling scan codes\n");
   }
 
   // Reset keyboard
@@ -110,7 +111,6 @@ void initPS2Controller()
   default:
     print_string("Error resetting keyboard\n");
   }
-
 
   // Select scan code set 2. Command byte sets scan code set and the data byte chooses the set.
   int selectScanCodeResponse = sendCommandWithData(0xF0, 2, PS2_DATA_PORT, PS2_DATA_PORT);
@@ -141,8 +141,67 @@ void initPS2Controller()
   }
 }
 
-void updateCommandQueue()
+void addToQueue(int keyCommand, int front, int rear, int commandQueue[])
 {
+  if (rear < QUEUE_SIZE)
+  {
+    print_char('A', 0);
+    if (front == -1)
+    {
+      front = 0;
+    }
+    rear++;
+    commandQueue[rear] = keyCommand;
+  }
+}
+
+void removeFromQueue(int front)
+{
+  front++;
+}
+
+void pollKeyboard(int front, int rear, int commandQueue[])
+{
+  int keyCode = port_byte_in(PS2_DATA_PORT);
+  if (keyCode != 0)
+  {
+    addToQueue(keyCode, front, rear, commandQueue);
+  }
+}
+
+// applyKeyPress prints the corresponding character for a given key code.
+void applyKeyPress(int keyCode)
+{
+  switch (keyCode)
+  {
+  case 0x12:
+    print_char('E', 0);
+    break;
+  }
+}
+
+// handleKeyPress applys the keyCode at the front of the queue then removes it from
+// the queue.
+void handleKeyPress(int front, int commandQueue[])
+{
+  applyKeyPress(commandQueue[front]);
+  removeFromQueue(front);
+}
+
+// handleKeyboardInput polls the keyboard to create a queue of keyboard commands
+// which are then translated to a character to print. 
+void handleKeyboardInput()
+{
+  int commandQueue[QUEUE_SIZE];
+  int queueFront = -1;
+  int queueRear = -1;
+  
+
+  while (1)
+  {
+    pollKeyboard(queueFront, queueRear, commandQueue);
+    handleKeyPress(queueFront, commandQueue);
+  }
 }
 
 #endif
