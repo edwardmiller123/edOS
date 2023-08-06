@@ -15,7 +15,7 @@ unsigned char port_byte_in(unsigned short port)
   in al, dx
   */
 
-  // gcc inline assembly uses reversed syntax order i.e
+  // gcc inline assembly uses reversed syntax order to nasm i.e
   // mov src, dest
   unsigned char result;
   __asm__("in %%dx, %%al"
