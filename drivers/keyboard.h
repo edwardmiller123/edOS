@@ -82,7 +82,7 @@ void initPS2Keyboard()
   port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xA7);
 
   // Enable first ps/2 port.
-  // port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAE);
+  port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAE);
 
   // Disable keyboard scanning.
   int disableScanningResponse = sendCommand(0xF5, PS2_DATA_PORT, PS2_DATA_PORT);
@@ -141,7 +141,8 @@ void initPS2Keyboard()
   }
 }
 
-void addToQueue(int keyCommand, int *front, int *rear, int commandQueue[])
+// addToQueue adds the provided key code to the end of command queue.
+void addToQueue(int keyCode, int *front, int *rear, int commandQueue[])
 {
   if (*rear < QUEUE_SIZE)
   {
@@ -150,7 +151,7 @@ void addToQueue(int keyCommand, int *front, int *rear, int commandQueue[])
       *front = 0;
     }
     *rear = *rear + 1;
-    commandQueue[*rear] = keyCommand;
+    commandQueue[*rear] = keyCode;
   }
 }
 
@@ -181,31 +182,54 @@ void applyKeyPress(int keyCode)
     break;
   case 0x20:
     print_char('D', 0);
-    break;  
+    break;
+  case 0x10:
+    print_char('Q', 0);
+    break;
+  default:
+    break;
   }
 }
 
 // handleKeyPress applys the keyCode at the front of the queue then removes it from
 // the queue.
-void handleKeyPress(int *front, int commandQueue[])
+void handleKeyPress(int *front, int *rear, int commandQueue[])
 {
-  applyKeyPress(commandQueue[*front]);
-  removeFromQueue(front);
+  if (*front != -1 && *rear >= *front)
+  {
+    applyKeyPress(commandQueue[*front]);
+    removeFromQueue(front);
+  }
+}
+
+// resetCommandQueue fills the command queue with zeros and sets the start and end
+// indices back to -1.
+void resetCommandQueue(int *front, int *rear, int commandQueue[])
+{
+  for (int i = 0; i < QUEUE_SIZE; i++)
+  {
+    commandQueue[i] = 0;
+  }
+  *front = -1;
+  *rear = -1;
 }
 
 // handleKeyboardInput polls the keyboard to create a queue of keyboard commands
-// which are then translated to a character to print. 
+// which are then translated to a character to print.
 void handleKeyboardInput()
 {
   int commandQueue[QUEUE_SIZE];
   int queueFront = -1;
   int queueRear = -1;
-  
 
   while (1)
   {
     pollKeyboard(&queueFront, &queueRear, commandQueue);
-    handleKeyPress(&queueFront, commandQueue);
+    handleKeyPress(&queueFront, &queueRear, commandQueue);
+    if (queueRear == QUEUE_SIZE)
+    {
+      resetCommandQueue(&queueFront, &queueRear, commandQueue);
+    }
   }
 }
 
