@@ -18,9 +18,9 @@ unsigned char port_byte_in(unsigned short port)
   // gcc inline assembly uses reversed syntax order to nasm i.e
   // mov src, dest
   unsigned char result;
-  __asm__("in %%dx, %%al"
-          : "=a"(result)
-          : "d"(port));
+  __asm__ volatile("in %%dx, %%al"
+                   : "=a"(result)
+                   : "d"(port));
   return result;
 }
 
@@ -30,9 +30,9 @@ void port_byte_out(unsigned short port, unsigned char data)
   // set the port address we want to access to dx and the data we want to store in that port address
   // in al. We then store the contense of al in dx inorder to write the data to
   // that I/O address.
-  __asm__("out %%al, %%dx"
-          :
-          : "a"(data), "d"(port));
+  __asm__ volatile("out %%al, %%dx"
+                   :
+                   : "a"(data), "d"(port));
 }
 
 // sendCommand is a wrapper around the asm helpers that writes a command byte to a specified
