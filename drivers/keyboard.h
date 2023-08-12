@@ -111,34 +111,6 @@ void initPS2Keyboard()
   default:
     print_string("Error resetting keyboard\n");
   }
-
-  // Select scan code set 2. Command byte sets scan code set and the data byte chooses the set.
-  int selectScanCodeResponse = sendCommandWithData(0xF0, 2, PS2_DATA_PORT, PS2_DATA_PORT);
-  switch (resetResponse)
-  {
-  case 0xFA:
-    print_string("Scan code set\n");
-    break;
-  case 0:
-    print_string("Keyboard not found (empty response)\n");
-    break;
-  default:
-    print_string("Error setting scan code\n");
-  }
-
-  // Set the keyboard to send scan codes.
-  int enableScanningResponse = sendCommand(0xF4, PS2_DATA_PORT, PS2_DATA_PORT);
-  switch (enableScanningResponse)
-  {
-  case 0xFA:
-    print_string("Scanning enabled\n");
-    break;
-  case 0:
-    print_string("Keyboard not found (empty response)\n");
-    break;
-  default:
-    print_string("Error enabling scanning\n");
-  }
 }
 
 // addToQueue adds the provided key code to the end of command queue.
@@ -166,6 +138,7 @@ void removeFromQueue(int *front)
 void pollKeyboard(int *front, int *rear, int commandQueue[])
 {
   int keyCode = port_byte_in(PS2_DATA_PORT);
+
   if (keyCode != 0)
   {
     addToQueue(keyCode, front, rear, commandQueue);
