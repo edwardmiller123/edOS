@@ -138,7 +138,6 @@ void removeFromQueue(int *front)
 void pollKeyboard(int *front, int *rear, int commandQueue[])
 {
   int keyCode = port_byte_in(PS2_DATA_PORT);
-
   if (keyCode != 0)
   {
     addToQueue(keyCode, front, rear, commandQueue);
