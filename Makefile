@@ -3,7 +3,8 @@ os-image : boot_sect.bin kernel.bin
 
 boot_sect.bin : boot/bootloader.asm
 	nasm -I 'boot' boot/bootloader.asm -f bin -o boot_sect.bin
-
+	
+# TODO: figure out how to link isr.c with the kernel
 kernel.bin : kernel_entry.o kernel.o
 	ld -m elf_i386 -o kernel.bin -Ttext 0x1000 kernel_entry.o kernel.o --oformat binary
 
