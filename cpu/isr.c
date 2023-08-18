@@ -1,6 +1,3 @@
-#ifndef ISR
-#define ISR
-
 #include "idt.h"
 #include "../drivers/screen.h"
 
@@ -52,7 +49,7 @@ struct registers {
 };
 
 // set each entry in the idt individually;
-void isr_install() {
+void isrinstall() {
     setIDTEntry(0, (unsigned int)isr0);
     setIDTEntry(1, (unsigned int)isr1);
     setIDTEntry(2, (unsigned int)isr2);
@@ -130,11 +127,9 @@ char *exceptionMessages[] = {
 };
 
 // isrHandler prints the corresponding message for the given interrupt
-void isrHandler(registers reg) {
+void isrHandler(struct registers reg) {
     print_string("received interrupt");
     print_string("\n");
     print_string(exceptionMessages[reg.intNumber]);
     print_string("\n");
 }
-
-#endif

@@ -1,6 +1,8 @@
-[extern isr_handler]
+[extern isrHandler]
 
 ; Common ISR code
+; this is how we "interrupt" the cpu and then continue on our
+; merry way.
 isr_common_stub:
     ; 1. Save CPU state
 	pusha ; Pushes edi,esi,ebp,esp,ebx,edx,ecx,eax
@@ -13,7 +15,7 @@ isr_common_stub:
 	mov gs, ax
 	
     ; 2. Call C handler
-	call isr_handler
+	call isrHandler
 	
     ; 3. Restore state
 	pop eax 
