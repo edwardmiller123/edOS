@@ -10,7 +10,6 @@ kernel.bin : kernel_entry.o kernel.o
 kernel_entry.o : boot/kernel_entry.asm
 	nasm boot/kernel_entry.asm -f elf32 -o kernel_entry.o 	
 
-# TODO: Figure out what address -Ttext should be as I think its overwriting the boot sector
 interrupts.bin : interrupts.o isr.o 
 	ld -m elf_i386 -o interrupts.bin -Ttext 0x1000 interrupts.o isr.o --oformat binary	
 
