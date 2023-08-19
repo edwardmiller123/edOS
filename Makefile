@@ -1,4 +1,4 @@
-os-image : boot_sect.bin kernel.bin
+os-image : boot_sect.bin kernel.bin interrupts.bin
 	cat boot_sect.bin kernel.bin interrupts.bin > os-image
 
 boot_sect.bin : boot/bootloader.asm
@@ -8,11 +8,11 @@ boot_sect.bin : boot/bootloader.asm
 kernel.bin : kernel_entry.o kernel.o
 	ld -m elf_i386 -o kernel.bin -Ttext 0x1000 kernel_entry.o kernel.o --oformat binary
 
-kernel_entry.o : boot/kernel_entry.asm
-	nasm boot/kernel_entry.asm -f elf32 -o kernel_entry.o 	
-
 interrupts.bin : interrupts.o isr.o 
 	ld -m elf_i386 -o interrupts.bin -Ttext 0x1000 interrupts.o isr.o --oformat binary	
+
+kernel_entry.o : boot/kernel_entry.asm
+	nasm boot/kernel_entry.asm -f elf32 -o kernel_entry.o 	
 
 interrupts.o : cpu/interrupts.asm
 	nasm cpu/interrupts.asm -f elf32 -o interrupts.o
