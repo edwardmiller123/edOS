@@ -39,7 +39,7 @@ void print_char(char character, char attribute_byte);
 void print_char_at(char character, int col, int row, char attribute_byte);
 
 // print_string prints the provided string at the current cursor on screen.
-void print_string(char *message);
+void printString(char *message);
 
 // print_string_at prints the provided string at the specifed position on screen.
 void print_string_at(char *message, int col, int row);

@@ -119,7 +119,7 @@ void print_char_at(char character, int col, int row, char attribute_byte)
 }
 
 // print_string prints the provided string at the current cursor on screen.
-void print_string(char *message)
+void printString(char *message)
 {
   int i = 0;
   while (message[i] != 0)
@@ -137,7 +137,7 @@ void print_string_at(char *message, int col, int row)
     set_cursor(cell_to_mem_address(col, row));
   }
 
-  print_string(message);
+  printString(message);
 }
 
 // clear_screen clears the screen by printing empty spaces at
@@ -158,5 +158,5 @@ void clear_screen()
 // printInt prints the given integer by converting it to a string.
 void printInt(int integer)
 {
-  print_string(intToString(integer));
+  printString(intToString(integer));
 }

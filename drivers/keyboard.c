@@ -9,13 +9,13 @@ void testController()
   switch (testResult)
   {
   case 0x55:
-    print_string("Controller Operational\n");
+    printString("Controller Operational\n");
     break;
   case 0xFC:
-    print_string("Controller failed with fault\n");
+    printString("Controller failed with fault\n");
     break;
   default:
-    print_string("Controller failed with unexpected result\n");
+    printString("Controller failed with unexpected result\n");
     printInt(testResult);
     break;
   }
@@ -29,10 +29,10 @@ void testPort1()
   switch (testResult)
   {
   case 0x00:
-    print_string("Port 1 Operational\n");
+    printString("Port 1 Operational\n");
     break;
   default:
-    print_string("Port 1 failed with unexpected result\n");
+    printString("Port 1 failed with unexpected result\n");
     printInt(testResult);
     break;
   }
@@ -46,10 +46,10 @@ void testPort2()
   switch (testResult)
   {
   case 0x00:
-    print_string("Port 2 Operational\n");
+    printString("Port 2 Operational\n");
     break;
   default:
-    print_string("Port 2 failed with unexpected result\n");
+    printString("Port 2 failed with unexpected result\n");
     printInt(testResult);
     break;
   }
@@ -59,7 +59,7 @@ void testPort2()
 void testPS2Controller()
 {
   // test ps2 controller and ports.
-  print_string("Running PS/2 Controller tests...\n");
+  printString("Running PS/2 Controller tests...\n");
   testController();
   testPort1();
   testPort2();
@@ -81,13 +81,13 @@ void initPS2Keyboard()
   switch (disableScanningResponse)
   {
   case 0xFA:
-    print_string("Keyboard scanning disabled\n");
+    printString("Keyboard scanning disabled\n");
     break;
   case 0:
-    print_string("Keyboard not found (empty response)\n");
+    printString("Keyboard not found (empty response)\n");
     break;
   default:
-    print_string("Error disabling scan codes\n");
+    printString("Error disabling scan codes\n");
   }
 
   // Reset keyboard
@@ -95,13 +95,13 @@ void initPS2Keyboard()
   switch (resetResponse)
   {
   case 0xFA:
-    print_string("Keyboard reset\n");
+    printString("Keyboard reset\n");
     break;
   case 0:
-    print_string("Keyboard not found (empty response)\n");
+    printString("Keyboard not found (empty response)\n");
     break;
   default:
-    print_string("Error resetting keyboard\n");
+    printString("Error resetting keyboard\n");
   }
 }
 
