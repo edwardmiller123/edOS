@@ -40,7 +40,7 @@ void isrInstall() {
     setIdt(); // Load with ASM
 }
 
-// various exception messages for each intterupt.
+// various exception messages for each interrupt.
 // just copied from internet as these are standard errors.
 char *exceptionMessages[] = {
     "Division By Zero",
@@ -81,10 +81,10 @@ char *exceptionMessages[] = {
 };
 
 // isrHandler prints the corresponding message for the given interrupt
-// TODO: why canit it find printString!!
+// TODO: why cant it find printString
 void isrHandler(struct registers reg) {
-    // printString("received interrupt");
-    // printString("\n");
-    // printString(exceptionMessages[reg.intNumber]);
-    // printString("\n");
+    printString("received interrupt");
+    printString("\n");
+    printString(exceptionMessages[reg.intNumber]);
+    printString("\n");
 }

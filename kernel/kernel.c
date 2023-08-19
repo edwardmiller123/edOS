@@ -12,5 +12,7 @@ void main()
   
   // enable interrupts
   __asm__ volatile("sti");
+  // test an interrupt
+  __asm__ volatile("int $2");
   handleKeyboardInput();
 }
