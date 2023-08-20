@@ -81,7 +81,6 @@ char *exceptionMessages[] = {
 };
 
 // isrHandler prints the corresponding message for the given interrupt
-// TODO: why cant it find printString
 void isrHandler(struct registers reg) {
     printString("received interrupt");
     printString("\n");
