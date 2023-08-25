@@ -10,9 +10,7 @@ void main()
   print_string_at("edOS.v0.1\n", 0, 0);
   initPS2Keyboard();
   
-  // enable interrupts
-  __asm__ volatile("sti");
   // test an interrupt
-  __asm__ volatile("int $2");
+  // __asm__ volatile("int $2");
   handleKeyboardInput();
 }

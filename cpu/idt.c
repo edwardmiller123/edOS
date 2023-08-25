@@ -9,7 +9,7 @@ struct idtDescriptor idtDesc;
 void setIDTEntry(int n, unsigned int handler)
 {
   idt[n].isrLow = (unsigned short)((handler)&0xffff);
-  idt[n].kernelSegment = 0x08;
+  idt[n].kernelSegment = 0x10;
   idt[n].reserved = 0;
   idt[n].flags = 0x8E;
   idt[n].isrHigh = (unsigned short)(((handler) >> 16) & 0xffff);
@@ -22,8 +22,10 @@ void setIdt()
   idtDesc.limit = 256 * sizeof(struct idtEntry) - 1;
   // call the assembly to actually load the idt.
   // nasm assembly would be lidtl 0x(address of the idt descriptor)
-  __asm__ __volatile__("lidtl (%0)"
+  __asm__ volatile("lidtl (%0)"
                        :
                        : "r"(&idtDesc));
+  // enable interrupts again
+  // __asm__ volatile ("sti");
 }
 

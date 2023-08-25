@@ -1,6 +1,11 @@
 #ifndef ISR
 #define ISR
 
+#define MASTER_PIC_COMMAND 0x20
+#define MASTER_PIC_DATA 0x21
+#define SLAVE_PIC_COMMAND 0xA0
+#define SLAVE_PIC_DATA 0xA1
+
 // The Isr definitions. These are what gets called for each interrupt.
 
 extern void isr0();
@@ -36,6 +41,41 @@ extern void isr29();
 extern void isr30();
 extern void isr31();
 
+// hardware interrupt definitions (IRQ's)
+extern void irq0();
+extern void irq1();
+extern void irq2();
+extern void irq3();
+extern void irq4();
+extern void irq5();
+extern void irq6();
+extern void irq7();
+extern void irq8();
+extern void irq9();
+extern void irq10();
+extern void irq11();
+extern void irq12();
+extern void irq13();
+extern void irq14();
+extern void irq15();
+
+#define IRQ0 32
+#define IRQ1 33
+#define IRQ2 34
+#define IRQ3 35
+#define IRQ4 36
+#define IRQ5 37
+#define IRQ6 38
+#define IRQ7 39
+#define IRQ8 40
+#define IRQ9 41
+#define IRQ10 42
+#define IRQ11 43
+#define IRQ12 44
+#define IRQ13 45
+#define IRQ14 46
+#define IRQ15 47
+
 // a way of storing the values of assembly registers in c.
 struct registers {
   // the data segment register
@@ -49,6 +89,16 @@ struct registers {
 };
 
 void isrInstall();
+
+void PICsendEOI(unsigned char irq);
+
 void isrHandler(struct registers reg);
+
+// isr is a function pointer that takes a registers and returns nothing.
+typedef void (*isr)(registers);
+
+void registerInterruptHandler(unsigned char n, isr handler);
+
+void irqHandler(struct registers r);
 
 #endif
