@@ -52,7 +52,7 @@ irq_common_stub:
     sti
     iret 
 	
-; We don't get information about which interrupt was caller
+; We don't get information about which interrupt was called
 ; when the handler is run, so we will need to have a different handler
 ; for every interrupt.
 ; Furthermore, some interrupts push an error code onto the stack but others
