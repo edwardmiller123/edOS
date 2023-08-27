@@ -6,7 +6,7 @@ struct idtEntry
 {
   // has the address of the entry point of a particular interrupt.
   unsigned short isrLow;
-  // location of our code/segment (all segments overlap)
+  // location of our code/data segment (all segments overlap)
   unsigned short kernelSegment;
   unsigned char reserved;
   unsigned char flags;
