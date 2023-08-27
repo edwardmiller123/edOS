@@ -12,7 +12,7 @@ int cell_to_mem_address(int col, int row)
 // Gets the memory address of the current cursor position.
 int get_cursor()
 {
-  // We need to access the VGA controll registers
+  // We need to access the VGA control registers
   // register 14 is the high byte of the cursor's memory address space
   // register 15 is the low byte of the cursor's memory addres space
   port_byte_out(REG_SCREEN_CTRL, 14);

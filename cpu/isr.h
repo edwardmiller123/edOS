@@ -94,8 +94,8 @@ void PICsendEOI(unsigned char irq);
 
 void isrHandler(struct registers reg);
 
-// isr is a function pointer that takes a registers and returns nothing.
-typedef void (*isr)(registers);
+// isr is a pointer to a function that takes a registers and returns nothing.
+typedef void (*isr)(struct registers);
 
 void registerInterruptHandler(unsigned char n, isr handler);
 
