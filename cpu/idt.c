@@ -21,7 +21,7 @@ void setIdt()
   idtDesc.base = (unsigned int)&idt;
   idtDesc.limit = 256 * sizeof(struct idtEntry) - 1;
   // call the assembly to actually load the idt.
-  // nasm assembly would be lidtl 0x(address of the idt descriptor)
+  // nasm assembly would be lidtl (address of the idt descriptor)
   __asm__ volatile("lidtl (%0)"
                        :
                        : "r"(&idtDesc));

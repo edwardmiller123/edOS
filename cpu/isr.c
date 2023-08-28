@@ -48,8 +48,11 @@ void isrInstall() {
     port_byte_out(SLAVE_PIC_DATA, 0x28);
     port_byte_out(MASTER_PIC_DATA, 0x04);
     port_byte_out(SLAVE_PIC_DATA, 0x02);
+
+    // set the PIC to 8086 mode
     port_byte_out(MASTER_PIC_DATA, 0x01);
     port_byte_out(SLAVE_PIC_DATA, 0x01);
+    
     port_byte_out(MASTER_PIC_DATA, 0x0);
     port_byte_out(SLAVE_PIC_DATA, 0x0); 
 
@@ -130,7 +133,7 @@ void isrHandler(struct registers reg) {
     printString("\n");
     printString(exceptionMessages[reg.intNumber]);
     printString("\n");
-    __asm__ volatile ("cli; hlt");
+    // __asm__ volatile ("cli; hlt");
 }
 
 // registerInterruptHandler assigns a given isr (set of registers) to the given position in 

@@ -14,7 +14,7 @@ struct idtEntry
 };
 
 // A type which contains the size of the idt. Similar to
-// how we initialised the GDT_descriptor during boot.
+// how we initialised the GDT descriptor during boot.
 struct idtDescriptor
 {
   unsigned short limit;
