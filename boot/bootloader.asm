@@ -46,7 +46,7 @@ load_kernel:
   mov bx, KERNEL_OFFSET
 
   ; this is the number of sectors we want to load
-  mov dh, 15
+  mov dh, 30
 
   ; store the boot_drive address back in dl
   mov dl, [BOOT_DRIVE]

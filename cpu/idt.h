@@ -11,7 +11,7 @@ struct idtEntry
   unsigned char reserved;
   unsigned char flags;
   unsigned short isrHigh;
-};
+} __attribute__((packed));
 
 // A type which contains the size of the idt. Similar to
 // how we initialised the GDT descriptor during boot.
@@ -19,7 +19,7 @@ struct idtDescriptor
 {
   unsigned short limit;
   unsigned int base;
-};
+} __attribute__((packed));
 
 // setIDTEntry initialises an entry in the idt.
 void setIDTEntry(int n, unsigned int handler);
