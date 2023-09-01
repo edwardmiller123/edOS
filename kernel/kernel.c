@@ -7,10 +7,11 @@ void main()
   // set up the idt
   isrInstall();
   clear_screen();
-  print_string_at("edOS.v0.1\n", 0, 0);
+  print_string_at("edOS.v0.2\n", 0, 0);
   initPS2Keyboard();
-  
-  // test an interrupt
-  __asm__ volatile("int $2");
   handleKeyboardInput();
+
+  // test an interrupt
+  // __asm__ volatile("int $2");
+
 }

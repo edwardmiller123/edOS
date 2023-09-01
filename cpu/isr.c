@@ -5,7 +5,8 @@
 isr interruptHandlers[256];
 
 // set each entry in the idt individually;
-void isrInstall() {
+void isrInstall()
+{
     setIDTEntry(0, (unsigned int)isr0);
     setIDTEntry(1, (unsigned int)isr1);
     setIDTEntry(2, (unsigned int)isr2);
@@ -52,9 +53,9 @@ void isrInstall() {
     // set the PIC to 8086 mode
     port_byte_out(MASTER_PIC_DATA, 0x01);
     port_byte_out(SLAVE_PIC_DATA, 0x01);
-    
+
     port_byte_out(MASTER_PIC_DATA, 0x0);
-    port_byte_out(SLAVE_PIC_DATA, 0x0); 
+    port_byte_out(SLAVE_PIC_DATA, 0x0);
 
     // Install the IRQs
     setIDTEntry(32, (unsigned int)irq0);
@@ -114,39 +115,49 @@ char *exceptionMessages[] = {
     "Reserved",
     "Reserved",
     "Reserved",
-    "Reserved"
-};
+    "Reserved"};
 
 // PICsendEOI sends the end of interrupt command for a given interrupt. If the interrupt was handled
-// by the slave (irq > 7) then we must send the command to both the master and slave. 
+// by the slave (irq > 7) then we must send the command to both the master and slave.
 void PICsendEOI(unsigned char irq)
 {
-	if(irq >= 8) {
+    if (irq >= 8)
+    {
         port_byte_out(SLAVE_PIC_COMMAND, 0x20);
     }
-	port_byte_out(MASTER_PIC_COMMAND, 0x20);
+    port_byte_out(MASTER_PIC_COMMAND, 0x20);
 }
 
 // isrHandler prints the corresponding message for the given interrupt
-void isrHandler(struct registers reg) {
-    printString("Interrupt received");
-    printString("\n");
-    printString(exceptionMessages[reg.intNumber]);
-    printString("\n");
+void isrHandler(struct registers reg)
+{
+    if (reg.intNumber == 32)
+    {
+        printString("Interrupt timer\n");
+    }
+    else
+    {
+        printString("Interrupt received\n");
+        printString(exceptionMessages[reg.intNumber]);
+        printString("\n");
+    }
 }
 
-// registerInterruptHandler assigns a given isr (set of registers) to the given position in 
+// registerInterruptHandler assigns a given isr (set of registers) to the given position in
 // the array of interrupt handlers
-void registerInterruptHandler(unsigned char n, isr handler) {
-   interruptHandlers[n] = handler;
+void registerInterruptHandler(unsigned char n, isr handler)
+{
+    interruptHandlers[n] = handler;
 }
 
-// irqHandler send the EOI command for a given interrupt and ... TODO: figure out 
+// irqHandler send the EOI command for a given interrupt and ... TODO: figure out
 // what it does next
-void irqHandler(struct registers r) {
+void irqHandler(struct registers r)
+{
     PICsendEOI(r.intNumber);
 
-    if (interruptHandlers[r.intNumber] != 0) {
+    if (interruptHandlers[r.intNumber] != 0)
+    {
         isr handler = interruptHandlers[r.intNumber];
         handler(r);
     }
