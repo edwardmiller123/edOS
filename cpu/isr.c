@@ -131,16 +131,9 @@ void PICsendEOI(unsigned char irq)
 // isrHandler prints the corresponding message for the given interrupt
 void isrHandler(struct registers reg)
 {
-    if (reg.intNumber == 32)
-    {
-        printString("Interrupt timer\n");
-    }
-    else
-    {
-        printString("Interrupt received\n");
-        printString(exceptionMessages[reg.intNumber]);
-        printString("\n");
-    }
+    printString("Interrupt received\n");
+    printString(exceptionMessages[reg.intNumber]);
+    printString("\n");
 }
 
 // registerInterruptHandler assigns a given isr (set of registers) to the given position in

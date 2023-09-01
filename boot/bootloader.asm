@@ -45,8 +45,8 @@ load_kernel:
   ; we want to load the kernel to the address stored at KERNEL_OFFSET
   mov bx, KERNEL_OFFSET
 
-  ; this is the number of sectors we want to load 
-  mov dh, 40 ; TODO: find out how many sectors we actually need to load
+  ; this is the number of sectors we want to load (currently the max possible unless we want to change the destination)
+  mov dh, 52 
 
   ; store the boot_drive address back in dl
   mov dl, [BOOT_DRIVE]
