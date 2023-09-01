@@ -11,6 +11,6 @@ void main()
   initPS2Keyboard();
   
   // test an interrupt
-  // __asm__ volatile("int $2");
+  __asm__ volatile("int $2");
   handleKeyboardInput();
 }
