@@ -131,6 +131,7 @@ void PICsendEOI(unsigned char irq)
 // isrHandler prints the corresponding message for the given interrupt
 void isrHandler(struct registers reg)
 {
+    PICsendEOI(reg.intNumber);
     printString("Interrupt received\n");
     printString(exceptionMessages[reg.intNumber]);
     printString("\n");
@@ -143,8 +144,8 @@ void registerInterruptHandler(unsigned char n, isr handler)
     interruptHandlers[n] = handler;
 }
 
-// irqHandler send the EOI command for a given interrupt and ... TODO: figure out
-// what it does next
+// irqHandler send the EOI command for a given interrupt and calls the appropriate handler function
+// for the given irq
 void irqHandler(struct registers r)
 {
     PICsendEOI(r.intNumber);
