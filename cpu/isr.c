@@ -132,9 +132,14 @@ void PICsendEOI(unsigned char irq)
 void isrHandler(struct registers reg)
 {
     PICsendEOI(reg.intNumber);
-    printString("Interrupt received\n");
-    printString(exceptionMessages[reg.intNumber]);
-    printString("\n");
+    if (reg.intNumber != 6)
+    {
+        printString("Interrupt received\n");
+        printInt(reg.intNumber);
+        printString("\n");
+        printString(exceptionMessages[reg.intNumber]);
+        printString("\n");
+    }
 }
 
 // registerInterruptHandler assigns a given isr (set of registers) to the given position in
@@ -144,7 +149,7 @@ void registerInterruptHandler(unsigned char n, isr handler)
     interruptHandlers[n] = handler;
 }
 
-// irqHandler send the EOI command for a given interrupt and calls the appropriate handler function
+// irqHandler sends the EOI command for a given interrupt and calls the appropriate handler function
 // for the given irq
 void irqHandler(struct registers r)
 {

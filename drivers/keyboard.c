@@ -1,6 +1,7 @@
 #include "../kernel/I_O_asm_helpers.h"
 #include "screen.h"
 #include "keyboard.h"
+#include "../cpu/isr.h"
 
 void testController()
 {
@@ -65,6 +66,43 @@ void testPS2Controller()
   testPort2();
 }
 
+// applyKeyPress prints the corresponding character for a given key code.
+void applyKeyPress(int keyCode)
+{
+  switch (keyCode)
+  {
+  case 0x12:
+    print_char('E', 0);
+    break;
+  case 0x20:
+    print_char('D', 0);
+    break;
+  case 0x10:
+    print_char('Q', 0);
+    break;
+  case 0x11:
+    print_char('W', 0);
+    break;
+  case 0x13:
+    print_char('R', 0);
+    break;
+  case 0x14:
+    print_char('T', 0);
+    break;
+  case 0x15:
+    print_char('Y', 0);
+    break;
+  default:
+    break;
+  }
+}
+
+
+void handleKeyInput(struct registers r) {
+  int keyCode = port_byte_in(PS2_DATA_PORT);
+  applyKeyPress(keyCode);
+}
+
 void initPS2Keyboard()
 {
   // Test the controller and ports are working.
@@ -103,111 +141,6 @@ void initPS2Keyboard()
   default:
     printString("Error resetting keyboard\n");
   }
-}
 
-// addToQueue adds the provided key code to the end of command queue.
-void addToQueue(int keyCode, int *front, int *rear, int commandQueue[])
-{
-  if (*rear < QUEUE_SIZE)
-  {
-    if (*front == -1)
-    {
-      *front = 0;
-    }
-    *rear = *rear + 1;
-    commandQueue[*rear] = keyCode;
-  }
-}
-
-// removeFromQueue removes the front element by decreasing the accesible size of the queue.
-void removeFromQueue(int *front)
-{
-  *front = *front + 1;
-}
-
-// pollKeyboard checks the data byte from the keyboard controller and if its not
-// empty adds it to the command queue.
-void pollKeyboard(int *front, int *rear, int commandQueue[])
-{
-  int keyCode = port_byte_in(PS2_DATA_PORT);
-  if (keyCode != 0)
-  {
-    addToQueue(keyCode, front, rear, commandQueue);
-  }
-}
-
-// applyKeyPress prints the corresponding character for a given key code.
-void applyKeyPress(int keyCode)
-{
-  switch (keyCode)
-  {
-  case 0x12:
-    print_char('E', 0);
-    break;
-  case 0x20:
-    print_char('D', 0);
-    break;
-  case 0x10:
-    print_char('Q', 0);
-    break;
-  case 0x11:
-    print_char('W', 0);
-    break;
-  case 0x13:
-    print_char('R', 0);
-    break;
-  case 0x14:
-    print_char('T', 0);
-    break;
-  case 0x15:
-    print_char('Y', 0);
-    break;
-  default:
-    break;
-  }
-}
-
-// handleKeyPress applys the keyCode at the front of the queue then removes it from
-// the queue.
-void handleKeyPress(int *front, int *rear, int commandQueue[])
-{
-  if (*front != -1 && *rear >= *front)
-  {
-    applyKeyPress(commandQueue[*front]);
-    if (commandQueue[*front] != 0)
-    {
-      removeFromQueue(front);
-    }
-  }
-}
-
-// resetCommandQueue fills the command queue with zeros and sets the start and end
-// indices back to -1.
-void resetCommandQueue(int *front, int *rear, int commandQueue[])
-{
-  for (int i = 0; i < QUEUE_SIZE; i++)
-  {
-    commandQueue[i] = 0;
-  }
-  *front = -1;
-  *rear = -1;
-}
-
-// handleKeyboardInput polls the keyboard to create a queue of keyboard commands
-// which are then translated to a character to print.
-void handleKeyboardInput()
-{
-  int commandQueue[QUEUE_SIZE] = {0};
-  int queueFront = -1;
-  int queueRear = -1;
-
-  while (1)
-  {
-    pollKeyboard(&queueFront, &queueRear, commandQueue);
-    handleKeyPress(&queueFront, &queueRear, commandQueue);
-    if (queueRear == QUEUE_SIZE)
-    {
-      resetCommandQueue(&queueFront, &queueRear, commandQueue);
-    }
-  }
+  registerInterruptHandler(33, handleKeyInput);
 }
