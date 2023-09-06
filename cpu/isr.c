@@ -2,7 +2,7 @@
 #include "isr.h"
 #include "../drivers/screen.h"
 
-isr interruptHandlers[256];
+irq interruptHandlers[256];
 
 // set each entry in the idt individually;
 void isrInstall()
@@ -144,7 +144,7 @@ void isrHandler(struct registers reg)
 
 // registerInterruptHandler assigns a given isr (set of registers) to the given position in
 // the array of interrupt handlers
-void registerInterruptHandler(unsigned char n, isr handler)
+void registerInterruptHandler(unsigned char n, irq handler)
 {
     interruptHandlers[n] = handler;
 }
@@ -157,7 +157,7 @@ void irqHandler(struct registers r)
 
     if (interruptHandlers[r.intNumber] != 0)
     {
-        isr handler = interruptHandlers[r.intNumber];
+        irq handler = interruptHandlers[r.intNumber];
         handler(r);
     }
 }
