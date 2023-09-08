@@ -94,6 +94,8 @@ char *exceptionMessages[] = {
     "Breakpoint",
     "Into Detected Overflow",
     "Out of Bounds",
+    // TODO: FIgure out whats causing the spam of invalid opcode
+    // when interrupts arent masked.
     "Invalid Opcode",
     "No Coprocessor",
 
