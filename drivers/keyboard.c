@@ -17,7 +17,6 @@ void testController()
     break;
   default:
     printString("Controller failed with unexpected result\n");
-    printInt(testResult);
     break;
   }
 }
@@ -105,11 +104,18 @@ void handleKeyInput(struct registers r) {
 
 void initPS2Keyboard()
 {
-  // Test the controller and ports are working.
-  testPS2Controller();
+
+  // Disable first ps/2 port.
+  port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAD);
 
   // Disable second ps/2 port.
   port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xA7);
+
+  // flush output buffer
+  port_byte_in(PS2_DATA_PORT);
+  
+  // Test the controller and ports are working.
+  testPS2Controller();
 
   // Enable first ps/2 port.
   port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAE);
@@ -142,5 +148,18 @@ void initPS2Keyboard()
     printString("Error resetting keyboard\n");
   }
 
-  registerInterruptHandler(33, handleKeyInput);
+  int enableScanningResponse = sendCommand(0xF4, PS2_DATA_PORT, PS2_DATA_PORT);
+  switch (enableScanningResponse)
+  {
+  case 0xFA:
+    printString("Keyboard scanning enabled\n");
+    break;
+  case 0:
+    printString("Keyboard not found (empty response)\n");
+    break;
+  default:
+    printString("Error enabling keyboard scanning\n");
+  }
+
+  // registerInterruptHandler(33, handleKeyInput);
 }

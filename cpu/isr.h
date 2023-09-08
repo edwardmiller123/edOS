@@ -71,16 +71,18 @@ struct registers {
   unsigned int eip, cs, eflags, useresp, ss;
 };
 
+void testInterruptHandler(struct registers r);
+
 void isrInstall();
 
 void PICsendEOI(unsigned char irq);
 
 void isrHandler(struct registers reg);
 
-// isr is a pointer to an irq handler function that takes a registers and returns nothing.
-typedef void (*irq)(struct registers);
+// intHndlr is a pointer to an interrupt handler function that takes a registers and returns nothing.
+typedef void (*intHdlr)(struct registers);
 
-void registerInterruptHandler(unsigned char n, irq handler);
+void registerInterruptHandler(unsigned char n, intHdlr handler);
 
 void irqHandler(struct registers r);
 

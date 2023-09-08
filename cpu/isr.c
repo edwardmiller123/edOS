@@ -2,7 +2,12 @@
 #include "isr.h"
 #include "../drivers/screen.h"
 
-irq interruptHandlers[256];
+intHdlr interruptHandlers[256];
+
+void testInterruptHandler(struct registers r)
+{
+    printString("TEST\n");
+}
 
 // set each entry in the idt individually;
 void isrInstall()
@@ -54,8 +59,10 @@ void isrInstall()
     port_byte_out(MASTER_PIC_DATA, 0x01);
     port_byte_out(SLAVE_PIC_DATA, 0x01);
 
-    port_byte_out(MASTER_PIC_DATA, 0x0);
-    port_byte_out(SLAVE_PIC_DATA, 0x0);
+    // Interrupt masking. Here we are masking all interrupts except irq1.
+    // ~ flips all the bits i.e 00 -> 11 etc
+    port_byte_out(MASTER_PIC_DATA, ~0x2);
+    port_byte_out(SLAVE_PIC_DATA, ~0x0);
 
     // Install the IRQs
     setIDTEntry(32, (unsigned int)irq0);
@@ -76,8 +83,8 @@ void isrInstall()
     setIDTEntry(47, (unsigned int)irq15);
 
     setIdt(); // Load with ASM
+    registerInterruptHandler(33, testInterruptHandler);
 }
-
 // various exception messages for each interrupt.
 // just copied from internet as these are standard errors.
 char *exceptionMessages[] = {
@@ -131,20 +138,16 @@ void PICsendEOI(unsigned char irq)
 // isrHandler prints the corresponding message for the given interrupt
 void isrHandler(struct registers reg)
 {
-    PICsendEOI(reg.intNumber);
-    if (reg.intNumber != 6)
-    {
-        printString("Interrupt received\n");
-        printInt(reg.intNumber);
-        printString("\n");
-        printString(exceptionMessages[reg.intNumber]);
-        printString("\n");
-    }
+    printString("Interrupt received\n");
+    printInt(reg.intNumber);
+    printString("\n");
+    printString(exceptionMessages[reg.intNumber]);
+    printString("\n");
 }
 
 // registerInterruptHandler assigns a given isr (set of registers) to the given position in
 // the array of interrupt handlers
-void registerInterruptHandler(unsigned char n, irq handler)
+void registerInterruptHandler(unsigned char n, intHdlr handler)
 {
     interruptHandlers[n] = handler;
 }
@@ -154,10 +157,9 @@ void registerInterruptHandler(unsigned char n, irq handler)
 void irqHandler(struct registers r)
 {
     PICsendEOI(r.intNumber);
-
     if (interruptHandlers[r.intNumber] != 0)
     {
-        irq handler = interruptHandlers[r.intNumber];
+        intHdlr handler = interruptHandlers[r.intNumber];
         handler(r);
     }
 }
