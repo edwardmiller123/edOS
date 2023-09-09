@@ -94,6 +94,8 @@ unsigned char keyCodeToAscii(int keyCode, int heldKey)
       return 'I';
     case 0x18:
       return 'O';
+    case 0x19:
+      return 'P';
     case 0x1A:
       return '{';
     case 0x1B:
@@ -160,6 +162,8 @@ unsigned char keyCodeToAscii(int keyCode, int heldKey)
       return 'i';
     case 0x18:
       return 'o';
+    case 0x19:
+      return 'p';
     case 0x1A:
       return '[';
     case 0x1B:
