@@ -4,10 +4,10 @@
 
 void main()
 {
-  // set up the idt
+  // set up interrupt handling
   isrInstall();
   clear_screen();
-  print_string_at("edOS.v0.2\n", 0, 0);
+  print_string_at("edOS.v0.3\n", 0, 0);
   initPS2Keyboard();
 
 }

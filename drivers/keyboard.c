@@ -3,6 +3,10 @@
 #include "keyboard.h"
 #include "../cpu/isr.h"
 
+// TODO: This should be a global command queue of keycodes that other things can
+// read from but for now is just for shift key.
+int heldKey;
+
 void testController()
 {
   // test ps2 controller
@@ -65,108 +69,172 @@ void testPS2Controller()
   testPort2();
 }
 
-// printKeyToScreen prints the corresponding character for a given key code.
-void printKeyToScreen(int keyCode)
+unsigned char keyCodeToAscii(int keyCode, int heldKey)
 {
   // Note: this is scan code set 1
-  switch (keyCode)
+  if (heldKey == 0x2A)
   {
-  case 0x10:
-    print_char('Q', 0);
-    break;
-  case 0x11:
-    print_char('W', 0);
-    break;
-  case 0x12:
-    print_char('E', 0);
-    break;
-  case 0x13:
-    print_char('R', 0);
-    break;
-  case 0x14:
-    print_char('T', 0);
-    break;
-  case 0x15:
-    print_char('Y', 0);
-    break;
-  case 0x16:
-    print_char('U', 0);
-    break;
-  case 0x17:
-    print_char('I', 0);
-    break;
-  case 0x18:
-    print_char('O', 0);
-    break;
-  case 0x1A:
-    print_char('[', 0);
-    break;
-  case 0x1B:
-    print_char(']', 0);
-    break;
-  case 0x1C:
-    print_char('\n', 0);
-    break;
-  case 0x1E:
-    print_char('A', 0);
-    break;
-  case 0x1F:
-    print_char('S', 0);
-    break;
-  case 0x20:
-    print_char('D', 0);
-    break;
-  case 0x21:
-    print_char('F', 0);
-    break;
-  case 0x22:
-    print_char('G', 0);
-    break;
-  case 0x23:
-    print_char('H', 0);
-    break;
-  case 0x24:
-    print_char('J', 0);
-    break;
-  case 0x25:
-    print_char('K', 0);
-    break;
-  case 0x26:
-    print_char('L', 0);
-    break;
-  case 0x2C:
-    print_char('Z', 0);
-    break;
-  case 0x2D:
-    print_char('X', 0);
-    break;
-  case 0x2E:
-    print_char('C', 0);
-    break;
-  case 0x2F:
-    print_char('V', 0);
-    break;
-  case 0x30:
-    print_char('B', 0);
-    break;
-  case 0x31:
-    print_char('N', 0);
-    break;
-  case 0x32:
-    print_char('M', 0);
-    break;
-  case 0x39:
-    print_char(' ', 0);
-    break;
-  // backspace
-  case 0x0E:
-    print_char(0x0E, 0);
-    break;
-  default:
-    break;
+    switch (keyCode)
+    {
+    case 0x10:
+      return 'Q';
+    case 0x11:
+      return 'W';
+    case 0x12:
+      return 'E';
+    case 0x13:
+      return 'R';
+    case 0x14:
+      return 'T';
+    case 0x15:
+      return 'Y';
+    case 0x16:
+      return 'U';
+    case 0x17:
+      return 'I';
+    case 0x18:
+      return 'O';
+    case 0x1A:
+      return '{';
+    case 0x1B:
+      return '}';
+    case 0x1C:
+      return '\n';
+    case 0x1E:
+      return 'A';
+    case 0x1F:
+      return 'S';
+    case 0x20:
+      return 'D';
+    case 0x21:
+      return 'F';
+    case 0x22:
+      return 'G';
+    case 0x23:
+      return 'H';
+    case 0x24:
+      return 'J';
+    case 0x25:
+      return 'K';
+    case 0x26:
+      return 'L';
+    case 0x2C:
+      return 'Z';
+    case 0x2D:
+      return 'X';
+    case 0x2E:
+      return 'C';
+    case 0x2F:
+      return 'V';
+    case 0x30:
+      return 'B';
+    case 0x31:
+      return 'N';
+    case 0x32:
+      return 'M';
+    case 0x39:
+      return ' ';
+    default:
+      return 0;
+    }
+  }
+  else
+  {
+    switch (keyCode)
+    {
+    case 0x10:
+      return 'q';
+    case 0x11:
+      return 'w';
+    case 0x12:
+      return 'e';
+    case 0x13:
+      return 'r';
+    case 0x14:
+      return 't';
+    case 0x15:
+      return 'y';
+    case 0x16:
+      return 'u';
+    case 0x17:
+      return 'i';
+    case 0x18:
+      return 'o';
+    case 0x1A:
+      return '[';
+    case 0x1B:
+      return ']';
+    case 0x1C:
+      return '\n';
+    case 0x1E:
+      return 'a';
+    case 0x1F:
+      return 's';
+    case 0x20:
+      return 'd';
+    case 0x21:
+      return 'f';
+    case 0x22:
+      return 'g';
+    case 0x23:
+      return 'h';
+    case 0x24:
+      return 'j';
+    case 0x25:
+      return 'k';
+    case 0x26:
+      return 'l';
+    case 0x2C:
+      return 'z';
+    case 0x2D:
+      return 'x';
+    case 0x2E:
+      return 'c';
+    case 0x2F:
+      return 'v';
+    case 0x30:
+      return 'b';
+    case 0x31:
+      return 'n';
+    case 0x32:
+      return 'm';
+    case 0x39:
+      return ' ';
+    default:
+      return 0;
+    }
   }
 }
 
+// printKeyToScreen prints the corresponding character for a given key code.
+void printKeyToScreen(keyCode)
+{
+  int character;
+  switch (keyCode)
+  {
+  case 0x0E:
+    // backspace
+    character = 0x0E;
+    break;
+  case 0x2A:
+    // shiftKey
+    heldKey = 0x2A;
+    break;
+  case 0xAA:
+    // shiftKey released
+    heldKey = 0xAA;
+    break;
+  default:
+    character = keyCodeToAscii(keyCode, heldKey);
+  }
+  if (character != 0)
+  {
+    print_char(character, 0);
+  }
+}
+
+// handleKeyboardInput reads the keyboard data port and prints the corresponding character
+// to the screen.
 void handleKeyboardInput(struct registers r)
 {
   int keyCode = port_byte_in(PS2_DATA_PORT);
@@ -189,21 +257,7 @@ void initPS2Keyboard()
   // Enable first ps/2 port.
   port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAE);
 
-  // Disable keyboard scanning.
-  int disableScanningResponse = sendCommand(0xF5, PS2_DATA_PORT, PS2_DATA_PORT);
-  switch (disableScanningResponse)
-  {
-  case 0xFA:
-    printString("Keyboard scanning disabled\n");
-    break;
-  case 0:
-    printString("Keyboard not found (empty response)\n");
-    break;
-  default:
-    printString("Error disabling scan codes\n");
-  }
-
-  // flushoutput buffer
+  // flush output buffer
   port_byte_in(PS2_DATA_PORT);
 
   // Reset keyboard

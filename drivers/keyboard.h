@@ -20,6 +20,8 @@ void testPort2();
 // testPS2Controller runs a simple test to see if the ps2 controller is working.
 void testPS2Controller();
 
+unsigned char keyCodeToAscii(int keyCode, int heldKey);
+
 // applyKeyPress prints the corresponding character for a given key code.
 void printKeyToScreen(int keyCode);
 
