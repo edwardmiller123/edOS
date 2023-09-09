@@ -87,15 +87,19 @@ void print_char(char character, char attribute_byte)
   {
     int rows = cursorAddress / (2 * MAX_COLS);
     cursorAddress = cell_to_mem_address(79, rows);
-  }
-  else
-  {
+  } else if (character != 0x0E) {
     videoMemory[cursorAddress] = character;
     videoMemory[cursorAddress + 1] = attribute_byte;
   }
 
-  // update the screen address to the next character cell.
-  cursorAddress += 2;
+  // update the screen address to the next character cell unless its a backspace.
+  if (character != 0x0E ) {
+    cursorAddress += 2;
+  } else {
+    cursorAddress -= 2;
+    videoMemory[cursorAddress] = ' ';
+    videoMemory[cursorAddress + 1] = attribute_byte;
+  }
 
   // Check to see if we have reached the bottom of the srceen and if so
   // scroll it.
@@ -113,7 +117,7 @@ void print_char_at(char character, int col, int row, char attribute_byte)
   if (col > 0 && row > 0)
   {
     screenAddress = cell_to_mem_address(col, row);
-    set_cursor(cell_to_mem_address(col, row));
+    set_cursor(screenAddress);
   }
   print_char(character, attribute_byte);
 }

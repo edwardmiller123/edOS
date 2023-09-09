@@ -68,10 +68,11 @@ void testPS2Controller()
 // printKeyToScreen prints the corresponding character for a given key code.
 void printKeyToScreen(int keyCode)
 {
+  // Note: this is scan code set 1
   switch (keyCode)
   {
   case 0x10:
-    print_char('Q', 1);
+    print_char('Q', 0);
     break;
   case 0x11:
     print_char('W', 0);
@@ -157,6 +158,10 @@ void printKeyToScreen(int keyCode)
   case 0x39:
     print_char(' ', 0);
     break;
+  // backspace
+  case 0x0E:
+    print_char(0x0E, 0);
+    break;
   default:
     break;
   }
@@ -197,6 +202,9 @@ void initPS2Keyboard()
   default:
     printString("Error disabling scan codes\n");
   }
+
+  // flushoutput buffer
+  port_byte_in(PS2_DATA_PORT);
 
   // Reset keyboard
   int resetResponse = sendCommand(0xFF, PS2_DATA_PORT, PS2_DATA_PORT);
