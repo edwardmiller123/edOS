@@ -4,11 +4,6 @@
 
 intHdlr interruptHandlers[256];
 
-void testInterruptHandler(struct registers r)
-{
-    printString("TEST\n");
-}
-
 // set each entry in the idt individually;
 void isrInstall()
 {
@@ -83,7 +78,6 @@ void isrInstall()
     setIDTEntry(47, (unsigned int)irq15);
 
     setIdt(); // Load with ASM
-    registerInterruptHandler(33, testInterruptHandler);
 }
 // various exception messages for each interrupt.
 // just copied from internet as these are standard errors.
@@ -128,7 +122,7 @@ char *exceptionMessages[] = {
 
 // PICsendEOI sends the end of interrupt command for a given interrupt. If the interrupt was handled
 // by the slave (irq > 7) then we must send the command to both the master and slave.
-void PICsendEOI(unsigned char irq)
+void PICsendEOI(unsigned int irq)
 {
     if (irq >= 8)
     {
@@ -158,10 +152,10 @@ void registerInterruptHandler(unsigned char n, intHdlr handler)
 // for the given irq
 void irqHandler(struct registers r)
 {
-    PICsendEOI(r.intNumber);
     if (interruptHandlers[r.intNumber] != 0)
     {
         intHdlr handler = interruptHandlers[r.intNumber];
         handler(r);
     }
+    PICsendEOI(r.intNumber);
 }

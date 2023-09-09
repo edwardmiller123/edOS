@@ -75,7 +75,7 @@ void testInterruptHandler(struct registers r);
 
 void isrInstall();
 
-void PICsendEOI(unsigned char irq);
+void PICsendEOI(unsigned int irq);
 
 void isrHandler(struct registers reg);
 

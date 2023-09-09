@@ -104,7 +104,8 @@ void handleKeyInput(struct registers r) {
 
 void initPS2Keyboard()
 {
-
+  registerInterruptHandler(33, handleKeyInput);
+  
   // Disable first ps/2 port.
   port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAD);
 
@@ -160,6 +161,4 @@ void initPS2Keyboard()
   default:
     printString("Error enabling keyboard scanning\n");
   }
-
-  // registerInterruptHandler(33, handleKeyInput);
 }
