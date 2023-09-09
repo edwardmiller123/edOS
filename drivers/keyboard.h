@@ -21,9 +21,9 @@ void testPort2();
 void testPS2Controller();
 
 // applyKeyPress prints the corresponding character for a given key code.
-void applyKeyPress(int keyCode);
+void printKeyToScreen(int keyCode);
 
-void handleKeyInput(struct registers r);
+void handleKeyboardInput(struct registers r);
 
 void initPS2Keyboard();
 

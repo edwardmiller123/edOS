@@ -65,22 +65,19 @@ void testPS2Controller()
   testPort2();
 }
 
-// applyKeyPress prints the corresponding character for a given key code.
-void applyKeyPress(int keyCode)
+// printKeyToScreen prints the corresponding character for a given key code.
+void printKeyToScreen(int keyCode)
 {
   switch (keyCode)
   {
-  case 0x12:
-    print_char('E', 0);
-    break;
-  case 0x20:
-    print_char('D', 0);
-    break;
   case 0x10:
-    print_char('Q', 0);
+    print_char('Q', 1);
     break;
   case 0x11:
     print_char('W', 0);
+    break;
+  case 0x12:
+    print_char('E', 0);
     break;
   case 0x13:
     print_char('R', 0);
@@ -91,21 +88,90 @@ void applyKeyPress(int keyCode)
   case 0x15:
     print_char('Y', 0);
     break;
+  case 0x16:
+    print_char('U', 0);
+    break;
+  case 0x17:
+    print_char('I', 0);
+    break;
+  case 0x18:
+    print_char('O', 0);
+    break;
+  case 0x1A:
+    print_char('[', 0);
+    break;
+  case 0x1B:
+    print_char(']', 0);
+    break;
+  case 0x1C:
+    print_char('\n', 0);
+    break;
+  case 0x1E:
+    print_char('A', 0);
+    break;
+  case 0x1F:
+    print_char('S', 0);
+    break;
+  case 0x20:
+    print_char('D', 0);
+    break;
+  case 0x21:
+    print_char('F', 0);
+    break;
+  case 0x22:
+    print_char('G', 0);
+    break;
+  case 0x23:
+    print_char('H', 0);
+    break;
+  case 0x24:
+    print_char('J', 0);
+    break;
+  case 0x25:
+    print_char('K', 0);
+    break;
+  case 0x26:
+    print_char('L', 0);
+    break;
+  case 0x2C:
+    print_char('Z', 0);
+    break;
+  case 0x2D:
+    print_char('X', 0);
+    break;
+  case 0x2E:
+    print_char('C', 0);
+    break;
+  case 0x2F:
+    print_char('V', 0);
+    break;
+  case 0x30:
+    print_char('B', 0);
+    break;
+  case 0x31:
+    print_char('N', 0);
+    break;
+  case 0x32:
+    print_char('M', 0);
+    break;
+  case 0x39:
+    print_char(' ', 0);
+    break;
   default:
     break;
   }
 }
 
-
-void handleKeyInput(struct registers r) {
+void handleKeyboardInput(struct registers r)
+{
   int keyCode = port_byte_in(PS2_DATA_PORT);
-  applyKeyPress(keyCode);
+  printKeyToScreen(keyCode);
 }
 
 void initPS2Keyboard()
 {
-  registerInterruptHandler(33, handleKeyInput);
-  
+  registerInterruptHandler(33, handleKeyboardInput);
+
   // Disable first ps/2 port.
   port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAD);
 
@@ -114,7 +180,7 @@ void initPS2Keyboard()
 
   // flush output buffer
   port_byte_in(PS2_DATA_PORT);
-  
+
   // Test the controller and ports are working.
   testPS2Controller();
 

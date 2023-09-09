@@ -40,7 +40,7 @@ void isrInstall()
     setIDTEntry(30, (unsigned int)isr30);
     setIDTEntry(31, (unsigned int)isr31);
 
-    // In protected mode we need to remap the PIC as IRQ (hardware interrupts) 0 - 7 overlap with the
+    // In protected mode we need to remap the PIC as IRQ's (hardware interrupts) 0 - 7 overlap with the
     // default cpu exceptions
 
     port_byte_out(MASTER_PIC_COMMAND, 0x11);
