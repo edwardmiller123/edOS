@@ -136,8 +136,6 @@ unsigned char keyCodeToAscii(int keyCode, int heldKey)
       return 'M';
     case 0x39:
       return ' ';
-    default:
-      return 0;
     }
   }
   else
@@ -204,10 +202,9 @@ unsigned char keyCodeToAscii(int keyCode, int heldKey)
       return 'm';
     case 0x39:
       return ' ';
-    default:
-      return 0;
     }
   }
+  return 0;
 }
 
 // printKeyToScreen prints the corresponding character for a given key code.
