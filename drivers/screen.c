@@ -43,26 +43,29 @@ void set_cursor(int newCursorAddress)
 
 // handleScreenScroll checks if the provided cursor address is on screen and if not
 // scrolls the screen down by one line.
-int handleScreenScroll(int cursorAddress) {
+int handleScreenScroll(int cursorAddress)
+{
   // If the currentAddress about to be accessed is on screen then leave
   // it unmodifed.
-  if (cursorAddress < MAX_ROWS * MAX_COLS * 2) {
+  if (cursorAddress < MAX_ROWS * MAX_COLS * 2)
+  {
     return cursorAddress;
   }
 
-  // Copy each line to the line above. 
-  for (int i = 0; i < MAX_ROWS; i++) {
+  // Copy each line to the line above.
+  for (int i = 0; i < MAX_ROWS; i++)
+  {
     memoryCopy(
-      (char*)(cell_to_mem_address(0, i) + VIDEO_MEMORY_START),
-      (char*)(cell_to_mem_address(0, i - 1) + VIDEO_MEMORY_START),
-      MAX_COLS * 2
-    );
+        (char *)(cell_to_mem_address(0, i) + VIDEO_MEMORY_START),
+        (char *)(cell_to_mem_address(0, i - 1) + VIDEO_MEMORY_START),
+        MAX_COLS * 2);
   }
 
   // Clear the last line for printing too.
-  char * lastLine = (char*)(cell_to_mem_address(0, MAX_ROWS - 1) + VIDEO_MEMORY_START);
-  for (int i = 0; i < MAX_COLS * 2; i++) {
-    *(char*)(lastLine[i]) = 0;
+  char *lastLine = (char *)(cell_to_mem_address(0, MAX_ROWS - 1) + VIDEO_MEMORY_START);
+  for (int i = 0; i < MAX_COLS * 2; i++)
+  {
+    *(char *)(lastLine[i]) = 0;
   }
 
   // Finally move the cursor back one row
@@ -82,23 +85,36 @@ void print_char(char character, char attribute_byte)
 
   int cursorAddress = get_cursor();
 
+  int isBackspace = 0;
+
+  // handle a backspace
+  if (character == 0x0E)
+  {
+    isBackspace = 1;
+    // check we arent about to go off the edge of the back of the screen
+    if (cursorAddress != cell_to_mem_address(0, 0))
+    {
+      cursorAddress -= 2;
+    }
+    character = ' ';
+  }
+
   // Move to the start of the next row for a new line character
   if (character == '\n')
   {
     int rows = cursorAddress / (2 * MAX_COLS);
     cursorAddress = cell_to_mem_address(79, rows);
-  } else if (character != 0x0E) {
+  }
+  else
+  {
     videoMemory[cursorAddress] = character;
     videoMemory[cursorAddress + 1] = attribute_byte;
   }
 
   // update the screen address to the next character cell unless its a backspace.
-  if (character != 0x0E ) {
+  if (!isBackspace)
+  {
     cursorAddress += 2;
-  } else {
-    cursorAddress -= 2;
-    videoMemory[cursorAddress] = ' ';
-    videoMemory[cursorAddress + 1] = attribute_byte;
   }
 
   // Check to see if we have reached the bottom of the srceen and if so
