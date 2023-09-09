@@ -207,7 +207,7 @@ unsigned char keyCodeToAscii(int keyCode, int heldKey)
 }
 
 // printKeyToScreen prints the corresponding character for a given key code.
-void printKeyToScreen(keyCode)
+void printKeyToScreen(int keyCode)
 {
   int character;
   switch (keyCode)
