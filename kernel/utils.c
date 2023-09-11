@@ -1,13 +1,15 @@
-// memoryCopy takes the data stored at the source address and copies 
+// memoryCopy takes the data stored at the source address and copies
 // it to the destination address.
-void memoryCopy(char * source, char * destination, int numberOfBytes) {
-  for (int i = 0; i < numberOfBytes; i++) {
+void memoryCopy(char *source, char *destination, int numberOfBytes)
+{
+  for (int i = 0; i < numberOfBytes; i++)
+  {
     *(destination + i) = *(source + i);
   }
 }
 
 // intToString converts a base 10 integer to a string.
-char * intToString(int integer)
+char *intToString(int integer)
 {
   char *reverseString;
   char *resultString;
@@ -36,15 +38,28 @@ char * intToString(int integer)
   return resultString;
 }
 
-char * reverseString(char * str) {
-  
+// reverseString returns the reverse of the provided string.
+char * reverseString(char *str)
+{
+  int i;
+  int j = strLen(str);
+  char *newStr;
+  while (i < strLen(str))
+  {
+    newStr[i] = str[j - 1];
+    j--;
+    i++;
+  }
+  return newStr;
 }
 
 // strLen returns the length of the provided string
-int strLen(char * str) {
+int strLen(char *str)
+{
   int length = 0;
   char stopCharacter = str[length];
-  while (stopCharacter != '\0')  {
+  while (stopCharacter != '\0')
+  {
     length++;
     stopCharacter = str[length];
   }
