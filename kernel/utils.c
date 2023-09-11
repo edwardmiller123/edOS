@@ -1,4 +1,3 @@
-
 // memoryCopy takes the data stored at the source address and copies 
 // it to the destination address.
 void memoryCopy(char * source, char * destination, int numberOfBytes) {
@@ -35,4 +34,19 @@ char * intToString(int integer)
   }
 
   return resultString;
+}
+
+char * reverseString(char * str) {
+  
+}
+
+// strLen returns the length of the provided string
+int strLen(char * str) {
+  int length = 0;
+  char stopCharacter = str[length];
+  while (stopCharacter != '\0')  {
+    length++;
+    stopCharacter = str[length];
+  }
+  return length;
 }

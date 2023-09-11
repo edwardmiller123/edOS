@@ -65,7 +65,6 @@ void irqInstall() {
 // initPIC initialises the idt and remaps te pic to accept irq's.
 void initPIC() {
     
-    isrInstall();
 
     // In protected mode we need to remap the PIC as IRQ's (hardware interrupts) 0 - 7 overlap with the
     // default cpu exceptions
@@ -86,6 +85,7 @@ void initPIC() {
     port_byte_out(MASTER_PIC_DATA, ~0x2);
     port_byte_out(SLAVE_PIC_DATA, ~0x0);
 
+    isrInstall();
     irqInstall();
 
     setIdt(); 
