@@ -4,7 +4,7 @@
 
 intHdlr interruptHandlers[256];
 
-// set each entry in the idt individually;
+// isrInstall assigns each isr to an entry in the idt.
 void isrInstall()
 {
     setIDTEntry(0, (unsigned int)isr0);
@@ -39,6 +39,33 @@ void isrInstall()
     setIDTEntry(29, (unsigned int)isr29);
     setIDTEntry(30, (unsigned int)isr30);
     setIDTEntry(31, (unsigned int)isr31);
+}
+
+// irqInstall assigns each isr to an entry in the idt.
+void irqInstall() {
+    // Install the IRQs
+    setIDTEntry(32, (unsigned int)irq0);
+    setIDTEntry(33, (unsigned int)irq1);
+    setIDTEntry(34, (unsigned int)irq2);
+    setIDTEntry(35, (unsigned int)irq3);
+    setIDTEntry(36, (unsigned int)irq4);
+    setIDTEntry(37, (unsigned int)irq5);
+    setIDTEntry(38, (unsigned int)irq6);
+    setIDTEntry(39, (unsigned int)irq7);
+    setIDTEntry(40, (unsigned int)irq8);
+    setIDTEntry(41, (unsigned int)irq9);
+    setIDTEntry(42, (unsigned int)irq10);
+    setIDTEntry(43, (unsigned int)irq11);
+    setIDTEntry(44, (unsigned int)irq12);
+    setIDTEntry(45, (unsigned int)irq13);
+    setIDTEntry(46, (unsigned int)irq14);
+    setIDTEntry(47, (unsigned int)irq15);
+}
+
+// initPIC initialises the idt and remaps te pic to accept irq's.
+void initPIC() {
+    
+    isrInstall();
 
     // In protected mode we need to remap the PIC as IRQ's (hardware interrupts) 0 - 7 overlap with the
     // default cpu exceptions
@@ -59,26 +86,11 @@ void isrInstall()
     port_byte_out(MASTER_PIC_DATA, ~0x2);
     port_byte_out(SLAVE_PIC_DATA, ~0x0);
 
-    // Install the IRQs
-    setIDTEntry(32, (unsigned int)irq0);
-    setIDTEntry(33, (unsigned int)irq1);
-    setIDTEntry(34, (unsigned int)irq2);
-    setIDTEntry(35, (unsigned int)irq3);
-    setIDTEntry(36, (unsigned int)irq4);
-    setIDTEntry(37, (unsigned int)irq5);
-    setIDTEntry(38, (unsigned int)irq6);
-    setIDTEntry(39, (unsigned int)irq7);
-    setIDTEntry(40, (unsigned int)irq8);
-    setIDTEntry(41, (unsigned int)irq9);
-    setIDTEntry(42, (unsigned int)irq10);
-    setIDTEntry(43, (unsigned int)irq11);
-    setIDTEntry(44, (unsigned int)irq12);
-    setIDTEntry(45, (unsigned int)irq13);
-    setIDTEntry(46, (unsigned int)irq14);
-    setIDTEntry(47, (unsigned int)irq15);
+    irqInstall();
 
-    setIdt(); // Load with ASM
+    setIdt(); 
 }
+
 // various exception messages for each interrupt.
 // just copied from internet as these are standard errors.
 char *exceptionMessages[] = {
@@ -88,7 +100,7 @@ char *exceptionMessages[] = {
     "Breakpoint",
     "Into Detected Overflow",
     "Out of Bounds",
-    // TODO: FIgure out whats causing the spam of invalid opcode
+    // TODO: Figure out whats causing the spam of invalid opcode
     // when interrupts arent masked.
     "Invalid Opcode",
     "No Coprocessor",
