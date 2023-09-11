@@ -73,6 +73,23 @@ int handleScreenScroll(int cursorAddress)
   return cursorAddress;
 }
 
+// moveCursor moves the cursor in the corresponding diraction for the given
+// argument. 0: left, 1: right, 2: up, 3: down.
+// TODO: Implement up and down.
+void moveCursor(int direction) {
+  int cursorAddress = get_cursor();
+  switch (direction) {
+    case 0:
+      cursorAddress += 2;
+      break;
+    case 1:
+      cursorAddress -= 2;
+      break;
+  }
+  cursorAddress = handleScreenScroll(cursorAddress);
+  set_cursor(cursorAddress);
+}
+
 // print_char takes a character and prints it at the current location of the cursor.
 void print_char(char character, char attribute_byte)
 {

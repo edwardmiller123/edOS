@@ -31,6 +31,11 @@ void set_cursor(int newCursorAddress);
 // scrolls the screen down by one line.
 int handleScreenScroll(int cursorAddress);
 
+// moveCursor moves the cursor in the corresponding diraction for the given
+// argument. 0: left, 1: right, 2: up, 3: down.
+// TODO: Implement up and down.
+void moveCursor(int direction);
+
 // print_char takes a character and prints it at the current location of the cursor.
 void print_char(char character, char attribute_byte);
 
