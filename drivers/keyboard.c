@@ -5,7 +5,10 @@
 
 // TODO: This should be a global command queue of keycodes that other things can
 // read from but for now is just for shift key.
-int heldKey;
+int heldKey, waitingForKeyCode;
+int keyCodeQueue[6];
+int queueFront = 0;
+int queueRear = -1;
 
 void testController()
 {
@@ -210,7 +213,7 @@ unsigned char keyCodeToAscii(int keyCode, int heldKey)
 // printKeyToScreen prints the corresponding character for a given key code.
 void printKeyToScreen(int keyCode)
 {
-  int character;
+  int character = 0;
   switch (keyCode)
   {
   case 0x0E:
@@ -234,11 +237,33 @@ void printKeyToScreen(int keyCode)
   }
 }
 
+// addToQueue adds a new keyCode to the front of the queue
+void addToQueue(int keyCode)
+{
+  if (queueFront <= queueRear && queueRear <= 6)
+  {
+    queueRear++;
+    keyCodeQueue[queueRear] = keyCode;
+  }
+  else
+  {
+    printString("Queue Full\n");
+  }
+}
+
+// resetQueue resets all values in the keycode queue to 0;
+void resetQueue() {
+  for (int i = 0; i < 6; i++) {
+    keyCodeQueue[i] = 0;
+  }
+}
+
 // handleKeyboardInput reads the keyboard data port and prints the corresponding character
 // to the screen.
 void handleKeyboardInput(struct registers r)
 {
   int keyCode = port_byte_in(PS2_DATA_PORT);
+
   printKeyToScreen(keyCode);
 }
 

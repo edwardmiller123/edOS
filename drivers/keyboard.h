@@ -25,6 +25,12 @@ unsigned char keyCodeToAscii(int keyCode, int heldKey);
 // applyKeyPress prints the corresponding character for a given key code.
 void printKeyToScreen(int keyCode);
 
+// addToQueue adds a new keyCode to the front of the queue
+void addToQueue(int keyCode);
+
+// resetQueue resets all values in the keycode queue to 0;
+void resetQueue()
+
 void handleKeyboardInput(struct registers r);
 
 void initPS2Keyboard();
