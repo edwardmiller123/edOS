@@ -3,12 +3,8 @@
 #include "keyboard.h"
 #include "../cpu/isr.h"
 
-// TODO: This should be a global command queue of keycodes that other things can
-// read from but for now is just for shift key.
-int heldKey, waitingForKeyCode;
+int heldKey, queuePosition, waitingForKeyCode;
 int keyCodeQueue[6];
-int queueFront = 0;
-int queueRear = -1;
 
 void testController()
 {
@@ -210,27 +206,37 @@ unsigned char keyCodeToAscii(int keyCode, int heldKey)
   return 0;
 }
 
-// printKeyToScreen prints the corresponding character for a given key code.
-void printKeyToScreen(int keyCode)
+// keycodesToActions translates a given set of keycodes to a command for the screen.
+void keycodesToActions(int keyCodes[6])
 {
   int character = 0;
-  switch (keyCode)
+  character = keyCodeToAscii(keyCodes[0], heldKey);
+  if (compareIntArrays(keyCodes, (int[]){0x0E, 0, 0, 0, 0, 0}, 6))
   {
-  case 0x0E:
     // backspace
     character = 0x0E;
-    break;
-  case 0x2A:
+  }
+  else if (compareIntArrays(keyCodes, (int[]){0x2A, 0, 0, 0, 0, 0}, 6))
+  {
     // shiftKey
     heldKey = 0x2A;
-    break;
-  case 0xAA:
+  }
+  else if (compareIntArrays(keyCodes, (int[]){0xAA, 0, 0, 0, 0, 0}, 6))
+  {
     // shiftKey released
     heldKey = 0xAA;
-    break;
-  default:
-    character = keyCodeToAscii(keyCode, heldKey);
   }
+  else if (compareIntArrays(keyCodes, (int[]){0xE0, 0x4D, 0, 0, 0, 0}, 6))
+  {
+    // cursor right
+    moveCursor(1);
+  }
+  else if (compareIntArrays(keyCodes, (int[]){0xE0, 0x4B, 0, 0, 0, 0}, 6))
+  {
+    // cursor left
+    moveCursor(0);
+  }
+
   if (character != 0)
   {
     print_char(character, 0);
@@ -240,31 +246,54 @@ void printKeyToScreen(int keyCode)
 // addToQueue adds a new keyCode to the front of the queue
 void addToQueue(int keyCode)
 {
-  if (queueFront <= queueRear && queueRear <= 6)
+  if (queuePosition <= 6)
   {
-    queueRear++;
-    keyCodeQueue[queueRear] = keyCode;
+    keyCodeQueue[queuePosition] = keyCode;
+    queuePosition++;
   }
   else
   {
+    // Not strictly nessecary but catches index out of bounds errors.
     printString("Queue Full\n");
+    resetQueue();
   }
 }
 
 // resetQueue resets all values in the keycode queue to 0;
-void resetQueue() {
-  for (int i = 0; i < 6; i++) {
+void resetQueue()
+{
+  for (int i = 0; i < 6; i++)
+  {
     keyCodeQueue[i] = 0;
   }
+  queuePosition = 0;
+  waitingForKeyCode = 0;
 }
 
-// handleKeyboardInput reads the keyboard data port and prints the corresponding character
-// to the screen.
+// handleKeyboardInput reads the keyboard data port and applys the corresponding action.
 void handleKeyboardInput(struct registers r)
 {
   int keyCode = port_byte_in(PS2_DATA_PORT);
+  if (keyCode != 0)
+  {
+    addToQueue(keyCode);
+  }
+  // TODO: make a seperate chanegState function
+  if (keyCode == 0xE0)
+  {
+    waitingForKeyCode = 1;
+  }
 
-  printKeyToScreen(keyCode);
+  if (keyCode == 0x4B || keyCode == 0x4D)
+  {
+    waitingForKeyCode = 0;
+  }
+
+  keycodesToActions(keyCodeQueue);
+  if (waitingForKeyCode == 0)
+  {
+    resetQueue();
+  }
 }
 
 void initPS2Keyboard()
@@ -299,4 +328,6 @@ void initPS2Keyboard()
   default:
     printString("Error resetting keyboard\n");
   }
+
+  resetQueue();
 }
