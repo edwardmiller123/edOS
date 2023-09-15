@@ -39,7 +39,7 @@ char *intToString(int integer)
 }
 
 // reverseString returns the reverse of the provided string.
-char * reverseString(char *str)
+char *reverseString(char *str)
 {
   int i;
   int j = strLen(str);
@@ -64,4 +64,18 @@ int strLen(char *str)
     stopCharacter = str[length];
   }
   return length;
+}
+
+// compareIntArrays compares two, integer, arrays of the same length and returns true if
+// all elements in array1 are equal to those of array2.S
+int compareIntArrays(int array1[], int array2[], int arrayLengths)
+{
+  for (int i = 0; i < arrayLengths; i++)
+  {
+    if (array1[i] != array2[i])
+    {
+      return 0;
+    }
+  }
+  return 1;
 }

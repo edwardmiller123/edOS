@@ -12,4 +12,6 @@ char * reverseString(char * str);
 
 int strLen(char * str);
 
+int compareIntArrays(int array1[], int array2[], int arrayLengths);
+
 #endif
