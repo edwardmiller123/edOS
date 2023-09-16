@@ -206,40 +206,59 @@ unsigned char keyCodeToAscii(int keyCode, int heldKey)
   return 0;
 }
 
-// keycodesToActions translates a given set of keycodes to a command for the screen.
-void keycodesToActions(int keyCodes[6])
+// singleKeyCodeActions converts single keycode keyboard commands into the correspinding action.
+void singleKeyCodeActions(int keyCode)
 {
   int character = 0;
-  character = keyCodeToAscii(keyCodes[0], heldKey);
-  if (compareIntArrays(keyCodes, (int[]){0x0E, 0, 0, 0, 0, 0}, 6))
+  character = keyCodeToAscii(keyCode, heldKey);
+  switch (keyCode)
   {
+  case 0x0E:
     // backspace
     character = 0x0E;
-  }
-  else if (compareIntArrays(keyCodes, (int[]){0x2A, 0, 0, 0, 0, 0}, 6))
-  {
+    break;
+  case 0x2A:
     // shiftKey
     heldKey = 0x2A;
-  }
-  else if (compareIntArrays(keyCodes, (int[]){0xAA, 0, 0, 0, 0, 0}, 6))
-  {
+    break;
+  case 0xAA:
     // shiftKey released
     heldKey = 0xAA;
+    break;
   }
-  else if (compareIntArrays(keyCodes, (int[]){0xE0, 0x4D, 0, 0, 0, 0}, 6))
+  if (character != 0)
+  {
+    print_char(character, 0);
+  }
+}
+
+// multipleKeyCodeActions converts keyboard commands consistsing of more than one keycode into
+// corresponding actions.
+void multipleKeyCodeActions()
+{
+  if (compareIntArrays(keyCodeQueue, (int[]){0xE0, 0x4D, 0, 0, 0, 0}, 6))
   {
     // cursor left
     moveCursor(0);
   }
-  else if (compareIntArrays(keyCodes, (int[]){0xE0, 0x4B, 0, 0, 0, 0}, 6))
+  else if (compareIntArrays(keyCodeQueue, (int[]){0xE0, 0x4B, 0, 0, 0, 0}, 6))
   {
     // cursor right
     moveCursor(1);
   }
+}
 
-  if (character != 0)
+// keycodesToActions translates a given set of keycodes to a command for the screen.
+void keycodesToActions()
+{
+
+  if (keyCodeQueue[1] == 0)
   {
-    print_char(character, 0);
+    singleKeyCodeActions(keyCodeQueue[0]);
+  }
+  else
+  {
+    multipleKeyCodeActions();
   }
 }
 
@@ -270,6 +289,30 @@ void resetQueue()
   waitingForKeyCode = 0;
 }
 
+// setDriverState tells the driver whether to expect more keycodes based on the last keycode sent
+// by the keyboard.
+void setDriverState(int keyCode)
+{
+  switch (keyCode)
+  {
+  case 0xE0:
+    waitingForKeyCode = 1;
+    break;
+  case 0x4B:
+    waitingForKeyCode = 0;
+    break;
+  case 0x4D:
+    waitingForKeyCode = 0;
+    break;
+  case 0xCB:
+    waitingForKeyCode = 0;
+    break;
+  case 0xCD:
+    waitingForKeyCode = 0;
+    break;
+  }
+}
+
 // handleKeyboardInput reads the keyboard data port and applys the corresponding action.
 void handleKeyboardInput(struct registers r)
 {
@@ -278,16 +321,8 @@ void handleKeyboardInput(struct registers r)
   {
     addToQueue(keyCode);
   }
-  // TODO: make a seperate changeState function
-  if (keyCode == 0xE0)
-  {
-    waitingForKeyCode = 1;
-  }
 
-  if (keyCode == 0x4B || keyCode == 0x4D || keyCode == 0xCB || keyCode == 0xCD)
-  {
-    waitingForKeyCode = 0;
-  }
+  setDriverState(keyCode);
 
   keycodesToActions(keyCodeQueue);
   if (waitingForKeyCode == 0)

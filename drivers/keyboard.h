@@ -22,16 +22,21 @@ void testPS2Controller();
 
 unsigned char keyCodeToAscii(int keyCode, int heldKey);
 
-void keycodesToActions(int keyCodes[6]);
+void singleKeyCodeActions(int keyCode);
 
-// applyKeyPress prints the corresponding character for a given key code.
-void printKeyToScreen(int keyCode);
+void multipleKeyCodeActions();
+
+void keycodesToActions();
 
 // addToQueue adds a new keyCode to the front of the queue
 void addToQueue(int keyCode);
 
 // resetQueue resets all values in the keycode queue to 0;
 void resetQueue();
+
+// setDriverState tells the driver whether to expect more keycodes based on the last keycode sent
+// by the keyboard.
+void setDriverState(int keyCode);
 
 void handleKeyboardInput(struct registers r);
 
