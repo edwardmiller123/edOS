@@ -206,8 +206,8 @@ unsigned char keyCodeToAscii(int keyCode, int heldKey)
   return 0;
 }
 
-// singleKeyCodeActions converts single keycode keyboard commands into the correspinding action.
-void singleKeyCodeActions(int keyCode)
+// singleKeyCodeHandler converts single keycode keyboard commands into the correspinding action.
+void singleKeyCodeHandler(int keyCode)
 {
   int character = 0;
   character = keyCodeToAscii(keyCode, heldKey);
@@ -232,16 +232,38 @@ void singleKeyCodeActions(int keyCode)
   }
 }
 
-// multipleKeyCodeActions converts keyboard commands consistsing of more than one keycode into
-// corresponding actions.
-void multipleKeyCodeActions()
+// trimQueue takes the keyCode queue and returns a new array with only the non 0 values. If there 
+// are none it just returns the queue unchanged.
+int *trimQueue(int keyCodes[6])
 {
-  if (compareIntArrays(keyCodeQueue, (int[]){0xE0, 0x4D, 0, 0, 0, 0}, 6))
+  if (keyCodes[5] == 0)
+  {
+    return keyCodes;
+  }
+
+  int *trimmedQueue;
+  for (int i = 0; i < 6; i++)
+  {
+    if (keyCodes[i] == 0)
+    {
+      break;
+    }
+    trimmedQueue[i] = keyCodes[i];
+  }
+  return trimmedQueue;
+}
+
+// multipleKeyCodeHandler converts keyboard commands consistsing of more than one keycode into
+// corresponding actions.
+void multipleKeyCodeHandler()
+{
+  int *trimmedQueue = trimQueue(keyCodeQueue);
+  if (compareIntArrays(trimmedQueue, (int[]){0xE0, 0x4D}, 2))
   {
     // cursor left
     moveCursor(0);
   }
-  else if (compareIntArrays(keyCodeQueue, (int[]){0xE0, 0x4B, 0, 0, 0, 0}, 6))
+  else if (compareIntArrays(trimmedQueue, (int[]){0xE0, 0x4B}, 2))
   {
     // cursor right
     moveCursor(1);
@@ -254,11 +276,11 @@ void keycodesToActions()
 
   if (keyCodeQueue[1] == 0)
   {
-    singleKeyCodeActions(keyCodeQueue[0]);
+    singleKeyCodeHandler(keyCodeQueue[0]);
   }
   else
   {
-    multipleKeyCodeActions();
+    multipleKeyCodeHandler();
   }
 }
 

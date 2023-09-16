@@ -22,9 +22,11 @@ void testPS2Controller();
 
 unsigned char keyCodeToAscii(int keyCode, int heldKey);
 
-void singleKeyCodeActions(int keyCode);
+void singleKeyCodeHandler(int keyCode);
 
-void multipleKeyCodeActions();
+int * trimQueue(int keyCodes[6]);
+
+void multipleKeyCodeHandler();
 
 void keycodesToActions();
 
