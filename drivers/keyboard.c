@@ -228,13 +228,13 @@ void keycodesToActions(int keyCodes[6])
   }
   else if (compareIntArrays(keyCodes, (int[]){0xE0, 0x4D, 0, 0, 0, 0}, 6))
   {
-    // cursor right
-    moveCursor(1);
+    // cursor left
+    moveCursor(0);
   }
   else if (compareIntArrays(keyCodes, (int[]){0xE0, 0x4B, 0, 0, 0, 0}, 6))
   {
-    // cursor left
-    moveCursor(0);
+    // cursor right
+    moveCursor(1);
   }
 
   if (character != 0)
@@ -278,13 +278,13 @@ void handleKeyboardInput(struct registers r)
   {
     addToQueue(keyCode);
   }
-  // TODO: make a seperate chanegState function
+  // TODO: make a seperate changeState function
   if (keyCode == 0xE0)
   {
     waitingForKeyCode = 1;
   }
 
-  if (keyCode == 0x4B || keyCode == 0x4D)
+  if (keyCode == 0x4B || keyCode == 0x4D || keyCode == 0xCB || keyCode == 0xCD)
   {
     waitingForKeyCode = 0;
   }
@@ -316,6 +316,7 @@ void initPS2Keyboard()
   port_byte_in(PS2_DATA_PORT);
 
   // Reset keyboard
+  // TODO: Figure out why this is failing.
   int resetResponse = sendCommand(0xFF, PS2_DATA_PORT, PS2_DATA_PORT);
   switch (resetResponse)
   {
