@@ -416,6 +416,9 @@ void handleKeyboardInput(struct registers r)
 
 void initPS2Keyboard()
 {
+  // disable interrupts while initialising the keyboard.
+  __asm__ volatile("cli");
+
   registerInterruptHandler(33, handleKeyboardInput);
 
   // Disable first ps/2 port.
@@ -424,14 +427,14 @@ void initPS2Keyboard()
   // Disable second ps/2 port.
   port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xA7);
 
+  // flush output buffer
+  port_byte_in(PS2_DATA_PORT);
+
   // Test the controller and ports are working.
   testPS2Controller();
 
   // Enable first ps/2 port.
   port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAE);
-
-  // flush output buffer
-  port_byte_in(PS2_DATA_PORT);
 
   // Reset keyboard
   // TODO: Figure out why this is failing.
@@ -449,4 +452,7 @@ void initPS2Keyboard()
   }
 
   resetQueue();
+  
+  // enable interrupts again.
+  __asm__ volatile("sti");
 }

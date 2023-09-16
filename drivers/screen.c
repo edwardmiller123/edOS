@@ -76,15 +76,17 @@ int handleScreenScroll(int cursorAddress)
 // moveCursor moves the cursor in the corresponding diraction for the given
 // argument. 0: left, 1: right, 2: up, 3: down.
 // TODO: Implement up and down.
-void moveCursor(int direction) {
+void moveCursor(int direction)
+{
   int cursorAddress = get_cursor();
-  switch (direction) {
-    case 0:
-      cursorAddress += 2;
-      break;
-    case 1:
-      cursorAddress -= 2;
-      break;
+  switch (direction)
+  {
+  case 0:
+    cursorAddress += 2;
+    break;
+  case 1:
+    cursorAddress -= 2;
+    break;
   }
   cursorAddress = handleScreenScroll(cursorAddress);
   set_cursor(cursorAddress);
@@ -108,7 +110,7 @@ void print_char(char character, char attribute_byte)
   if (character == 0x0E)
   {
     isBackspace = 1;
-    // check we arent about to go off the edge of the back of the screen
+    // check we arent about to go off the back of the screen
     if (cursorAddress != cell_to_mem_address(0, 0))
     {
       cursorAddress -= 2;
