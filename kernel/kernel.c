@@ -7,6 +7,6 @@ void main()
   // set up interrupt handling
   initPIC();
   clear_screen();
-  print_string_at("edOS.v0.3\n", 0, 0);
+  print_string_at("edOS.v0.4\n", 0, 0);
   initPS2Keyboard();
 }
