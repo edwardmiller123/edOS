@@ -75,6 +75,26 @@ unsigned char keyCodeToAscii(int keyCode, int heldKey)
   {
     switch (keyCode)
     {
+    case 0x02:
+      return '!';
+    case 0x03:
+      return '"';
+    case 0x04:
+      return '£';
+    case 0x05:
+      return '$';
+    case 0x06:
+      return '%';
+    case 0x07:
+      return '^';
+    case 0x08:
+      return '&';
+    case 0x09:
+      return '*';
+    case 0x0A:
+      return '(';
+    case 0x0B:
+      return ')';
     case 0x10:
       return 'Q';
     case 0x11:
@@ -141,6 +161,26 @@ unsigned char keyCodeToAscii(int keyCode, int heldKey)
   {
     switch (keyCode)
     {
+    case 0x02:
+      return '1';
+    case 0x03:
+      return '2';
+    case 0x04:
+      return '3';
+    case 0x05:
+      return '4';
+    case 0x06:
+      return '5';
+    case 0x07:
+      return '6';
+    case 0x08:
+      return '7';
+    case 0x09:
+      return '8';
+    case 0x0A:
+      return '9';
+    case 0x0B:
+      return '0';
     case 0x10:
       return 'q';
     case 0x11:
@@ -232,7 +272,7 @@ void singleKeyCodeHandler(int keyCode)
   }
 }
 
-// trimQueue takes the keyCode queue and returns a new array with only the non 0 values. If there 
+// trimQueue takes the keyCode queue and returns a new array with only the non 0 values. If there
 // are none it just returns the queue unchanged.
 int *trimQueue(int keyCodes[6])
 {
