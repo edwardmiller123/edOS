@@ -22,6 +22,8 @@ void testPS2Controller();
 
 unsigned char keyCodeToAscii(int keyCode, int heldKey);
 
+void keycodesToActions(int keyCodes[6]);
+
 // applyKeyPress prints the corresponding character for a given key code.
 void printKeyToScreen(int keyCode);
 
@@ -29,7 +31,7 @@ void printKeyToScreen(int keyCode);
 void addToQueue(int keyCode);
 
 // resetQueue resets all values in the keycode queue to 0;
-void resetQueue()
+void resetQueue();
 
 void handleKeyboardInput(struct registers r);
 

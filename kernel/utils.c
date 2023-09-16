@@ -66,8 +66,8 @@ int strLen(char *str)
   return length;
 }
 
-// compareIntArrays compares two, integer, arrays of the same length and returns true if
-// all elements in array1 are equal to those of array2.S
+// compareIntArrays compares two integer arrays of the same length and returns true if
+// all elements in array1 are equal to those of array2.
 int compareIntArrays(int array1[], int array2[], int arrayLengths)
 {
   for (int i = 0; i < arrayLengths; i++)
