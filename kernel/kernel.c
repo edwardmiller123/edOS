@@ -9,5 +9,4 @@ void main()
   clear_screen();
   print_string_at("edOS.v0.4\n", 0, 0);
   initPS2Keyboard();
-  dont compile please thankyou
 }
