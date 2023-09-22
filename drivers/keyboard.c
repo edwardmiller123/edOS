@@ -3,8 +3,18 @@
 #include "keyboard.h"
 #include "../cpu/isr.h"
 
-int heldKey, queuePosition, waitingForKeyCode;
+int heldKey, keyCodeQueuePosition, waitingForKeyCode;
+
+// keyCodeQueue holds the list of key codes from the keyboard waiting to be interpreted
+// by the driver.
 int keyCodeQueue[6];
+
+// keyBuffer holds the characters printed to the screen to be read from by
+// the shell (or any other caller).
+int keyBuffer[80];
+
+int keyBufferRear = -1;
+int keyBufferFront = 0;
 
 void testController()
 {
@@ -327,10 +337,10 @@ void keycodesToActions()
 // addToQueue adds a new keyCode to the front of the queue
 void addToQueue(int keyCode)
 {
-  if (queuePosition <= 6)
+  if (keyCodeQueuePosition <= 6)
   {
-    keyCodeQueue[queuePosition] = keyCode;
-    queuePosition++;
+    keyCodeQueue[keyCodeQueuePosition] = keyCode;
+    keyCodeQueuePosition++;
   }
   else
   {
@@ -347,7 +357,7 @@ void resetQueue()
   {
     keyCodeQueue[i] = 0;
   }
-  queuePosition = 0;
+  keyCodeQueuePosition = 0;
   waitingForKeyCode = 0;
 }
 
