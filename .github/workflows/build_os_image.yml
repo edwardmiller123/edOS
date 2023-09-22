@@ -12,7 +12,7 @@ jobs:
     steps: 
       - uses: actions/checkout@v3
       - name: install dependancies
-        run: apt-get install nasm
+        run: sudo apt-get install nasm
       - name: build os-image
         run: make os-image
 
