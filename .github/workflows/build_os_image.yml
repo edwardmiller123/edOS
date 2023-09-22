@@ -1,0 +1,20 @@
+name: build os-image
+
+on:
+  pull_request:
+  push:
+    branches:
+      - 'master'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps: 
+      - uses: actions/checkout@v3
+      - name: install dependancies
+        run: sudo apt-get install nasm
+      - name: build os-image
+        run: make os-image
+
+
+      
