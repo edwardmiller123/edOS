@@ -13,7 +13,7 @@ int keyCodeQueue[6];
 // the shell (or any other caller).
 int keyBuffer[80];
 
-int keyBufferRear = -1;
+int keyBufferRear = 0;
 int keyBufferFront = 0;
 
 void testController()
@@ -257,7 +257,7 @@ unsigned char keyCodeToAscii(int keyCode, int heldKey)
 }
 
 // singleKeyCodeHandler converts single keycode keyboard commands into the correspinding action.
-void singleKeyCodeHandler(int keyCode)
+char singleKeyCodeHandler(int keyCode)
 {
   int character = 0;
   character = keyCodeToAscii(keyCode, heldKey);
@@ -266,6 +266,7 @@ void singleKeyCodeHandler(int keyCode)
   case 0x0E:
     // backspace
     character = 0x0E;
+    print_char(character, 0);
     break;
   case 0x2A:
     // shiftKey
@@ -276,10 +277,8 @@ void singleKeyCodeHandler(int keyCode)
     heldKey = 0xAA;
     break;
   }
-  if (character != 0)
-  {
-    print_char(character, 0);
-  }
+
+  return character;
 }
 
 // trimQueue takes the keyCode queue and returns a new array with only the non 0 values. If there
@@ -321,17 +320,18 @@ void multipleKeyCodeHandler()
 }
 
 // keycodesToActions translates a given set of keycodes to a command for the screen.
-void keycodesToActions()
+char keycodesToActions()
 {
-
+  char character = 0;
   if (keyCodeQueue[1] == 0)
   {
-    singleKeyCodeHandler(keyCodeQueue[0]);
+    character = singleKeyCodeHandler(keyCodeQueue[0]);
   }
   else
   {
     multipleKeyCodeHandler();
   }
+  return character;
 }
 
 // addToQueue adds a new keyCode to the front of the queue
@@ -406,6 +406,46 @@ void setDriverState(int keyCode)
   }
 }
 
+// resetKeyBuffer resets all values in the key buffer to 0;
+void resetKeyBuffer()
+{
+  for (int i = 0; i < 6; i++)
+  {
+    keyBuffer[i] = 0;
+  }
+  keyBufferFront = 0;
+  keyBufferRear = 0;
+}
+
+// addToBuffer adds a character to the key buffer
+void addToBuffer(char character)
+{
+  if (keyBufferRear <= 80)
+  {
+    if (keyBufferFront <= keyBufferRear)
+    {
+      keyBuffer[keyBufferRear] = character;
+      keyBufferRear++;
+    }
+    else
+    {
+      printString("Buffer Overrun");
+    }
+  }
+  else
+  {
+    printString("Buffer Full");
+  }
+}
+
+// readKeyBuffer returns the key buffer then clears it.
+char * readKeyBuffer()
+{
+  char *readBuffer = keyBuffer;
+  resetKeyBuffer();
+  return readBuffer;
+}
+
 // handleKeyboardInput reads the keyboard data port and applys the corresponding action.
 void handleKeyboardInput(struct registers r)
 {
@@ -417,10 +457,15 @@ void handleKeyboardInput(struct registers r)
 
   setDriverState(keyCode);
 
-  keycodesToActions(keyCodeQueue);
+  int character = keycodesToActions(keyCodeQueue);
   if (waitingForKeyCode == 0)
   {
     resetQueue();
+  }
+
+  if (character != 0)
+  {
+    addToBuffer(character);
   }
 }
 
@@ -447,7 +492,6 @@ void initPS2Keyboard()
   port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAE);
 
   // Reset keyboard
-  // TODO: Figure out why this is failing.
   int resetResponse = sendCommand(0xFF, PS2_DATA_PORT, PS2_DATA_PORT);
   switch (resetResponse)
   {
@@ -462,7 +506,7 @@ void initPS2Keyboard()
   }
 
   resetQueue();
-  
+
   // enable interrupts again.
   __asm__ volatile("sti");
 }
