@@ -1,7 +1,6 @@
 #include "../kernel/I_O_asm_helpers.h"
 #include "screen.h"
 #include "keyboard.h"
-#include "../cpu/isr.h"
 
 int heldKey, keyCodeQueuePosition, waitingForKeyCode;
 
@@ -11,7 +10,7 @@ int keyCodeQueue[6];
 
 // keyBuffer holds the characters printed to the screen to be read from by
 // the shell (or any other caller).
-int keyBuffer[80];
+int keyBuffer[256];
 
 int keyBufferRear = 0;
 int keyBufferFront = 0;
@@ -406,6 +405,26 @@ void setDriverState(int keyCode)
   }
 }
 
+// isBufferEmpty checks whether or not the key buffer is empty
+int isBufferEmpty()
+{
+  if (keyBufferFront == keyBufferRear)
+  {
+    return 1;
+  }
+  return 0;
+}
+
+// isBufferFull checks if the buffer is full
+int isBufferFull()
+{
+  if (keyBufferRear == 256)
+  {
+    return 1;
+  }
+  return 0;
+}
+
 // resetKeyBuffer resets all values in the key buffer to 0;
 void resetKeyBuffer()
 {
@@ -420,7 +439,7 @@ void resetKeyBuffer()
 // addToBuffer adds a character to the key buffer
 void addToBuffer(char character)
 {
-  if (keyBufferRear <= 80)
+  if (keyBufferRear <= 256)
   {
     if (keyBufferFront <= keyBufferRear)
     {
@@ -438,11 +457,24 @@ void addToBuffer(char character)
   }
 }
 
+// removeFromBuffer removes the first character in the queue from
+// the buffer
+void removeFromBuffer()
+{
+  if (isBufferEmpty() == 0)
+  {
+    keyBuffer[keyBufferFront] = 0;
+    keyBufferFront++;
+  }
+}
+
 // readKeyBuffer returns the key buffer then clears it.
-char * readKeyBuffer()
+char *readKeyBuffer()
 {
   char *readBuffer = keyBuffer;
-  resetKeyBuffer();
+  if (isBufferFull() == 1) {
+    resetKeyBuffer();
+  }
   return readBuffer;
 }
 
@@ -462,10 +494,12 @@ void handleKeyboardInput(struct registers r)
   {
     resetQueue();
   }
-
+  
+  // TODO: Figure out why characters arent being added to the buffer
   if (character != 0)
   {
     addToBuffer(character);
+    print_char(character, 0);
   }
 }
 
@@ -506,6 +540,7 @@ void initPS2Keyboard()
   }
 
   resetQueue();
+  resetKeyBuffer();
 
   // enable interrupts again.
   __asm__ volatile("sti");

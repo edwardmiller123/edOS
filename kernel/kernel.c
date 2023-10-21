@@ -1,6 +1,7 @@
 #include "../drivers/screen.h"
 #include "../drivers/keyboard.h"
 #include "../cpu/isr.h"
+#include "utils.h"
 
 void main()
 {
@@ -10,10 +11,19 @@ void main()
   print_string_at("edOS.v0.4\n", 0, 0);
   initPS2Keyboard();
 
+  // Mock shell
+  char *stdInBuffer;
   int shellRunning = 1;
   while (shellRunning = 1)
   {
-    char *keyBuffer = readKeyBuffer();
-    printString(keyBuffer);
+    stdInBuffer = readKeyBuffer();
+    for (int i = 0; i < strLen(stdInBuffer); i++)
+    {
+      if (stdInBuffer[i] == 'a')
+      {
+        shellRunning = 0;
+      }
+    }
   }
+  printString(stdInBuffer);
 }

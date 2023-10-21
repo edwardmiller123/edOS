@@ -1,3 +1,5 @@
+#include "utils.h"
+
 // memoryCopy takes the data stored at the source address and copies
 // it to the destination address.
 void memoryCopy(char *source, char *destination, int numberOfBytes)

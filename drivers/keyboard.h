@@ -1,8 +1,6 @@
 #ifndef KEYBOARD
 #define KEYBOARD
 
-#include "../kernel/I_O_asm_helpers.h"
-#include "screen.h"
 #include "../cpu/isr.h"
 
 // To talk to the keyboard encoder directly
@@ -45,6 +43,16 @@ void resetKeyBuffer();
 
 // addToBuffer adds a character to the key buffer
 void addToBuffer(char character);
+
+// isBufferEmpty checks whether or not the key buffer is empty
+int isBufferEmpty();
+
+// isBufferFull checks if the buffer is full
+int isBufferFull();
+
+// removeFromBuffer removes the first character in the queue from
+// the buffer
+void removeFromBuffer();
 
 char * readKeyBuffer();
 

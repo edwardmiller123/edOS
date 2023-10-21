@@ -1,8 +1,6 @@
 #ifndef SCREEN
 #define SCREEN
 
-#include "../kernel/I_O_asm_helpers.h"
-#include "../kernel/utils.h"
 // Can print using simple VGA mode in text mode.
 // Screen divided into a grid with each cell represented by two bytes in memory
 // the first is the character to be displayed the second is the attribute to be applied.

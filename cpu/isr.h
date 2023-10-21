@@ -71,8 +71,6 @@ struct registers {
   unsigned int eip, cs, eflags, useresp, ss;
 };
 
-void testInterruptHandler(struct registers r);
-
 void isrInstall();
 
 void irqInstall();

@@ -1,4 +1,6 @@
 #include "screen.h"
+#include "../kernel/I_O_asm_helpers.h"
+#include "../kernel/utils.h"
 
 // This maps the row and column coordinates to the corresponding memory address in
 // video memory.
