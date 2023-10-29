@@ -11,7 +11,7 @@ If on linux everything should just work.
 Can install Qemu and NASM (for ubuntu) with,
 
 ```
-sudo apt-get install nasm qemu
+sudo apt-get install nasm qemu-system
 ```
 
 ## Running/Compiling
