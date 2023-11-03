@@ -159,7 +159,7 @@ void print_char_at(char character, int col, int row, char attribute_byte)
   print_char(character, attribute_byte);
 }
 
-// print_string prints the provided string at the current cursor on screen.
+// printString prints the provided string at the current cursor position on screen.
 void printString(char *message)
 {
   int i = 0;

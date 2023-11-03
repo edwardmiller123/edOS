@@ -10,7 +10,7 @@ int keyCodeQueue[6];
 
 // keyBuffer holds the characters printed to the screen to be read from by
 // the shell (or any other caller).
-int keyBuffer[256];
+char keyBuffer[256];
 
 int keyBufferRear = 0;
 int keyBufferFront = 0;

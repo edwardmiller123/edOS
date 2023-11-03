@@ -19,7 +19,7 @@ void main()
     stdInBuffer = readKeyBuffer();
     for (int i = 0; i < strLen(stdInBuffer); i++)
     {
-      if (stdInBuffer[i] == 'a')
+      if (stdInBuffer[i] == 'z')
       {
         shellRunning = 0;
       }
