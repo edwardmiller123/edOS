@@ -72,6 +72,7 @@ void runShell()
             parseCommand(stdInBuffer);
             resetKeyBuffer();
             waitingForCommand = 1;
+            clearLine();
             print_string_at("\nedOS.v0.4 >", 0, 23);
         }
     }

@@ -51,6 +51,8 @@ void print_string_at(char *message, int col, int row);
 // all points on the screen.
 void clear_screen();
 
+// clearLine clears the current line the cursor is on
+void clearLine();
 
 // printInt prints the given integer by converting it to a string.
 void printInt(int integer);
