@@ -16,7 +16,7 @@ sudo apt-get install nasm qemu-system
 
 ## Running/Compiling
 
-To compile and run simple do,
+To compile and run simply do,
 
 ```
 make run
