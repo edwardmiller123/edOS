@@ -63,12 +63,11 @@ int handleScreenScroll(int cursorAddress)
         MAX_COLS * 2);
   }
 
-  // TODO: Fix this as is doesnt clear 
   // Clear the last line for printing too.
   char *lastLine = (char *)(cell_to_mem_address(0, MAX_ROWS - 1) + VIDEO_MEMORY_START);
-  for (int i = 0; i < MAX_COLS * 2; i += 2)
+  for (int i = 0; i < MAX_COLS * 2; i++)
   {
-    *(char *)(lastLine[i]) = ' ';
+    lastLine[i] = 0;
   }
 
   // Finally move the cursor back one row
