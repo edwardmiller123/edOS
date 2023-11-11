@@ -2,14 +2,14 @@
 #include "../drivers/keyboard.h"
 
 // echo prints the given argument.
-void echo(char *input)
+int echo(char *input)
 {
   printString("\n");
   printString(input);
   printString("\n");
 }
 
-void parseCommand(char *command)
+void parseAndRunCommand(char *command)
 {
   char *baseCommand;
   char *argToPass;
@@ -18,25 +18,25 @@ void parseCommand(char *command)
   int commandSection = 1;
   for (int i = 0; i < strLen(command); i++)
   {
-    if (command[i] == " ")
+
+    if (command[i] == ' ')
     {
-      commandSection = 2;
+      commandSection == 2;
+    }
+
+    if (command[i] == '\0' || command[i] == ' ' || command[i] == 0)
+    {
+      continue;
     }
 
     switch (commandSection)
     {
     case 1:
-      if (command[i] == " ")
-      {
-        break;
-      }
       baseCommand[i] = command[i];
+      break;
     case 2:
-      if (command[i] == " ")
-      {
-        break;
-      }
       argToPass[i] = command[i];
+      break;
     }
   }
 
@@ -50,30 +50,31 @@ void parseCommand(char *command)
 // as an application in user mode.
 void runShell()
 {
-    char *stdInBuffer;
-    int shellRunning = 1;
-    int waitingForCommand = 1;
-    print_string_at("edOS.v0.4 >", 0, 23);
-    while (shellRunning == 1)
+  char *stdInBuffer;
+  int shellRunning = 1;
+  int waitingForCommand = 1;
+  print_string_at("[ edOS.v0.7 ] > ", 0, 10);
+  while (shellRunning == 1)
+  {
+
+    if (waitingForCommand == 1)
     {
+      stdInBuffer = readKeyBuffer();
 
-        if (waitingForCommand == 1)
+      for (int i = 0; i < strLen(stdInBuffer); i++)
+      {
+        if (stdInBuffer[i] == '\n')
         {
-            stdInBuffer = readKeyBuffer();
-
-            for (int i = 0; i < strLen(stdInBuffer); i++)
-            {
-                if (stdInBuffer[i] == '\n')
-                {
-                    waitingForCommand = 0;
-                }
-            }
-        } else {
-            parseCommand(stdInBuffer);
-            resetKeyBuffer();
-            waitingForCommand = 1;
-            clearLine();
-            print_string_at("\nedOS.v0.4 >", 0, 23);
+          waitingForCommand = 0;
         }
+      }
     }
+    else
+    {
+      parseAndRunCommand(stdInBuffer);
+      resetKeyBuffer();
+      waitingForCommand = 1;
+      // printString("[ edOS.v0.7 ] > ");
+    }
+  }
 }

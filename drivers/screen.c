@@ -196,20 +196,6 @@ void clear_screen()
   }
 }
 
-// clearLine clears the current line the cursor is on
-void clearLine()
-{
-  int cursorAddress = get_cursor();
-  int row = cursorAddress / (2 * MAX_COLS);
-  if (row < MAX_ROWS)
-  {
-    for (int i = 0; i < MAX_COLS - 1; i++)
-    {
-      print_char_at(" ", i, row, 0);
-    }
-  }
-}
-
 // printInt prints the given integer by converting it to a string.
 void printInt(int integer)
 {

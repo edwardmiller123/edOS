@@ -468,7 +468,8 @@ void removeFromBuffer()
   }
 }
 
-// readKeyBuffer returns the key buffer then clears it.
+// readKeyBuffer returns the key buffer and clears it if
+// its full.
 char *readKeyBuffer()
 {
   char *readBuffer = keyBuffer;

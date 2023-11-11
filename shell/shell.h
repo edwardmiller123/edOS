@@ -3,7 +3,7 @@
 
 void echo(char *input);
 
-void parseCommand(char *command);
+void parseAndRunCommand(char *command);
 
 void runShell();
 
