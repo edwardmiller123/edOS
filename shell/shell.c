@@ -1,48 +1,42 @@
 #include "../drivers/screen.h"
 #include "../drivers/keyboard.h"
 
-// echo prints the given argument.
+// echo prints the given argument. The first "program".
 int echo(char *input)
 {
-  printString("\n");
   printString(input);
   printString("\n");
 }
 
 void parseAndRunCommand(char *command)
 {
-  char *baseCommand;
-  char *argToPass;
+  char commandParts[10][10];
 
+  int argIdx = 0;
+  int j = 0;
   // Specify whether we are parsing the command itself or the argument
-  int commandSection = 1;
   for (int i = 0; i < strLen(command); i++)
   {
 
-    if (command[i] == ' ')
-    {
-      commandSection == 2;
-    }
-
     if (command[i] == '\0' || command[i] == ' ' || command[i] == 0)
     {
-      continue;
+      commandParts[argIdx][j] = '\0';
+      argIdx++;
+      j = 0;
     }
-
-    switch (commandSection)
+    else
     {
-    case 1:
-      baseCommand[i] = command[i];
-      break;
-    case 2:
-      argToPass[i] = command[i];
-      break;
+      commandParts[argIdx][j] = command[i];
+      j++;
     }
-  }
 
-  if (baseCommand == "echo")
-  {
-    echo(argToPass);
+    char *baseCommand = commandParts[0];
+    char *firstArg = commandParts[1];
+    
+    if (strCmp(baseCommand, "echo") == 1)
+    {
+      echo(firstArg);
+    }
   }
 }
 
@@ -53,7 +47,7 @@ void runShell()
   char *stdInBuffer;
   int shellRunning = 1;
   int waitingForCommand = 1;
-  print_string_at("[ edOS.v0.7 ] > ", 0, 10);
+  printString("\n[ edOS.v0.7 ]:> ");
   while (shellRunning == 1)
   {
 
@@ -74,7 +68,7 @@ void runShell()
       parseAndRunCommand(stdInBuffer);
       resetKeyBuffer();
       waitingForCommand = 1;
-      // printString("[ edOS.v0.7 ] > ");
+      printString("[ edOS.v0.7 ]:> ");
     }
   }
 }

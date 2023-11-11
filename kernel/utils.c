@@ -73,7 +73,8 @@ int strLen(char *str)
 int compareIntArrays(int array1[], int array2[], int arrayLengths)
 {
   // First check that the arrays are actually the same length
-  if (sizeof(array1) != sizeof(array2)) {
+  if (sizeof(array1) != sizeof(array2))
+  {
     return 0;
   }
 
@@ -83,6 +84,26 @@ int compareIntArrays(int array1[], int array2[], int arrayLengths)
     {
       return 0;
     }
+  }
+  return 1;
+}
+
+// strCmp compares to strings and returns 0 if they are not the same.
+int strCmp(char *string1, char *string2)
+{
+  if (sizeof(string1) != sizeof(string2))
+  {
+    return 0;
+  }
+
+  int i = 0;
+  while (string1[i] != '\0')
+  {
+    if (string1[i] != string2[i])
+    {
+      return 0;
+    }
+    i++;
   }
   return 1;
 }
