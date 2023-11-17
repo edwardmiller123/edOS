@@ -18,13 +18,13 @@ void parseAndRunCommand(char *command)
   for (int i = 0; i < strLen(command); i++)
   {
 
-    if (command[i] == '\0' || command[i] == ' ' || command[i] == 0)
+    if (command[i] == '\0' || command[i] == ' ')
     {
       commandParts[argIdx][j] = '\0';
       argIdx++;
       j = 0;
     }
-    else
+    else if (command[i] != 0)
     {
       commandParts[argIdx][j] = command[i];
       j++;
