@@ -17,6 +17,10 @@ void parseAndRunCommand(char *command)
   // Specify whether we are parsing the command itself or the argument
   for (int i = 0; i < strLen(command); i++)
   {
+    if (command[i] == '\n' || command[i] == 0)
+    {
+      continue;
+    }
 
     if (command[i] == '\0' || command[i] == ' ')
     {
@@ -24,19 +28,19 @@ void parseAndRunCommand(char *command)
       argIdx++;
       j = 0;
     }
-    else if (command[i] != 0)
+    else
     {
       commandParts[argIdx][j] = command[i];
       j++;
     }
+  }
 
-    char *baseCommand = commandParts[0];
-    char *firstArg = commandParts[1];
-    
-    if (strCmp(baseCommand, "echo") == 1)
-    {
-      echo(firstArg);
-    }
+  char *baseCommand = commandParts[0];
+  char *firstArg = commandParts[1];
+
+  if (strCmp(baseCommand, "echo") == 1)
+  {
+    echo(firstArg);
   }
 }
 
