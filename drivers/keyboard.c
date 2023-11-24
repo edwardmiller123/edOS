@@ -265,7 +265,6 @@ char singleKeyCodeHandler(int keyCode)
   case 0x0E:
     // backspace
     character = 0x0E;
-    print_char(character, 0);
     removeFromBufferRear();
     break;
   case 0x2A:
