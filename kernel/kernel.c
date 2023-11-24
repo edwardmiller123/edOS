@@ -9,8 +9,10 @@ void main()
   // set up interrupt handling
   initPIC();
   clear_screen();
-  print_string_at("Welcome to edOS!\n", 0, 0);
-  initPS2Keyboard();
+  print_string_at("===============================================================================\n", 0, 0);
+  print_string_at("=============================| Welcome to edOS! |==============================\n", 0, 1);
+  print_string_at("===============================================================================\n", 0, 2);
+  initPS2Keyboard(0);
 
   runShell();
 }

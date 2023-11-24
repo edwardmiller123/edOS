@@ -15,14 +15,16 @@ char keyBuffer[BUFFER_SIZE];
 int keyBufferRear = 0;
 int keyBufferFront = 0;
 
-void testController()
+void testController(int debug)
 {
   // test ps2 controller
   int testResult = sendCommand(0xAA, PS2_DATA_PORT, PS2_STATUS_AND_COMMAND_REGISTER);
   switch (testResult)
   {
   case 0x55:
-    printString("Controller Operational\n");
+    if (debug) {
+      printString("Controller Operational\n");
+    }
     break;
   case 0xFC:
     printString("Controller failed with fault\n");
@@ -33,7 +35,7 @@ void testController()
   }
 }
 
-void testPort1()
+void testPort1(int debug)
 {
   // test ps2 port 1
   port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAB);
@@ -41,7 +43,9 @@ void testPort1()
   switch (testResult)
   {
   case 0x00:
-    printString("Port 1 Operational\n");
+    if (debug) {
+      printString("Port 1 Operational\n");
+    }
     break;
   default:
     printString("Port 1 failed with unexpected result\n");
@@ -50,7 +54,7 @@ void testPort1()
   }
 }
 
-void testPort2()
+void testPort2(int debug)
 {
   // test ps2 port 1
   port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xA9);
@@ -58,7 +62,9 @@ void testPort2()
   switch (testResult)
   {
   case 0x00:
-    printString("Port 2 Operational\n");
+    if (debug) {
+      printString("Port 2 Operational\n");
+    }
     break;
   default:
     printString("Port 2 failed with unexpected result\n");
@@ -68,13 +74,15 @@ void testPort2()
 }
 
 // testPS2Controller runs a simple test to see if the ps2 controller is working.
-void testPS2Controller()
+void testPS2Controller(int debug)
 {
   // test ps2 controller and ports.
-  printString("Running PS/2 Controller tests...\n");
-  testController();
-  testPort1();
-  testPort2();
+  if (debug) {
+    printString("Running PS/2 Controller tests...\n");
+  }
+  testController(debug);
+  testPort1(debug);
+  testPort2(debug);
 }
 
 unsigned char keyCodeToAscii(int keyCode, int heldKey)
@@ -503,7 +511,7 @@ void handleKeyboardInput(struct registers r)
   }
 }
 
-void initPS2Keyboard()
+void initPS2Keyboard(int debug)
 {
   // disable interrupts while initialising the keyboard.
   __asm__ volatile("cli");
@@ -520,7 +528,7 @@ void initPS2Keyboard()
   port_byte_in(PS2_DATA_PORT);
 
   // Test the controller and ports are working.
-  testPS2Controller();
+  testPS2Controller(debug);
 
   // Enable first ps/2 port.
   port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAE);
@@ -530,7 +538,9 @@ void initPS2Keyboard()
   switch (resetResponse)
   {
   case 0xFA:
-    printString("Keyboard reset\n");
+    if (debug) {
+      printString("Keyboard ready\n");
+    }
     break;
   case 0:
     printString("Keyboard not found (empty response)\n");
