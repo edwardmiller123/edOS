@@ -8,7 +8,8 @@ void echo(char *input)
   printString("\n");
 }
 
-void help(){
+void help()
+{
   printString("edOS doesnt do much right now.\nThe only other command is echo.\nUsage: echo {your favourite word}\n");
 }
 
@@ -80,7 +81,7 @@ void runShell()
       parseAndRunCommand(stdInBuffer);
       resetKeyBuffer();
       waitingForCommand = 1;
-      printString("[ edOS.v0.7 ]:> ");
+      printString("[ edOS.v0.9 ]:> ");
     }
   }
 }
