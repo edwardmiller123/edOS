@@ -108,12 +108,15 @@ void print_char(char character, char attribute_byte)
 
   int isBackspace = 0;
 
+  int currentRow = cursorAddress / (2 * MAX_COLS);
+
   // handle a backspace
   if (character == 0x0E)
   {
     isBackspace = 1;
-    // check we arent about to go off the back of the screen
-    if (cursorAddress != cell_to_mem_address(0, 0))
+    // check we arent about to go off the back of the 
+    // screen (or delete the terminal prompt)
+    if (cursorAddress > cell_to_mem_address(16, currentRow))
     {
       cursorAddress -= 2;
     }
@@ -123,8 +126,7 @@ void print_char(char character, char attribute_byte)
   // Move to the start of the next row for a new line character
   if (character == '\n')
   {
-    int rows = cursorAddress / (2 * MAX_COLS);
-    cursorAddress = cell_to_mem_address(79, rows);
+    cursorAddress = cell_to_mem_address(79, currentRow);
   }
   else
   {
