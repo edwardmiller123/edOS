@@ -39,7 +39,7 @@ void resetQueue();
 // by the keyboard.
 void setDriverState(int keyCode);
 
-// resetKeyBuffer resets all values in the key buffer to 0;
+// resetKeyBuffer resets all values in the key buffer to 0
 void resetKeyBuffer();
 
 // addToBuffer adds a character to the key buffer
@@ -51,9 +51,9 @@ int isBufferEmpty();
 // isBufferFull checks if the buffer is full
 int isBufferFull();
 
-// removeFromBuffer removes the first character in the queue from
+// removeFromBufferRear removes the last character from
 // the buffer
-void removeFromBuffer();
+void removeFromBufferRear();
 
 char * readKeyBuffer();
 

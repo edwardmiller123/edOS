@@ -75,7 +75,7 @@ int handleScreenScroll(int cursorAddress)
   return cursorAddress;
 }
 
-// moveCursor moves the cursor in the corresponding diraction for the given
+// moveCursor moves the cursor in the corresponding direction for the given
 // argument. 0: left, 1: right, 2: up, 3: down.
 // TODO: Implement up and down.
 void moveCursor(int direction)

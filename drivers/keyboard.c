@@ -266,6 +266,7 @@ char singleKeyCodeHandler(int keyCode)
     // backspace
     character = 0x0E;
     print_char(character, 0);
+    removeFromBufferRear();
     break;
   case 0x2A:
     // shiftKey
@@ -458,14 +459,13 @@ void addToBuffer(char character)
   }
 }
 
-// removeFromBuffer removes the first character in the queue from
-// the buffer
-void removeFromBuffer()
+// removeFromBufferRear removes the last character in the buffer by reseting
+// it to zero
+void removeFromBufferRear()
 {
   if (isBufferEmpty() == 0)
   {
-    keyBuffer[keyBufferFront] = 0;
-    keyBufferFront++;
+    keyBuffer[keyBufferRear] = 0;
   }
 }
 
