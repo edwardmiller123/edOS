@@ -2,10 +2,14 @@
 #include "../drivers/keyboard.h"
 
 // echo prints the given argument. The first "program".
-int echo(char *input)
+void echo(char *input)
 {
   printString(input);
   printString("\n");
+}
+
+void help(){
+  printString("edOS doesnt do much right now.\nThe only other command is echo.\nUsage: echo {your favourite word}\n");
 }
 
 void parseAndRunCommand(char *command)
@@ -42,6 +46,10 @@ void parseAndRunCommand(char *command)
   {
     echo(firstArg);
   }
+  if (strCmp(baseCommand, "help") == 1)
+  {
+    help();
+  }
 }
 
 // runShell runs a mock shell in the kernel. Hopefully one day it will run
@@ -51,7 +59,7 @@ void runShell()
   char *stdInBuffer;
   int shellRunning = 1;
   int waitingForCommand = 1;
-  printString("\n[ edOS.v0.7 ]:> ");
+  printString("\n[ edOS.v0.9 ]:> ");
   while (shellRunning == 1)
   {
 
