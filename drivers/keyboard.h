@@ -7,7 +7,8 @@
 // we read data and write command codes both to 0x60.
 #define PS2_DATA_PORT 0x60
 #define PS2_STATUS_AND_COMMAND_REGISTER 0x64
-#define QUEUE_SIZE 100
+#define QUEUE_SIZE 6
+#define BUFFER_SIZE 256
 
 void testController();
 

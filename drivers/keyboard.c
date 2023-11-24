@@ -6,11 +6,11 @@ int heldKey, keyCodeQueuePosition, waitingForKeyCode;
 
 // keyCodeQueue holds the list of key codes from the keyboard waiting to be interpreted
 // by the driver.
-int keyCodeQueue[6];
+int keyCodeQueue[QUEUE_SIZE];
 
 // keyBuffer holds the characters printed to the screen to be read from by
 // the shell (or any other caller).
-char keyBuffer[256];
+char keyBuffer[BUFFER_SIZE];
 
 int keyBufferRear = 0;
 int keyBufferFront = 0;
@@ -418,7 +418,7 @@ int isBufferEmpty()
 // isBufferFull checks if the buffer is full
 int isBufferFull()
 {
-  if (keyBufferRear == 256)
+  if (keyBufferRear == BUFFER_SIZE)
   {
     return 1;
   }
@@ -428,7 +428,7 @@ int isBufferFull()
 // resetKeyBuffer resets all values in the key buffer to 0;
 void resetKeyBuffer()
 {
-  for (int i = 0; i < 6; i++)
+  for (int i = 0; i < BUFFER_SIZE; i++)
   {
     keyBuffer[i] = 0;
   }
@@ -439,7 +439,7 @@ void resetKeyBuffer()
 // addToBuffer adds a character to the key buffer
 void addToBuffer(char character)
 {
-  if (keyBufferRear <= 256)
+  if (keyBufferRear <= BUFFER_SIZE)
   {
     if (keyBufferFront <= keyBufferRear)
     {
@@ -449,6 +449,7 @@ void addToBuffer(char character)
     else
     {
       printString("Buffer Overrun");
+      resetKeyBuffer();
     }
   }
   else
@@ -496,7 +497,6 @@ void handleKeyboardInput(struct registers r)
     resetQueue();
   }
   
-  // TODO: Figure out why characters arent being added to the buffer
   if (character != 0)
   {
     addToBuffer(character);

@@ -15,7 +15,7 @@ void parseAndRunCommand(char *command)
   int argIdx = 0;
   int j = 0;
   // Specify whether we are parsing the command itself or the argument
-  for (int i = 0; i < strLen(command); i++)
+  for (int i = 0; i < BUFFER_SIZE; i++)
   {
     if (command[i] == '\n' || command[i] == 0)
     {
@@ -59,7 +59,7 @@ void runShell()
     {
       stdInBuffer = readKeyBuffer();
 
-      for (int i = 0; i < strLen(stdInBuffer); i++)
+      for (int i = 0; i < BUFFER_SIZE; i++)
       {
         if (stdInBuffer[i] == '\n')
         {
