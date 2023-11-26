@@ -274,6 +274,8 @@ char singleKeyCodeHandler(int keyCode)
     // backspace
     character = 0x0E;
     removeFromBufferRear();
+    print_char(character, 0);
+    character = 0;
     break;
   case 0x2A:
     // shiftKey
@@ -473,6 +475,7 @@ void removeFromBufferRear()
   if (isBufferEmpty() == 0)
   {
     keyBuffer[keyBufferRear] = 0;
+    keyBufferRear--;
   }
 }
 
