@@ -17,4 +17,22 @@ int compareIntArrays(int array1[], int array2[], int arrayLengths);
 // strCmp compares to strings and returns 0 if they are not the same.
 int strCmp(char *string1, char *string2);
 
+// hash creates a unique hash from a string. This is the 
+// djb2 algorithm http://www.cse.yorku.ca/~oz/hash.html
+unsigned long hash(unsigned char *str);
+
+struct mapValue {
+  char * stringType;
+  int integerType;
+};
+
+struct mapElement {
+  unsigned long hash;
+  struct mapValue value;
+};
+
+// getMapValue takes a key and a map and retreives the given value 
+// stored there.
+char * getMapValue(char * key, struct mapElement map[100]);
+
 #endif

@@ -107,3 +107,26 @@ int strCmp(char *string1, char *string2)
   }
   return 1;
 }
+
+// hash creates a unique hash from a string. This is the 
+// djb2 algorithm http://www.cse.yorku.ca/~oz/hash.html
+unsigned long hash(unsigned char *str)
+{
+  unsigned long hash = 5381;
+  int c;
+
+  while (c = *str++)
+    hash = ((hash << 5) + hash) + c;
+
+  return hash;
+}
+
+// getMapValue takes a key and a map and retreives the given value 
+// stored there.
+char * getMapValue(char * key, struct mapElement map[100]) {
+  unsigned long hashedKey = hash(key);
+  int index = hashedKey % 100;
+
+  char * value = map[index].value.stringType;
+  return value;
+}
