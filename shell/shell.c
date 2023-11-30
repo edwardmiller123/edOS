@@ -2,7 +2,7 @@
 #include "../drivers/keyboard.h"
 #include "../kernel/utils.h"
 
-struct mapElement enviromentVariables[100];
+struct mapElement environmentVariables[100];
 
 // echo prints the given argument. The first "program".
 void echo(char *input)
@@ -39,6 +39,8 @@ void export(char * expression, struct mapElement enviromentVariables) {
 
   char * variableName = commandParts[0];
   char * valueToStore = commandParts[1];
+
+  storeMapValue(variableName, valueToStore, environmentVariables);
 
 } 
 

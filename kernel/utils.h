@@ -35,4 +35,7 @@ struct mapElement {
 // stored there.
 char * getMapValue(char * key, struct mapElement map[100]);
 
+// storeMapValue stores the given value with the key in the provided map
+void storeMapValue(char * key, char * value, struct mapElement map[100]);
+
 #endif

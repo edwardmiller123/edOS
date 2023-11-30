@@ -130,3 +130,11 @@ char * getMapValue(char * key, struct mapElement map[100]) {
   char * value = map[index].value.stringType;
   return value;
 }
+
+// storeMapValue stores the given value with the key in the provided map
+void storeMapValue(char * key, char * value, struct mapElement map[100]) {
+  unsigned long hashedKey = hash(key);
+  int index = hashedKey % 100;
+  map[index].hash = hashedKey;
+  map[index].value.stringType = value;
+}
