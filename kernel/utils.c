@@ -123,16 +123,15 @@ unsigned long hash(unsigned char *str)
 
 // getMapValue takes a key and a map and retreives the given value 
 // stored there.
-char * getMapValue(char * key, struct mapElement map[100]) {
+char * getMapValue(char * key, mapElement map[100]) {
   unsigned long hashedKey = hash(key);
   int index = hashedKey % 100;
-
   char * value = map[index].value.stringType;
   return value;
 }
 
 // storeMapValue stores the given value with the key in the provided map
-void storeMapValue(char * key, char * value, struct mapElement map[100]) {
+void storeMapValue(char * key, char * value, mapElement map[100]) {
   unsigned long hashedKey = hash(key);
   int index = hashedKey % 100;
   map[index].hash = hashedKey;

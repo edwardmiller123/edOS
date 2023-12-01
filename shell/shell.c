@@ -1,8 +1,8 @@
 #include "../drivers/screen.h"
 #include "../drivers/keyboard.h"
-#include "../kernel/utils.h"
+#include "shell.h"
 
-struct mapElement environmentVariables[100];
+mapElement environmentVariables[100];
 
 // echo prints the given argument. The first "program".
 void echo(char *input)
@@ -16,7 +16,8 @@ void help()
   printString("edOS doesnt do much right now.\nThe only other command is echo.\nUsage: echo {your favourite word}\n");
 }
 
-void export(char * expression, struct mapElement enviromentVariables) {
+void export(char *expression, mapElement enviromentVariables[100])
+{
   char commandParts[10][10];
   int argIdx = 0;
   int j = 0;
@@ -37,12 +38,11 @@ void export(char * expression, struct mapElement enviromentVariables) {
     }
   }
 
-  char * variableName = commandParts[0];
-  char * valueToStore = commandParts[1];
+  char *variableName = commandParts[0];
+  char *valueToStore = commandParts[1];
 
   storeMapValue(variableName, valueToStore, environmentVariables);
-
-} 
+}
 
 void parseAndRunCommand(char *command)
 {

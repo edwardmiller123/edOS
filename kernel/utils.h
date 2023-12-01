@@ -26,16 +26,16 @@ struct mapValue {
   int integerType;
 };
 
-struct mapElement {
+typedef struct {
   unsigned long hash;
   struct mapValue value;
-};
+} mapElement;
 
 // getMapValue takes a key and a map and retreives the given value 
 // stored there.
-char * getMapValue(char * key, struct mapElement map[100]);
+char * getMapValue(char * key, mapElement map[100]);
 
 // storeMapValue stores the given value with the key in the provided map
-void storeMapValue(char * key, char * value, struct mapElement map[100]);
+void storeMapValue(char * key, char * value, mapElement map[100]);
 
 #endif
