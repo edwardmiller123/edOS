@@ -7,11 +7,10 @@ side project which will hopefully be improved on.
 
 The Makefile uses GCC, the GNU linker, [NASM](https://www.nasm.us/) for compliling assembly files
 and [Qemu](https://www.qemu.org/) as a CPU emulator (others are available).
-If on linux everything should just work.
-Can install Qemu and NASM (for ubuntu) with,
+Can install GCC, Qemu and NASM (for ubuntu) with,
 
 ```
-sudo apt-get install nasm qemu-system
+sudo apt-get install nasm gcc qemu-system
 ```
 
 ## Running/Compiling
