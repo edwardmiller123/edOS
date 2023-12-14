@@ -112,6 +112,8 @@ unsigned char keyCodeToAscii(int keyCode, int heldKey)
       return '(';
     case 0x0B:
       return ')';
+    case 0x0D:
+      return '+';
     case 0x10:
       return 'Q';
     case 0x11:
@@ -198,6 +200,8 @@ unsigned char keyCodeToAscii(int keyCode, int heldKey)
       return '9';
     case 0x0B:
       return '0';
+    case 0x0D:
+      return '=';
     case 0x10:
       return 'q';
     case 0x11:

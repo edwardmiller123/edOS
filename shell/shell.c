@@ -2,7 +2,43 @@
 #include "../drivers/keyboard.h"
 #include "shell.h"
 
-mapElement environmentVariables[100];
+char *environmentVariables[100];
+
+// getEnvValue takes a key and a map and retreives the given value
+// stored there.
+char *getEnvValue(char *key)
+{
+  unsigned long hashedKey = hash(key);
+  int index = hashedKey % 100;
+  char *value = environmentVariables[index];
+  if (value == "")
+  {
+    return 0;
+  }
+  return value;
+}
+
+// initMap takes a map and sets all the values to empty strings.
+void initEnvMap()
+{
+  for (int i = 0; i < 100; i++)
+  {
+    environmentVariables[i] = "";
+  }
+}
+
+// storeEnvValue stores the given value with the key in the provided map
+// TODO: can only store one env for some reason
+void storeEnvValue(char *key, char *value)
+{
+  unsigned long hashedKey = hash(key);
+  int index = hashedKey % 100;
+  // Very janky but it works: we allocate memory for the string, then change the
+  // pointer in enviromentVairbales to point there and finally copy the string over.
+  char valueToStore[strLen(value)];
+  environmentVariables[index] = &valueToStore;
+  memoryCopy(value, environmentVariables[index], strLen(value));
+}
 
 // echo prints the given argument. The first "program".
 void echo(char *input)
@@ -16,12 +52,12 @@ void help()
   printString("edOS doesnt do much right now.\nThe only other command is echo.\nUsage: echo {your favourite word}\n");
 }
 
-void export(char *expression, mapElement enviromentVariables[100])
+void export(char *expression)
 {
   char commandParts[10][10];
   int argIdx = 0;
   int j = 0;
-  // Specify whether we are parsing the command itself or the argument
+  // split command into key and value
   for (int i = 0; i < strLen(expression); i++)
   {
 
@@ -41,7 +77,59 @@ void export(char *expression, mapElement enviromentVariables[100])
   char *variableName = commandParts[0];
   char *valueToStore = commandParts[1];
 
-  storeMapValue(variableName, valueToStore, environmentVariables);
+  storeEnvValue(variableName, valueToStore);
+}
+
+// replaceEnvVariables takes in a string and replaces any environment variables with
+// the corresponding values
+char *replaceEnvVariables(char *arg)
+{
+  char argParts[10][15];
+  // Initialise the command and args as empty strings
+  argParts[0][0] = "\0";
+  argParts[1][0] = "\0";
+
+  int argIdx = 0;
+  int j = 0;
+  // Specify whether we are parsing the command itself or the argument
+  for (int i = 0; i <= strLen(arg); i++)
+  {
+    if (arg[i] == '\n')
+    {
+      continue;
+    }
+
+    if (arg[i] == ' ' || arg[i] == 0)
+    {
+      argParts[argIdx][j] = '\0';
+      break;
+    }
+
+    if (arg[i] == '$' || (argIdx > 0 && arg[i] == ' ') || arg[i] == '\0')
+    {
+      argParts[argIdx][j] = '\0';
+      argIdx++;
+      j = 0;
+    }
+    else
+    {
+      argParts[argIdx][j] = arg[i];
+      j++;
+    }
+  }
+
+  char *preEnvVar = argParts[0];
+  char *envVarKey = argParts[1];
+
+  char *envVar = getEnvValue(envVarKey);
+  if (envVar == 0)
+  {
+    return preEnvVar;
+  }
+
+  char *finalOutput = strConcat(preEnvVar, envVar);
+
+  return finalOutput;
 }
 
 void parseAndRunCommand(char *command)
@@ -72,7 +160,7 @@ void parseAndRunCommand(char *command)
   }
 
   char *baseCommand = commandParts[0];
-  char *firstArg = commandParts[1];
+  char *firstArg = replaceEnvVariables(commandParts[1]);
 
   if (strCmp(baseCommand, "echo") == 1)
   {
@@ -82,12 +170,17 @@ void parseAndRunCommand(char *command)
   {
     help();
   }
+  if (strCmp(baseCommand, "export") == 1)
+  {
+    export(firstArg);
+  }
 }
 
 // runShell runs a mock shell in the kernel. Hopefully one day it will run
 // as an application in user mode.
 void runShell()
 {
+  initEnvMap(environmentVariables);
   char *stdInBuffer;
   int shellRunning = 1;
   int waitingForCommand = 1;

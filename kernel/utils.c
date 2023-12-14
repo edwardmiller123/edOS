@@ -11,6 +11,7 @@ void memoryCopy(char *source, char *destination, int numberOfBytes)
 }
 
 // intToString converts a base 10 integer to a string.
+// TODO: really need to make this work correctly
 char *intToString(int integer)
 {
   char *reverseString;
@@ -41,6 +42,7 @@ char *intToString(int integer)
 }
 
 // reverseString returns the reverse of the provided string.
+// TODO: fix this it doesnt work
 char *reverseString(char *str)
 {
   int i;
@@ -108,7 +110,30 @@ int strCmp(char *string1, char *string2)
   return 1;
 }
 
-// hash creates a unique hash from a string. This is the 
+// strConcat concatenates two strings
+// TODO: Why are last few letters missing
+const char *strConcat(char *str1, char *str2)
+{
+  int newStrLength = strLen(str1) + strLen(str2) + 1;
+  char newStr[newStrLength];
+  int j = 0;
+  for (int i = 0; i < strLen(str1); i++)
+  {
+    newStr[j] = str1[i];
+    j++;
+  }
+  for (int i = 0; i < strLen(str2); i++)
+  {
+    newStr[j] = str2[i];
+    j++;
+  }
+  newStr[newStrLength - 1] = '\0';
+
+  char *newStrPtr = newStr;
+  return newStrPtr;
+}
+
+// hash creates a unique hash from a string. This is the
 // djb2 algorithm http://www.cse.yorku.ca/~oz/hash.html
 unsigned long hash(unsigned char *str)
 {
@@ -119,21 +144,4 @@ unsigned long hash(unsigned char *str)
     hash = ((hash << 5) + hash) + c;
 
   return hash;
-}
-
-// getMapValue takes a key and a map and retreives the given value 
-// stored there.
-char * getMapValue(char * key, mapElement map[100]) {
-  unsigned long hashedKey = hash(key);
-  int index = hashedKey % 100;
-  char * value = map[index].value.stringType;
-  return value;
-}
-
-// storeMapValue stores the given value with the key in the provided map
-void storeMapValue(char * key, char * value, mapElement map[100]) {
-  unsigned long hashedKey = hash(key);
-  int index = hashedKey % 100;
-  map[index].hash = hashedKey;
-  map[index].value.stringType = value;
 }
