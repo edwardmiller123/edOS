@@ -1,5 +1,9 @@
 #include "utils.h"
 
+// Pre allocate memory for strings. This is quite wasteful but works for now.
+char freeMemory[400][256];
+int memIncremetor = 0;
+
 // memoryCopy takes the data stored at the source address and copies
 // it to the destination address.
 void memoryCopy(char *source, char *destination, int numberOfBytes)
@@ -10,51 +14,21 @@ void memoryCopy(char *source, char *destination, int numberOfBytes)
   }
 }
 
-// intToString converts a base 10 integer to a string.
-// TODO: really need to make this work correctly
-char *intToString(int integer)
+// strAlloc allocates memory for strings. This is a very janky replacment
+// for malloc for the time being.
+char *strAlloc()
 {
-  char *reverseString;
-  char *resultString;
-  int n = integer;
-  int i = 0;
-  int j = 0;
-  int a = integer;
-  int b;
-
-  while (n > 0)
+  if (memIncremetor < 200)
   {
-    b = a % 10;
-    reverseString[i] = b + 0x30;
-    a /= 10;
-    i++;
-    n /= 10;
+    char *allocated = &freeMemory[memIncremetor];
+    memIncremetor++;
+    return allocated;
   }
-
-  while (i > 0)
+  else
   {
-    resultString[j] = reverseString[i - 1];
-    i--;
-    j++;
+    printString("\nOut off free memory\n");
+    return 0;
   }
-
-  return resultString;
-}
-
-// reverseString returns the reverse of the provided string.
-// TODO: fix this it doesnt work
-char *reverseString(char *str)
-{
-  int i;
-  int j = strLen(str);
-  char *newStr;
-  while (i < strLen(str))
-  {
-    newStr[i] = str[j - 1];
-    j--;
-    i++;
-  }
-  return newStr;
 }
 
 // strLen returns the length of the provided string
@@ -68,6 +42,51 @@ int strLen(char *str)
     stopCharacter = str[length];
   }
   return length;
+}
+
+// reverseString returns the reverse of the provided string.
+char *reverseString(char *str)
+{
+  int i = 0;
+  int j = strLen(str) - 1;
+  char *newStr = strAlloc();
+  while (i < strLen(str))
+  {
+    newStr[i] = str[j];
+    print_char(newStr[i], 0);
+    printString("\n");
+    j--;
+    i++;
+  }
+  // Add back the terminating character
+  newStr[strLen(str)] = '\0';
+  return newStr;
+}
+
+// intToString converts a base 10 integer to a string.
+char *intToString(int integer)
+{
+  char reverseStr[50];
+  char *resultString;
+  int n = integer;
+  int i = 0;
+  int j = 0;
+  int a = integer;
+  int b;
+
+  while (n > 0)
+  {
+    b = a % 10;
+    reverseStr[i] = b + 0x30;
+    a /= 10;
+    n /= 10;
+    i++;
+  }
+  reverseStr[i] = '\0';
+
+  resultString = reverseString(reverseStr);
+
+  return resultString;
 }
 
 // compareIntArrays compares two integer arrays of the same length and returns true if
@@ -115,7 +134,7 @@ int strCmp(char *string1, char *string2)
 const char *strConcat(char *str1, char *str2)
 {
   int newStrLength = strLen(str1) + strLen(str2) + 1;
-  char newStr[newStrLength];
+  char *newStr = strAlloc();
   int j = 0;
   for (int i = 0; i < strLen(str1); i++)
   {
@@ -129,8 +148,7 @@ const char *strConcat(char *str1, char *str2)
   }
   newStr[newStrLength - 1] = '\0';
 
-  char *newStrPtr = newStr;
-  return newStrPtr;
+  return newStr;
 }
 
 // hash creates a unique hash from a string. This is the
