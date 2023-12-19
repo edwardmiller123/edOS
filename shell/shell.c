@@ -33,8 +33,7 @@ void storeEnvValue(char *key, char *value)
 {
   unsigned long hashedKey = hash(key);
   int index = hashedKey % 100;
-  char *storedValue = strAllocAndStore(value);
-  environmentVariables[index] = &storedValue;
+  environmentVariables[index] = strAllocAndStore(value);
 }
 
 // echo prints the given argument. The first "program".
