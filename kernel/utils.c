@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "../drivers/screen.h"
 
 // Pre allocate memory for strings. This is quite wasteful but works for now.
 char freeMemory[400][256];
@@ -14,7 +15,7 @@ void memoryCopy(char *source, char *destination, int numberOfBytes)
   }
 }
 
-// strAlloc allocates memory for strings. This is a very janky replacment
+// strAlloc allocates memory for strings. This is a very janky replacement
 // for malloc for the time being.
 char *strAlloc()
 {
@@ -44,6 +45,19 @@ int strLen(char *str)
   return length;
 }
 
+// strAllocAndStore allocates memory and stores the passed in string. Returns a
+// pointer to the allocated memory.
+char *strAllocAndStore(char *strToStore)
+{
+  char *allocated = strAlloc();
+  if (allocated != 0)
+  {
+    // copy one extra byte to get the strings terminating character.
+    memoryCopy(strToStore, allocated, strLen(strToStore) + 1);
+  }
+  return allocated;
+}
+
 // reverseString returns the reverse of the provided string.
 char *reverseString(char *str)
 {
@@ -53,8 +67,6 @@ char *reverseString(char *str)
   while (i < strLen(str))
   {
     newStr[i] = str[j];
-    print_char(newStr[i], 0);
-    printString("\n");
     j--;
     i++;
   }
@@ -67,7 +79,6 @@ char *reverseString(char *str)
 char *intToString(int integer)
 {
   char reverseStr[50];
-  char *resultString;
   int n = integer;
   int i = 0;
   int j = 0;
@@ -84,7 +95,7 @@ char *intToString(int integer)
   }
   reverseStr[i] = '\0';
 
-  resultString = reverseString(reverseStr);
+  char *resultString = reverseString(reverseStr);
 
   return resultString;
 }
@@ -130,7 +141,6 @@ int strCmp(char *string1, char *string2)
 }
 
 // strConcat concatenates two strings
-// TODO: Why are last few letters missing
 const char *strConcat(char *str1, char *str2)
 {
   int newStrLength = strLen(str1) + strLen(str2) + 1;

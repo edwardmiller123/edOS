@@ -33,11 +33,8 @@ void storeEnvValue(char *key, char *value)
 {
   unsigned long hashedKey = hash(key);
   int index = hashedKey % 100;
-  // Very janky but it works: we allocate memory for the string, then change the
-  // pointer in enviromentVairbales to point there and finally copy the string over.
-  char valueToStore[strLen(value)];
-  environmentVariables[index] = &valueToStore;
-  memoryCopy(value, environmentVariables[index], strLen(value));
+  char *storedValue = strAllocAndStore(value);
+  environmentVariables[index] = &storedValue;
 }
 
 // echo prints the given argument. The first "program".
@@ -124,7 +121,8 @@ char *replaceEnvVariables(char *arg)
   char *envVar = getEnvValue(envVarKey);
   if (envVar == 0)
   {
-    return preEnvVar;
+    char *noEnvValue = strAllocAndStore(preEnvVar);
+    return noEnvValue;
   }
 
   char *finalOutput = strConcat(preEnvVar, envVar);

@@ -12,6 +12,10 @@ char *reverseString(char *str);
 
 int strLen(char *str);
 
+// strAllocAndStore allocates memory for a string and stores the passed in string
+// there.
+char *strAllocAndStore(char *strToStore);
+
 int compareIntArrays(int array1[], int array2[], int arrayLengths);
 
 // strCmp compares to strings and returns 0 if they are not the same.

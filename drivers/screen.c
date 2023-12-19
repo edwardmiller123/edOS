@@ -165,7 +165,7 @@ void print_char_at(char character, int col, int row, char attribute_byte)
 void printString(char *message)
 {
   int i = 0;
-  while (message[i] != 0)
+  while (message[i] != '\0' || message[i] != 0)
   {
     print_char(message[i], 0);
     i++;
