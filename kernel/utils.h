@@ -21,7 +21,7 @@ int compareIntArrays(int array1[], int array2[], int arrayLengths);
 // strCmp compares to strings and returns 0 if they are not the same.
 int strCmp(char *string1, char *string2);
 
-const char *strConcat(char *str1, char *str2);
+char *strConcat(char *str1, char *str2);
 
 // hash creates a unique hash from a string. This is the
 // djb2 algorithm http://www.cse.yorku.ca/~oz/hash.html

@@ -141,7 +141,7 @@ int strCmp(char *string1, char *string2)
 }
 
 // strConcat concatenates two strings
-const char *strConcat(char *str1, char *str2)
+char *strConcat(char *str1, char *str2)
 {
   int newStrLength = strLen(str1) + strLen(str2) + 1;
   char *newStr = strAlloc();
