@@ -7,7 +7,7 @@
 // stored there.
 char *getEnvValue(char *key);
 
-// initMap takes a map and sets all the values to empty strings.
+// initMap sets all the environment variables to empty strings.
 void initEnvMap();
 
 // storeMapValue stores the given value with the key in the provided map

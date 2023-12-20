@@ -18,7 +18,7 @@ char *getEnvValue(char *key)
   return value;
 }
 
-// initMap takes a map and sets all the values to empty strings.
+// initMap sets all the environment variables to empty strings.
 void initEnvMap()
 {
   for (int i = 0; i < 100; i++)
@@ -76,14 +76,17 @@ void export(char *expression)
   storeEnvValue(variableName, valueToStore);
 }
 
-// replaceEnvVariables takes in a string and replaces any environment variables with
+// replaceEnvVariables takes in a string and replaces up to 9 environment variables with
 // the corresponding values
 char *replaceEnvVariables(char *arg)
 {
   char argParts[10][15];
+
   // Initialise the command and args as empty strings
-  argParts[0][0] = "\0";
-  argParts[1][0] = "\0";
+  for (int n = 0; n < 10; n++)
+  {
+    argParts[n][0] = '\0';
+  }
 
   int argIdx = 0;
   int j = 0;
@@ -115,16 +118,29 @@ char *replaceEnvVariables(char *arg)
   }
 
   char *preEnvVar = argParts[0];
-  char *envVarKey = argParts[1];
 
-  char *envVar = getEnvValue(envVarKey);
-  if (envVar == 0)
+  char *envValues[10];
+
+  // first element in the array is reserved for the part of the string with
+  // no envronment variables.
+  for (int m = 1; m < 10; m++)
   {
-    char *noEnvValue = strAllocAndStore(preEnvVar);
-    return noEnvValue;
+    char *envKey = argParts[m];
+    envValues[m] = getEnvValue(envKey);
+    if (envValues[m] == 0)
+    {
+      envValues[m] = "";
+    }
   }
 
-  char *finalOutput = strConcat(preEnvVar, envVar);
+  char *finalOutput = strConcat(preEnvVar, envValues[1]);
+  char *output;
+
+  for (int k = 2; k < 10; k++)
+  {
+    output = strConcat(finalOutput, envValues[k]);
+    finalOutput = output;
+  }
 
   return finalOutput;
 }

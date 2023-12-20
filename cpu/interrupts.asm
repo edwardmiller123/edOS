@@ -115,7 +115,7 @@ global irq15
 ; 0: Divide By Zero Exception
 isr0:
     cli
-    push byte 0
+    push byte 0 ; These 0 bytes are the dummy error codes for the interrupts that dont push any
     push byte 0
     jmp isr_common_stub
 
