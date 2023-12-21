@@ -19,7 +19,7 @@ void memoryCopy(char *source, char *destination, int numberOfBytes)
 // for malloc for the time being.
 char *strAlloc()
 {
-  if (memIncremetor < 200)
+  if (memIncremetor < 400)
   {
     char *allocated = &freeMemory[memIncremetor];
     memIncremetor++;
@@ -27,7 +27,7 @@ char *strAlloc()
   }
   else
   {
-    printString("\nOut off free memory\n");
+    kPrintString("\nOut off free memory\n");
     return 0;
   }
 }

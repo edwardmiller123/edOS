@@ -59,6 +59,7 @@ void irqInstall() {
     setIDTEntry(44, (unsigned int)irq12);
     setIDTEntry(45, (unsigned int)irq13);
     setIDTEntry(46, (unsigned int)irq14);
+    // 47 is being used for our syscalls
     setIDTEntry(47, (unsigned int)irq15);
 }
 
@@ -145,11 +146,11 @@ void PICsendEOI(unsigned int irq)
 // isrHandler prints the corresponding message for the given interrupt
 void isrHandler(struct registers reg)
 {
-    printString("Interrupt received\n");
+    kPrintString("Interrupt received\n");
     printInt(reg.intNumber);
-    printString("\n");
-    printString(exceptionMessages[reg.intNumber]);
-    printString("\n");
+    kPrintString("\n");
+    kPrintString(exceptionMessages[reg.intNumber]);
+    kPrintString("\n");
 }
 
 // registerInterruptHandler assigns a given isr (set of registers) to the given position in

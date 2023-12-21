@@ -4,6 +4,37 @@
 
 char *environmentVariables[100];
 
+// makeSyscall triggers a system call to run the appropriate function based on the provided driver
+// code (DC) and function code (FC).
+// screen: DC = 1
+// keyboard: DC = 2
+// read: FC = 1
+// write: FC = 2
+char * makeSyscall(char * input, int driverCode, int functionCode) {
+  __asm__ volatile("int $47" : : "a"(input), "b"(driverCode), "c"(functionCode));
+  // switch statement as there may be more "drivers" in the future
+  switch (driverCode) {
+    case 2:
+      if (functionCode == 1) {
+        char * output;
+        __asm__ volatile("movl %%eax, %0" : "=a"(output) :);
+        return output;
+      }
+  }
+  return "";
+}
+
+// readInput makes a syscall to read the keyBuffer;
+char * readInput() {
+  char * output = makeSyscall("", 2, 1);
+  return output;
+}
+
+// shellPrint makes a syscall to print the provided string to the screen
+void shellPrint(char * strToPrint) {
+  makeSyscall(strToPrint, 1, 2);
+}
+
 // getEnvValue takes a key and a map and retreives the given value
 // stored there.
 char *getEnvValue(char *key)
@@ -39,13 +70,13 @@ void storeEnvValue(char *key, char *value)
 // echo prints the given argument. The first "program".
 void echo(char *input)
 {
-  printString(input);
-  printString("\n");
+  kPrintString(input);
+  kPrintString("\n");
 }
 
 void help()
 {
-  printString("edOS doesnt do much right now.\nThe only other command is echo.\nUsage: echo {your favourite word}\n");
+  kPrintString("edOS doesnt do much right now.\nThe only other command is echo.\nUsage: echo {your favourite word}\n");
 }
 
 void export(char *expression)
@@ -187,6 +218,12 @@ void parseAndRunCommand(char *command)
   {
     export(firstArg);
   }
+  if (strCmp(baseCommand, "test") == 1)
+  {
+    char * output = readInput();
+    kPrintString(output);
+    kPrintString("\n");
+  }
 }
 
 // runShell runs a mock shell in the kernel. Hopefully one day it will run
@@ -194,20 +231,21 @@ void parseAndRunCommand(char *command)
 void runShell()
 {
   initEnvMap(environmentVariables);
-  char *stdInBuffer;
+  char *input;
   int shellRunning = 1;
   int waitingForCommand = 1;
-  printString("\n[ edOS.v0.9 ]:> ");
+  kPrintString("\n[ edOS.v0.9 ]:> ");
   while (shellRunning == 1)
   {
 
     if (waitingForCommand == 1)
     {
-      stdInBuffer = readKeyBuffer();
+      input = readKeyBuffer();
+      // input = readInput();
 
       for (int i = 0; i < BUFFER_SIZE; i++)
       {
-        if (stdInBuffer[i] == '\n')
+        if (input[i] == '\n')
         {
           waitingForCommand = 0;
         }
@@ -215,10 +253,10 @@ void runShell()
     }
     else
     {
-      parseAndRunCommand(stdInBuffer);
+      parseAndRunCommand(input);
       resetKeyBuffer();
       waitingForCommand = 1;
-      printString("[ edOS.v0.9 ]:> ");
+      shellPrint("[ edOS.v0.9 ]:> ");
     }
   }
 }

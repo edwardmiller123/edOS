@@ -23,14 +23,14 @@ void testController(int debug)
   {
   case 0x55:
     if (debug) {
-      printString("Controller Operational\n");
+      kPrintString("Controller Operational\n");
     }
     break;
   case 0xFC:
-    printString("Controller failed with fault\n");
+    kPrintString("Controller failed with fault\n");
     break;
   default:
-    printString("Controller failed with unexpected result\n");
+    kPrintString("Controller failed with unexpected result\n");
     break;
   }
 }
@@ -44,11 +44,11 @@ void testPort1(int debug)
   {
   case 0x00:
     if (debug) {
-      printString("Port 1 Operational\n");
+      kPrintString("Port 1 Operational\n");
     }
     break;
   default:
-    printString("Port 1 failed with unexpected result\n");
+    kPrintString("Port 1 failed with unexpected result\n");
     printInt(testResult);
     break;
   }
@@ -63,11 +63,11 @@ void testPort2(int debug)
   {
   case 0x00:
     if (debug) {
-      printString("Port 2 Operational\n");
+      kPrintString("Port 2 Operational\n");
     }
     break;
   default:
-    printString("Port 2 failed with unexpected result\n");
+    kPrintString("Port 2 failed with unexpected result\n");
     printInt(testResult);
     break;
   }
@@ -78,7 +78,7 @@ void testPS2Controller(int debug)
 {
   // test ps2 controller and ports.
   if (debug) {
-    printString("Running PS/2 Controller tests...\n");
+    kPrintString("Running PS/2 Controller tests...\n");
   }
   testController(debug);
   testPort1(debug);
@@ -358,7 +358,7 @@ void addToQueue(int keyCode)
   else
   {
     // Not strictly nessecary but catches index out of bounds errors.
-    printString("Queue Full\n");
+    kPrintString("Queue Full\n");
     resetQueue();
   }
 }
@@ -462,13 +462,13 @@ void addToBuffer(char character)
     }
     else
     {
-      printString("Buffer Overrun");
+      kPrintString("Buffer Overrun");
       resetKeyBuffer();
     }
   }
   else
   {
-    printString("Buffer Full");
+    kPrintString("Buffer Full");
   }
 }
 
@@ -546,14 +546,14 @@ void initPS2Keyboard(int debug)
   {
   case 0xFA:
     if (debug) {
-      printString("Keyboard ready\n");
+      kPrintString("Keyboard ready\n");
     }
     break;
   case 0:
-    printString("Keyboard not found (empty response)\n");
+    kPrintString("Keyboard not found (empty response)\n");
     break;
   default:
-    printString("Error resetting keyboard\n");
+    kPrintString("Error resetting keyboard\n");
   }
 
   resetQueue();
