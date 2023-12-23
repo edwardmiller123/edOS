@@ -1,7 +1,7 @@
 #ifndef SYSCALL
 #define SYSCALL
 
-void syscall(struct registers r);
+int syscall(struct registers r);
 
 void initSyscalls();
 

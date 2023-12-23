@@ -3,15 +3,9 @@
 #include "keyboard.h"
 #include "syscall.h"
 
-void syscall(struct registers r)
+int syscall(struct registers r)
 {
-    // kPrintString("syscall received\n");
-    // printInt(r.ebx);
-    // kPrintString("\n");
-    // kPrintString(r.eax);
-    // kPrintString("\n");
-    // printInt(r.ecx);
-    // kPrintString("\n");
+    int test = 9;
     char *input = r.eax;
     int driverCode = r.ebx;
     int functionCode = r.ecx;
@@ -24,12 +18,19 @@ void syscall(struct registers r)
         }
         break;
     case 2:
-        if (functionCode == 1) {
-            char * output = readKeyBuffer();
-            __asm__ volatile("movl %0, %%eax" : : "a"(output));
-        }
+        if (functionCode == 1)
+        {
+            char *output = readKeyBuffer();
+            __asm__ volatile("movl %0, %%esi" : : "r"(test));
 
+            int outputDebug;
+            __asm__ volatile("movl %%esi, %0" : "=r"(outputDebug) :);
+            kPrintString("Value in register during call: ");
+            printInt(outputDebug);
+            kPrintString("\n");
+        }
     }
+    return test;
 }
 
 void initSyscalls()

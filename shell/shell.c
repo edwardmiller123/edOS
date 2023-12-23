@@ -16,15 +16,18 @@ char * makeSyscall(char * input, int driverCode, int functionCode) {
   switch (driverCode) {
     case 2:
       if (functionCode == 1) {
-        char * output;
-        __asm__ volatile("movl %%eax, %0" : "=a"(output) :);
+        int output;
+        __asm__ volatile("movl %%ebx, %0" : "=r"(output) :);
+        kPrintString("value received from register: ");
+        printInt(output);
+        kPrintString("\n");
         return output;
       }
   }
   return "";
 }
 
-// readInput makes a syscall to read the keyBuffer;
+// readInput makes a syscall to read the keyboard input;
 char * readInput() {
   char * output = makeSyscall("", 2, 1);
   return output;

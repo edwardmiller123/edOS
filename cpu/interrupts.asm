@@ -42,7 +42,7 @@ irq_common_stub:
 
     call irqHandler
 
-    pop ebx  ; Different than the ISR code
+    pop ebx  ; To differentiate from the isr we pop ebx. This is used to store any return values we need.
     mov ds, bx
     mov es, bx
     mov fs, bx
