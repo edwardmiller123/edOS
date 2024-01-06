@@ -16,11 +16,8 @@ char * makeSyscall(char * input, int driverCode, int functionCode) {
   switch (driverCode) {
     case 2:
       if (functionCode == 1) {
-        int output;
-        __asm__ volatile("movl %%ebx, %0" : "=r"(output) :);
-        kPrintString("value received from register: ");
-        printInt(output);
-        kPrintString("\n");
+        char * output;
+        __asm__ volatile("movl %%eax, %0" : "=r"(output) :);
         return output;
       }
   }

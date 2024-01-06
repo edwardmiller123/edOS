@@ -5,10 +5,10 @@
 
 int syscall(struct registers r)
 {
-    int test = 9;
     char *input = r.eax;
     int driverCode = r.ebx;
     int functionCode = r.ecx;
+    char *output = 0;
     switch (driverCode)
     {
     case 1:
@@ -20,17 +20,10 @@ int syscall(struct registers r)
     case 2:
         if (functionCode == 1)
         {
-            char *output = readKeyBuffer();
-            __asm__ volatile("movl %0, %%esi" : : "r"(test));
-
-            int outputDebug;
-            __asm__ volatile("movl %%esi, %0" : "=r"(outputDebug) :);
-            kPrintString("Value in register during call: ");
-            printInt(outputDebug);
-            kPrintString("\n");
+            output = readKeyBuffer();
         }
     }
-    return test;
+    return &output;
 }
 
 void initSyscalls()

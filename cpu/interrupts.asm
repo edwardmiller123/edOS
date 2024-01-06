@@ -1,5 +1,6 @@
 [extern isrHandler]
 [extern irqHandler]
+[extern syscallHandler]
 
 ; Common ISR code
 ; this is how we "interrupt" the cpu and then continue on our
@@ -42,7 +43,7 @@ irq_common_stub:
 
     call irqHandler
 
-    pop ebx  ; To differentiate from the isr we pop ebx. This is used to store any return values we need.
+    pop ebx  ; To differentiate from the isr we pop ebx.
     mov ds, bx
     mov es, bx
     mov fs, bx
@@ -51,6 +52,37 @@ irq_common_stub:
     add esp, 8
     sti
     iret 
+
+; This could just be the irq stub however for debuggin its easier to keep the syscalls seperate
+syscall_stub:
+    pusha
+    mov ax, ds 
+	push eax 
+	mov ax, 0x10 
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+
+    call syscallHandler
+
+    pop ebx 
+    mov ds, bx
+    mov es, bx
+    mov fs, bx
+    mov gs, bx
+    pop edi
+    pop esi
+    pop ebp
+    add esp, 4 ; we skip poping the stack pointer as it is modified anyway by each pop instruction
+    pop ebx
+    pop edx
+    pop ecx
+    add esp, 4 ; the return value from syscallHandler is stored in eax so we skip poping a value off the stack to avoid overwriting it
+    ; this allows us to read it from eax later.
+    add esp, 8
+    sti
+    iret
 	
 ; We don't get information about which interrupt was called
 ; when the handler is run, so we will need to have a different handler
@@ -426,4 +458,4 @@ irq15:
 	cli
 	push byte 15
 	push byte 47
-	jmp irq_common_stub
+	jmp syscall_stub

@@ -81,11 +81,13 @@ void PICsendEOI(unsigned int irq);
 
 void isrHandler(struct registers reg);
 
-// intHndlr is a pointer to an interrupt handler function that takes a registers and returns nothing.
-typedef void (*intHdlr)(struct registers);
+// intHndlr is a pointer to an interrupt handler function that takes a registers and returns an int.
+typedef int (*intHdlr)(struct registers);
 
 void registerInterruptHandler(unsigned char n, intHdlr handler);
 
 void irqHandler(struct registers r);
+
+int syscallHandler(struct registers r);
 
 #endif
