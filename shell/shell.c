@@ -31,7 +31,7 @@ char * readInput() {
 }
 
 // shellPrint makes a syscall to print the provided string to the screen
-void shellPrint(char * strToPrint) {
+void shellPrintStr(char * strToPrint) {
   makeSyscall(strToPrint, 1, 2);
 }
 
@@ -70,13 +70,13 @@ void storeEnvValue(char *key, char *value)
 // echo prints the given argument. The first "program".
 void echo(char *input)
 {
-  kPrintString(input);
-  kPrintString("\n");
+  shellPrintStr(input);
+  shellPrintStr("\n");
 }
 
 void help()
 {
-  kPrintString("edOS doesnt do much right now.\nThe only other command is echo.\nUsage: echo {your favourite word}\n");
+  shellPrintStr("edOS doesnt do much right now.\nThe only other command is echo.\nUsage: echo {your favourite word}\n");
 }
 
 void export(char *expression)
@@ -218,12 +218,6 @@ void parseAndRunCommand(char *command)
   {
     export(firstArg);
   }
-  if (strCmp(baseCommand, "test") == 1)
-  {
-    char * output = readInput();
-    kPrintString(output);
-    kPrintString("\n");
-  }
 }
 
 // runShell runs a mock shell in the kernel. Hopefully one day it will run
@@ -234,14 +228,13 @@ void runShell()
   char *input;
   int shellRunning = 1;
   int waitingForCommand = 1;
-  kPrintString("\n[ edOS.v0.9 ]:> ");
+  shellPrintStr("\n[ edOS.v0.9 ]:> ");
   while (shellRunning == 1)
   {
 
     if (waitingForCommand == 1)
     {
-      input = readKeyBuffer();
-      // input = readInput();
+      input = readInput();
 
       for (int i = 0; i < BUFFER_SIZE; i++)
       {
@@ -256,7 +249,7 @@ void runShell()
       parseAndRunCommand(input);
       resetKeyBuffer();
       waitingForCommand = 1;
-      shellPrint("[ edOS.v0.9 ]:> ");
+      shellPrintStr("[ edOS.v0.9 ]:> ");
     }
   }
 }

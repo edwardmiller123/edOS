@@ -11,7 +11,7 @@ char * makeSyscall(char * input, int driverCode, int functionCode);
 char * readInput();
 
 // shellPrint makes a syscall to print the provided string to the screen
-void shellPrint(char * strToPrint);
+void shellPrintStr(char * strToPrint);
 
 // getMapValue takes a key and a map and retreives the given value
 // stored there.

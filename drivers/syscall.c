@@ -3,6 +3,7 @@
 #include "keyboard.h"
 #include "syscall.h"
 
+// syscall reads the provided register values and handles the system call accordingly
 int syscall(struct registers r)
 {
     char *input = r.eax;
@@ -23,9 +24,10 @@ int syscall(struct registers r)
             output = readKeyBuffer();
         }
     }
-    return &output;
+    return output;
 }
 
+// initSyscalls registers the syscall handler function in the IDT
 void initSyscalls()
 {
     __asm__ volatile("cli");
