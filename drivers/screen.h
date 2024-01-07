@@ -41,11 +41,11 @@ void print_char(char character, char attribute_byte);
 // Does this by setting the cursor position then printing the character.
 void print_char_at(char character, int col, int row, char attribute_byte);
 
-// print_string prints the provided string at the current cursor on screen.
-void printString(char *message);
+// kPrintString prints the provided string at the current cursor on screen.
+void kPrintString(char *message);
 
-// print_string_at prints the provided string at the specifed position on screen.
-void print_string_at(char *message, int col, int row);
+// kPrintStringAt prints the provided string at the specifed position on screen.
+void kPrintStringAt(char *message, int col, int row);
 
 // clear_screen clears the screen by printing empty spaces at
 // all points on the screen.

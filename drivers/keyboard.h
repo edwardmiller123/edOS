@@ -55,6 +55,8 @@ int isBufferFull();
 // the buffer
 void removeFromBufferRear();
 
+// readKeyBuffer returns the key buffer and clears it if
+// its full.
 char * readKeyBuffer();
 
 void handleKeyboardInput(struct registers r);

@@ -161,8 +161,8 @@ void print_char_at(char character, int col, int row, char attribute_byte)
   print_char(character, attribute_byte);
 }
 
-// printString prints the provided string at the current cursor position on screen.
-void printString(char *message)
+// kPrintString prints the provided string at the current cursor position on screen.
+void kPrintString(char *message)
 {
   int i = 0;
   while (message[i] != '\0' || message[i] != 0)
@@ -172,15 +172,15 @@ void printString(char *message)
   }
 }
 
-// print_string_at prints the provided string at the specifed position on screen.
-void print_string_at(char *message, int col, int row)
+// kPrintStringAt prints the provided string at the specifed position on screen.
+void kPrintStringAt(char *message, int col, int row)
 {
   if (col >= 0 && row >= 0)
   {
     set_cursor(cell_to_mem_address(col, row));
   }
 
-  printString(message);
+  kPrintString(message);
 }
 
 // clear_screen clears the screen by printing empty spaces at
@@ -201,5 +201,5 @@ void clear_screen()
 // printInt prints the given integer by converting it to a string.
 void printInt(int integer)
 {
-  printString(intToString(integer));
+  kPrintString(intToString(integer));
 }
