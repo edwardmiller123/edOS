@@ -16,8 +16,8 @@ kernel_entry.o : boot/kernel_entry.asm
 shell.o : shell/shell.c
 	gcc -fno-pie -ffreestanding -m32 -c shell/shell.c -o shell.o 	
 
-interrupts.o : cpu/interrupts.asm
-	nasm cpu/interrupts.asm -f elf32 -o interrupts.o
+interrupts.o : interrupts//interrupts.asm
+	nasm interrupts//interrupts.asm -f elf32 -o interrupts.o
 
 utils.o : kernel/utils.c
 	gcc -fno-pie -ffreestanding -m32 -c kernel/utils.c -o utils.o
@@ -28,11 +28,11 @@ I_O_asm_helpers.o : kernel/I_O_asm_helpers.c
 syscall.o : drivers/syscall.c
 	gcc -fno-pie -ffreestanding -m32 -c drivers/syscall.c -o syscall.o
 
-isr.o : cpu/isr.c
-	gcc -fno-pie -ffreestanding -m32 -c cpu/isr.c -o isr.o
+isr.o : interrupts//isr.c
+	gcc -fno-pie -ffreestanding -m32 -c interrupts//isr.c -o isr.o
 
-idt.o : cpu/idt.c
-	gcc -fno-pie -ffreestanding -m32 -c cpu/idt.c -o idt.o
+idt.o : interrupts//idt.c
+	gcc -fno-pie -ffreestanding -m32 -c interrupts//idt.c -o idt.o
 
 screen.o : drivers/screen.c
 	gcc -fno-pie -ffreestanding -m32 -c drivers/screen.c -o screen.o

@@ -1,5 +1,5 @@
 #include "screen.h"
-#include "../cpu/isr.h"
+#include "../interrupts//isr.h"
 #include "keyboard.h"
 #include "syscall.h"
 

@@ -1,7 +1,7 @@
 #ifndef KEYBOARD
 #define KEYBOARD
 
-#include "../cpu/isr.h"
+#include "../interrupts//isr.h"
 
 // To talk to the keyboard encoder directly
 // we read data and write command codes both to 0x60.

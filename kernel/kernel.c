@@ -1,6 +1,6 @@
 #include "../drivers/screen.h"
 #include "../drivers/keyboard.h"
-#include "../cpu/isr.h"
+#include "../interrupts//isr.h"
 #include "../shell/shell.h"
 #include "../drivers/syscall.h"
 #include "utils.h"
