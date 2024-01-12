@@ -53,7 +53,7 @@ irq_common_stub:
     sti
     iret 
 
-; This could just be the irq stub however for debuggin its easier to keep the syscalls seperate
+; This could just be the irq stub however for debuging its easier to keep the syscalls seperate
 syscall_stub:
     pusha
     mov ax, ds 

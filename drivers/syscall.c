@@ -4,7 +4,7 @@
 #include "syscall.h"
 
 // syscall reads the provided register values and handles the system call accordingly
-int syscall(struct registers r)
+int syscallHandler(struct registers r)
 {
     char *input = r.eax;
     int driverCode = r.ebx;
@@ -24,13 +24,6 @@ int syscall(struct registers r)
             output = readKeyBuffer();
         }
     }
+    PICsendEOI(r.intNumber);
     return output;
-}
-
-// initSyscalls registers the syscall handler function in the IDT
-void initSyscalls()
-{
-    __asm__ volatile("cli");
-    registerInterruptHandler(47, syscall);
-    __asm__ volatile("sti");
 }

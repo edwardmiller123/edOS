@@ -14,7 +14,6 @@ void main()
   kPrintStringAt("=============================| Welcome to edOS! |===============================\n", 0, 1);
   kPrintStringAt("================================================================================\n", 0, 2);
   initPS2Keyboard(0);
-  initSyscalls();
 
   runShell();
 }

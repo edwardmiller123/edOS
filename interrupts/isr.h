@@ -88,6 +88,4 @@ void registerInterruptHandler(unsigned char n, intHdlr handler);
 
 void irqHandler(struct registers r);
 
-int syscallHandler(struct registers r);
-
 #endif

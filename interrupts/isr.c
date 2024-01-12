@@ -171,14 +171,3 @@ void irqHandler(struct registers r)
     }
     PICsendEOI(r.intNumber);
 }
-
-int syscallHandler(struct registers r) {
-    int output;
-    if (interruptHandlers[r.intNumber] != 0)
-    {
-        intHdlr handler = interruptHandlers[r.intNumber];
-        output = handler(r);
-    }
-    PICsendEOI(r.intNumber);
-    return output;
-}
