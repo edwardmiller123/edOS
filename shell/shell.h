@@ -3,9 +3,9 @@
 
 #include "../kernel/utils.h"
 
-// makeSyscall triggers a system call to run the appropriate function based of the provided
+// syscall triggers a system call to run the appropriate function based of the provided
 // codes. i.e driver code 1 = screen, function code 2 = write
-char * makeSyscall(char * input, int driverCode, int functionCode);
+char * syscall(char * input, int driverCode, int functionCode);
 
 // readInput makes a syscall to read the keyBuffer;
 char * readInput();

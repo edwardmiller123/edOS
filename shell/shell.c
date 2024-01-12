@@ -4,13 +4,13 @@
 
 char *environmentVariables[100];
 
-// makeSyscall triggers a system call to run the appropriate function based on the provided driver
+// syscall triggers a system call to run the appropriate function based on the provided driver
 // code (DC) and function code (FC).
 // screen: DC = 1
 // keyboard: DC = 2
 // read: FC = 1
 // write: FC = 2
-char * makeSyscall(char * input, int driverCode, int functionCode) {
+char * syscall(char * input, int driverCode, int functionCode) {
   __asm__ volatile("int $47" : : "a"(input), "b"(driverCode), "c"(functionCode));
   // switch statement as there may be more "drivers" in the future
   switch (driverCode) {
@@ -26,13 +26,13 @@ char * makeSyscall(char * input, int driverCode, int functionCode) {
 
 // readInput makes a syscall to read the keyboard input;
 char * readInput() {
-  char * output = makeSyscall("", 2, 1);
+  char * output = syscall("", 2, 1);
   return output;
 }
 
 // shellPrint makes a syscall to print the provided string to the screen
 void shellPrintStr(char * strToPrint) {
-  makeSyscall(strToPrint, 1, 2);
+  syscall(strToPrint, 1, 2);
 }
 
 // getEnvValue takes a key and a map and retreives the given value
