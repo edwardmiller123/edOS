@@ -26,7 +26,7 @@ switch_to_pm:
 
   ; make a far jump to a new segment where are 32 bit code is.
   ; also forces cpu to clear cache of pre-fetched instructions.
-  jmp CODE_SEG:init_pm
+  jmp KERNEL_CODE_SEG:init_pm
 
 ; indicate that the following instructions are in 32 bit
 [bits 32]
@@ -36,8 +36,8 @@ switch_to_pm:
 init_pm:
 
   ; store the new segment in ax inorder to set all the old 16 bit segment registers
-  ; to DATA_SEG
-  mov ax, DATA_SEG
+  ; to KERNEL_DATA_SEG
+  mov ax, KERNEL_DATA_SEG
   mov ds, ax
   mov ss, ax
   mov es, ax
