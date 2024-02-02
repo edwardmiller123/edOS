@@ -4,8 +4,8 @@ os-image : boot_sect.bin kernel.bin interrupts.bin
 boot_sect.bin : boot/bootloader.asm
 	nasm -I 'boot' boot/bootloader.asm -f bin -o boot_sect.bin
 	
-kernel.bin : kernel_entry.o kernel.o shell.o isr.o syscall.o screen.o keyboard.o interrupts.o idt.o I_O_asm_helpers.o utils.o
-	ld -m elf_i386 -o kernel.bin -Ttext 0x1000 kernel_entry.o kernel.o shell.o isr.o syscall.o screen.o keyboard.o interrupts.o idt.o I_O_asm_helpers.o utils.o --oformat binary
+kernel.bin : kernel_entry.o kernel.o usermode.o shell.o isr.o syscall.o screen.o keyboard.o interrupts.o idt.o I_O_asm_helpers.o utils.o
+	ld -m elf_i386 -o kernel.bin -Ttext 0x1000 kernel_entry.o kernel.o usermode.o shell.o isr.o syscall.o screen.o keyboard.o interrupts.o idt.o I_O_asm_helpers.o utils.o --oformat binary
 
 interrupts.bin : interrupts.o isr.o syscall.o keyboard.o idt.o screen.o I_O_asm_helpers.o utils.o
 	ld -m elf_i386 -o interrupts.bin -Ttext 0x1000 interrupts.o isr.o syscall.o keyboard.o idt.o screen.o I_O_asm_helpers.o utils.o --oformat binary	
@@ -18,6 +18,9 @@ shell.o : shell/shell.c
 
 interrupts.o : interrupts/interrupts.asm
 	nasm interrupts/interrupts.asm -f elf32 -o interrupts.o
+
+usermode.o : kernel/usermode.asm
+	nasm kernel/usermode.asm -f elf32 -o usermode.o
 
 utils.o : kernel/utils.c
 	gcc -g -fno-pie -ffreestanding -m32 -c kernel/utils.c -o utils.o
