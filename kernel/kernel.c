@@ -5,7 +5,7 @@
 #include "../drivers/syscall.h"
 #include "utils.h"
 
-// enterUserMode is our warpper assembly function that jumps to user mode and then
+// enterUserMode is our wrapper assembly function that jumps to user mode and then
 // starts the shell
 extern int enterUserMode();
 
