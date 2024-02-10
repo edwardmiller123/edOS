@@ -1,7 +1,10 @@
 # edOS
 
-A small 32-bit OS for x86 architecture. More of a type writer really but a long term
-side project which will hopefully be improved on.
+A small 32-bit OS for x86 architecture. Has a "shell" that runs in user mode and makes system calls to the kernel 
+for hardware access i.e to read from the keyboard and to writ eto the screen. Kind of pointless really but just done as 
+a learning exercise and will hopefully be improved upon in the future.
+
+![Picture of the shell](shell.png?raw=true "Optional Title")
 
 ## Requirements
 
