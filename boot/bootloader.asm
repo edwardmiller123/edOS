@@ -68,10 +68,14 @@ BEGIN_PM:
   mov eax, 2080
   call print_string_pm
 
+  ; load the tss to allow for pivilege level changes
+  mov ax, 0x28 ; address of the tss descriptor in the gdt
+  ltr ax
+
   ; Finally jump to the memory address of our loaded kernel.
   call KERNEL_OFFSET
 
-  ; Hang forever
+  ; Hang forever (not really nessecary since we never return from the above)
   jmp $
 
 ; Global variables

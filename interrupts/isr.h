@@ -5,6 +5,8 @@
 #define MASTER_PIC_DATA 0x21
 #define SLAVE_PIC_COMMAND 0xA0
 #define SLAVE_PIC_DATA 0xA1
+#define KERNEL_MODE_FLAGS 0x8E
+#define USER_MODE_FLAGS 0xEE
 
 // The Isr definitions. These are what gets called for each interrupt.
 

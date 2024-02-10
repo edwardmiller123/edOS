@@ -10,28 +10,33 @@ char *environmentVariables[100];
 // keyboard: DC = 2
 // read: FC = 1
 // write: FC = 2
-char * syscall(char * input, int driverCode, int functionCode) {
+char *syscall(char *input, int driverCode, int functionCode)
+{
   __asm__ volatile("int $47" : : "a"(input), "b"(driverCode), "c"(functionCode));
   // switch statement as there may be more "drivers" in the future
-  switch (driverCode) {
-    case 2:
-      if (functionCode == 1) {
-        char * output;
-        __asm__ volatile("movl %%eax, %0" : "=r"(output) :);
-        return output;
-      }
+  switch (driverCode)
+  {
+  case 2:
+    if (functionCode == 1)
+    {
+      char *output;
+      __asm__ volatile("movl %%eax, %0" : "=r"(output) :);
+      return output;
+    }
   }
   return "";
 }
 
 // readInput makes a syscall to read the keyboard input;
-char * readInput() {
-  char * output = syscall("", 2, 1);
+char *readInput()
+{
+  char *output = syscall("", 2, 1);
   return output;
 }
 
 // shellPrint makes a syscall to print the provided string to the screen
-void shellPrintStr(char * strToPrint) {
+void shellPrintStr(char *strToPrint)
+{
   syscall(strToPrint, 1, 2);
 }
 
@@ -218,6 +223,10 @@ void parseAndRunCommand(char *command)
   {
     export(firstArg);
   }
+  if (strCmp(baseCommand, "test") == 1)
+  {
+    test();
+  }
 }
 
 // runShell runs a mock shell in the kernel. Hopefully one day it will run
@@ -252,4 +261,11 @@ void runShell()
       shellPrintStr("[ edOS.v0.9 ]:> ");
     }
   }
+}
+
+// proof that we are infact in user mode
+void test()
+{
+  kPrintString("hacking into the main frame");
+  __asm__ volatile("cli");
 }

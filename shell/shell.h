@@ -35,4 +35,7 @@ void parseAndRunCommand(char *command);
 
 void runShell();
 
+// proof that we are infact in user mode
+void test();
+
 #endif

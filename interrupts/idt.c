@@ -6,12 +6,12 @@ struct idtEntry idt[256];
 struct idtDescriptor idtDesc;
 
 // setIDTEntry initialises an entry in the idt.
-void setIDTEntry(int n, unsigned int handler)
+void setIDTEntry(int n, unsigned int handler, int flags)
 {
   idt[n].isrLow = (unsigned short)((handler) & 0xffff);
   idt[n].kernelSegment = 0x08;
   idt[n].reserved = 0;
-  idt[n].flags = 0x8E;
+  idt[n].flags = flags;
   idt[n].isrHigh = (unsigned short)(((handler) >> 16) & 0xffff);
 }
 

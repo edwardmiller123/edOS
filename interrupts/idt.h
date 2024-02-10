@@ -21,8 +21,10 @@ struct idtDescriptor
   unsigned int base;
 } __attribute__((packed));
 
-// setIDTEntry initialises an entry in the idt.
-void setIDTEntry(int n, unsigned int handler);
+// setIDTEntry initialises an entry in the idt. Assigns a handler
+// address to an interrupt number as well as flags for specifiying 
+// the privilige level.
+void setIDTEntry(int n, unsigned int handler, int flags);
 
 // setIdt is an assembly wrapper that loads the IDT.
 void setIdt();
