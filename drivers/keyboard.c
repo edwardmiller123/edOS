@@ -386,32 +386,18 @@ void setDriverState(int keyCode)
     break;
   case 0x4B:
     // final code for cursor left pressed
-    waitingForKeyCode = 0;
-    break;
   case 0x4D:
     // final code for cursor right pressed
-    waitingForKeyCode = 0;
-    break;
   case 0xCB:
     // final code for cursor left released
-    waitingForKeyCode = 0;
-    break;
   case 0xCD:
     // final code for cursor right released
-    waitingForKeyCode = 0;
-    break;
   case 0x50:
     // final code for cursor down pressed
-    waitingForKeyCode = 0;
-    break;
   case 0x48:
     // final code for cursor up pressed
-    waitingForKeyCode = 0;
-    break;
   case 0xD0:
     // final code for cursor down released
-    waitingForKeyCode = 0;
-    break;
   case 0xC8:
     // final code for cursor down released
     waitingForKeyCode = 0;

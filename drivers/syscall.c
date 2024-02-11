@@ -3,7 +3,12 @@
 #include "keyboard.h"
 #include "syscall.h"
 
-// syscall reads the provided register values and handles the system call accordingly
+// syscallHandler reads the provided register values and handles the system call accordingly
+// code (DC) and function code (FC).
+// screen: DC = 1
+// keyboard: DC = 2
+// read: FC = 1
+// write: FC = 2
 int syscallHandler(struct registers r)
 {
     char *input = r.eax;

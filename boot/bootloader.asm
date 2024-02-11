@@ -39,13 +39,11 @@ load_kernel:
   mov bx, MSG_LOAD_KERNEL
   call print_string
 
-  ; lets load the first 15 sectors just to be sure we get everything
-  ; set the needed parameters (function args)
-
   ; we want to load the kernel to the address stored at KERNEL_OFFSET
   mov bx, KERNEL_OFFSET
 
-  ; this is the number of sectors we want to load (currently the max possible unless we want to change the destination)
+  ; this is the number of sectors we want to load from the boot media 
+  ; (currently the max possible unless we want to change the destination)
   mov dh, 52 
 
   ; store the boot_drive address back in dl
@@ -68,7 +66,8 @@ BEGIN_PM:
   mov eax, 2080
   call print_string_pm
 
-  ; load the tss to allow for pivilege level changes
+  ; load the tss to allow for pivilege level changes (and context switches but
+  ; we arent using it for that here)
   mov ax, 0x28 ; address of the tss descriptor in the gdt
   ltr ax
 

@@ -8,7 +8,7 @@ unsigned char port_byte_in(unsigned short port)
   // port address is written to dx. The contents stored there is then
   // stored in al which we return as result. This can then be manipulated.
 
-  /* equivalent assembly:
+  /* equivalent NASM syntax assembly:
   mov dx, port
   in al, dx
   */

@@ -87,11 +87,11 @@ syscall_stub:
 ; We don't get information about which interrupt was called
 ; when the handler is run, so we will need to have a different handler
 ; for every interrupt.
-; Furthermore, some interrupts push an error code onto the stack but others
+; Some interrupts push an error code onto the stack but others
 ; don't, so we will push a dummy error code for those which don't, so that
 ; we have a consistent stack for all of them.
 
-; First make the ISRs global
+; Define the ISR's
 global isr0
 global isr1
 global isr2
@@ -454,6 +454,7 @@ irq14:
 	push byte 46
 	jmp irq_common_stub
 
+; We use irq 15 for system calls
 irq15:
 	cli
 	push byte 15

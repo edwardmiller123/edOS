@@ -5,7 +5,9 @@
 struct idtEntry idt[256];
 struct idtDescriptor idtDesc;
 
-// setIDTEntry initialises an entry in the idt.
+// setIDTEntry initialises an entry in the idt. Assigns a handler
+// address to an interrupt number as well as flags for specifiying 
+// the privilige level.
 void setIDTEntry(int n, unsigned int handler, int flags)
 {
   idt[n].isrLow = (unsigned short)((handler) & 0xffff);

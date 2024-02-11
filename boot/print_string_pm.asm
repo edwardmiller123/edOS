@@ -3,7 +3,7 @@
 ; each character cell on the screen is represented by 2 bytes in memory.
 ; In order to print a string then, we therefore have to set our string to the 
 ; corresponding bytes in the memory.
-; Will use eax as a function arg to provide the offset from the start 
+; Will use eax as a "function arg" to provide the offset from the start 
 ; of video memory to print to.
 
 ;sepcify 32 bit instructions

@@ -8,7 +8,7 @@ switch_to_pm:
   ; not be valid in 32 bit mode.
   cli
 
-  ; load the definition of the gdt
+  ; load the gdt descriptor which contains the start address and sixe of the gdt
   lgdt [gdt_descriptor]
 
   ; To actually make the switch we change the first bit 
