@@ -1,33 +1,82 @@
 #include "screen.h"
-#include "../interrupts//isr.h"
+#include "../interrupts/isr.h"
 #include "keyboard.h"
 #include "syscall.h"
+#include "../kernel/mem.h"
 
-// syscallHandler reads the provided register values and handles the system call accordingly
-// code (DC) and function code (FC).
-// screen: DC = 1
-// keyboard: DC = 2
-// read: FC = 1
-// write: FC = 2
-int syscallHandler(struct registers r)
+// syscallScreenHandler handles calls to print strings to the screen
+void screenHandler(int input, int functionCode)
 {
-    char *input = r.eax;
-    int driverCode = r.ebx;
-    int functionCode = r.ecx;
+    // little empty at the moment but a switch statemement if we want
+    // to add functionality for the "read" scenario
+    switch (functionCode)
+    {
+    case 2:
+        kPrintString(input);
+        break;
+    }
+}
+
+// keyboardHandler handles calls to read the keyboard input from the keybuffer
+// reads return the contents of the buffer and writes clear it
+void *keyboardHandler(int input, int functionCode)
+{
     char *output = 0;
-    switch (driverCode)
+    switch (functionCode)
     {
     case 1:
-        if (functionCode == 2)
-        {
-            kPrintString(input);
-        }
+        output = readKeyBuffer();
         break;
     case 2:
-        if (functionCode == 1)
-        {
-            output = readKeyBuffer();
-        }
+        resetKeyBuffer();
+        break;
+    }
+    return output;
+}
+
+// memoryHandler handles calls to allocate and free heap memory.
+void *memoryHandler(int input, int functionCode)
+{
+    void *output = 0;
+    switch (functionCode)
+    {
+    case 1:
+        output = kMalloc(input);
+        break;
+    case 2:
+        kFree(input);
+        break;
+    }
+    return output;
+}
+
+// syscallHandler calls the corresponding handler for the givem driver code (DC).
+// The syscall handlers are called based of what DC the interrupt receives.
+// They each receive a function code (FC) which specifies a read or write instruction
+// screen: DC = 1
+// keyboard: DC = 2
+// memory: DC = 3
+// FC = 1 : read
+// FC = 2 : write
+// The handler returns a void ptr so as to use the most generic type possible and to is up to the
+// higher level handlers to cast the type accordingly.
+void *syscallHandler(struct registers r)
+{
+    int input = r.eax;
+    int DC = r.ebx;
+    int FC = r.ecx;
+    void *output = 0;
+    switch (DC)
+    {
+    case 1:
+        screenHandler(input, FC);
+        break;
+    case 2:
+        output = keyboardHandler(input, FC);
+        break;
+    case 3:
+        output = memoryHandler(input, FC);
+        break;
     }
     PICsendEOI(r.intNumber);
     return output;

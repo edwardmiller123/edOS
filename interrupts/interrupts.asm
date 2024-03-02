@@ -83,7 +83,7 @@ syscall_stub:
     add esp, 8
     sti
     iret
-	
+
 ; We don't get information about which interrupt was called
 ; when the handler is run, so we will need to have a different handler
 ; for every interrupt.

@@ -1,44 +1,7 @@
-#include "../drivers/screen.h"
-#include "../drivers/keyboard.h"
+#include "../stdlib/stdlib.h"
 #include "shell.h"
 
 char *environmentVariables[100];
-
-// syscall triggers a system call to run the appropriate function based on the provided driver
-// code (DC) and function code (FC).
-// screen: DC = 1
-// keyboard: DC = 2
-// read: FC = 1
-// write: FC = 2
-char *syscall(char *input, int driverCode, int functionCode)
-{
-  __asm__ volatile("int $47" : : "a"(input), "b"(driverCode), "c"(functionCode));
-  // switch statement as there may be more "drivers" in the future
-  switch (driverCode)
-  {
-  case 2:
-    if (functionCode == 1)
-    {
-      char *output;
-      __asm__ volatile("movl %%eax, %0" : "=r"(output) :);
-      return output;
-    }
-  }
-  return "";
-}
-
-// readInput makes a syscall to read the keyboard input;
-char *readInput()
-{
-  char *output = syscall("", 2, 1);
-  return output;
-}
-
-// shellPrint makes a syscall to print the provided string to the screen
-void shellPrintStr(char *strToPrint)
-{
-  syscall(strToPrint, 1, 2);
-}
 
 // getEnvValue takes a key and a map and retreives the given value
 // stored there.
@@ -69,19 +32,19 @@ void storeEnvValue(char *key, char *value)
 {
   unsigned long hashedKey = hash(key);
   int index = hashedKey % 100;
-  environmentVariables[index] = strAllocAndStore(value);
+  environmentVariables[index] = strMallocAndStore(value);
 }
 
 // echo prints the given argument. The first "program".
 void echo(char *input)
 {
-  shellPrintStr(input);
-  shellPrintStr("\n");
+  printString(input);
+  printString("\n");
 }
 
 void help()
 {
-  shellPrintStr("edOS doesnt do much right now.\nThe only other command is echo.\nUsage: echo {your favourite word}\n");
+  printString("edOS doesnt do much right now.\nThe only other command is echo.\nUsage: echo {your favourite word}\n");
 }
 
 void export(char *expression)
@@ -188,7 +151,7 @@ void parseAndRunCommand(char *command)
   int argIdx = 0;
   int j = 0;
   // Specify whether we are parsing the command itself or the argument
-  for (int i = 0; i < BUFFER_SIZE; i++)
+  for (int i = 0; i < strLen(command); i++)
   {
     if (command[i] == '\n' || command[i] == 0)
     {
@@ -237,15 +200,16 @@ void runShell()
   char *input;
   int shellRunning = 1;
   int waitingForCommand = 1;
-  shellPrintStr("\n[ edOS.v0.9 ]:> ");
+  printString("\n[ edOS.v0.9 ]:> ");
   while (shellRunning == 1)
   {
 
     if (waitingForCommand == 1)
     {
-      input = readInput();
+      // read the key buffer
+      input = userInput(1);
 
-      for (int i = 0; i < BUFFER_SIZE; i++)
+      for (int i = 0; i < strLen(input); i++)
       {
         if (input[i] == '\n')
         {
@@ -256,16 +220,16 @@ void runShell()
     else
     {
       parseAndRunCommand(input);
-      resetKeyBuffer();
+      // clear the key buffer
+      userInput(2);
       waitingForCommand = 1;
-      shellPrintStr("[ edOS.v0.9 ]:> ");
+      printString("[ edOS.v0.9 ]:> ");
     }
   }
 }
 
-// proof that we are infact in user mode
+// for testing stuff
 void test()
 {
   kPrintString("hacking into the main frame");
-  __asm__ volatile("cli");
 }

@@ -1,5 +1,5 @@
-#ifndef I_O_ASM_HELPERS
-#define I_O_ASM_HELPERS
+#ifndef IO
+#define IO
 // Wrapper functions for accesing the I/O addresses or decice controllers.
 // word = 2bytes (16-bits)
 // "a" refers to register eax and "d" edx

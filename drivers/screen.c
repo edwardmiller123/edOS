@@ -1,6 +1,6 @@
 #include "screen.h"
-#include "../kernel/I_O_asm_helpers.h"
-#include "../kernel/utils.h"
+#include "../kernel/IO.h"
+#include "../stdlib/stdlib.h"
 
 // This maps the row and column coordinates to the corresponding memory address in
 // video memory.
@@ -196,10 +196,4 @@ void clear_screen()
       print_char(' ', 0);
     }
   }
-}
-
-// printInt prints the given integer by converting it to a string.
-void printInt(int integer)
-{
-  kPrintString(intToString(integer));
 }

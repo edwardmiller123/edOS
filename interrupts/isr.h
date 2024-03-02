@@ -65,7 +65,7 @@ extern void irq15();
 struct registers {
   // the data segment register
   unsigned int ds;
-  // 16 bit registers we will push onto the stack
+  // general purpose registers we will push onto the stack
   unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax;
   unsigned int intNumber, errCode;
   // registers automattically pushed onto the stack by the processor
