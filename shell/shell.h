@@ -1,18 +1,6 @@
 #ifndef SHELL
 #define SHELL
 
-#include "../kernel/utils.h"
-
-// syscall triggers a system call to run the appropriate function based of the provided
-// codes. i.e driver code 1 = screen, function code 2 = write
-char * syscall(char * input, int driverCode, int functionCode);
-
-// readInput makes a syscall to read the keyBuffer;
-char * readInput();
-
-// shellPrint makes a syscall to print the provided string to the screen
-void shellPrintStr(char * strToPrint);
-
 // getMapValue takes a key and a map and retreives the given value
 // stored there.
 char *getEnvValue(char *key);
