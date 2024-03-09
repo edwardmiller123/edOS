@@ -82,7 +82,7 @@ void initPIC() {
 
     // Interrupt masking. Here we are masking all interrupts except irq1.
     // ~ flips all the bits i.e 00 -> 11 etc
-    port_byte_out(MASTER_PIC_DATA, ~0x2);
+    port_byte_out(MASTER_PIC_DATA, 0xFC);
     port_byte_out(SLAVE_PIC_DATA, ~0x0); 
 
     isrInstall();
@@ -155,7 +155,7 @@ void isrHandler(struct registers reg)
     kPrintString("\n");
 }
 
-// registerInterruptHandler assigns a given isr (set of registers) to the given position in
+// registerInterruptHandler assigns a given isr handler to the given position in
 // the array of interrupt handlers
 void registerInterruptHandler(unsigned char n, intHdlr handler)
 {

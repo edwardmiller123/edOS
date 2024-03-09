@@ -1,5 +1,6 @@
 #include "../drivers/screen.h"
 #include "../drivers/keyboard.h"
+#include "../drivers/timer.h"
 #include "../interrupts/isr.h"
 #include "../drivers/syscall.h"
 
@@ -16,6 +17,7 @@ void main()
   kPrintStringAt("=============================| Welcome to edOS! |===============================\n", 0, 1);
   kPrintStringAt("================================================================================\n", 0, 2);
   initPS2Keyboard(0);
+  initTimer();
   // make the jump to user mode
   enterUserMode();
 }
