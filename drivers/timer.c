@@ -40,15 +40,12 @@
 // data register to set the divider.
 #define PIT_SETTINGS 0x7C
 
-typedef struct {
-    int milliseconds;
-    int seconds;
-    int minutes;
-} RuntimeClock;
+// The total time the system has been running for in ms
+static int systemUptime;
 
-// timerHandler updates the global count using the PIT
+// timerHandler updates the global runtime using the PIT
 void timerHandler(struct registers r) {
-    kPrintString("tick");
+    systemUptime += 1;
 }
 
 // setTimerFrequency sets how often irq0 fires to the 
@@ -74,4 +71,9 @@ void initTimer() {
     registerInterruptHandler(32, timerHandler);
     // set frequency to 1000 to tick every ms
     setTimerFrequency(1000);
+}
+
+// kGetRunTime returns the total system up time
+int kGetSystemUptime() {
+    return systemUptime;
 }

@@ -6,7 +6,7 @@
 #define STD_BLOCK_SIZE 24
 #define USEABLE_BLOCK_SIZE 16
 
-void *heapTop = HEAP_START;
+static void *heapTop = HEAP_START;
 
 // kMalloc allocates memory on the heap and returns a pointer.
 // Memory is allocated in "standard blocks" of equal size (24 bytes) in a

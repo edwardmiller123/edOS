@@ -12,4 +12,7 @@ void setTimerFrequency(short targetFreq);
 // initTimer initialises the PIT
 void initTimer();
 
+// kGetRunTime returns the total system up time
+int kGetSystemUptime();
+
 #endif

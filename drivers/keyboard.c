@@ -2,18 +2,18 @@
 #include "screen.h"
 #include "keyboard.h"
 
-int heldKey, keyCodeQueuePosition, waitingForKeyCode;
+static int heldKey, keyCodeQueuePosition, waitingForKeyCode;
 
 // keyCodeQueue holds the list of key codes from the keyboard waiting to be interpreted
 // by the driver.
-int keyCodeQueue[QUEUE_SIZE];
+static int keyCodeQueue[QUEUE_SIZE];
 
 // keyBuffer holds the characters printed to the screen to be read from by
 // the shell (or any other caller).
-char keyBuffer[BUFFER_SIZE];
+static char keyBuffer[BUFFER_SIZE];
 
-int keyBufferRear = 0;
-int keyBufferFront = 0;
+static int keyBufferRear = 0;
+static int keyBufferFront = 0;
 
 void testController(int debug)
 {
