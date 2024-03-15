@@ -3,6 +3,8 @@
 #include "keyboard.h"
 #include "syscall.h"
 #include "../kernel/mem.h"
+#include "timer.h"
+#include "../stdlib/stdlib.h"
 
 // syscallScreenHandler handles calls to print strings to the screen
 void screenHandler(int input, int functionCode)
@@ -50,6 +52,19 @@ void *memoryHandler(int input, int functionCode)
     return output;
 }
 
+// timerHandler handles calls to the system timer
+void *timerHandler(int functionCode)
+{
+    void *output = 0;
+    switch (functionCode)
+    {
+    case 1:
+        output = kGetPITCount();
+        break;
+    }
+    return output;
+}
+
 // syscallHandler calls the corresponding handler for the givem driver code (DC).
 // The syscall handlers are called based of what DC the interrupt receives.
 // They each receive a function code (FC) which specifies a read or write instruction
@@ -77,6 +92,8 @@ void *syscallHandler(struct registers r)
     case 3:
         output = memoryHandler(input, FC);
         break;
+    case 4:
+        output = timerHandler(FC);
     }
     PICsendEOI(r.intNumber);
     return output;

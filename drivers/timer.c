@@ -4,7 +4,7 @@
 
 // Channel 0 generates an interrupt (IRQ0) at a set frequency.
 // The channel stores the frequency divider (16 bit value). The default frequency is
-// 1193180Hz and the default divider value is 65535.  
+// 1193180Hz and the default divider value is 65535.
 #define CHAN_0_DATA 0x40
 
 // Sending a byte to the command register sets the timer options
@@ -43,14 +43,16 @@
 // The total time the system has been running for in ms
 static int systemUptime;
 
-// timerHandler updates the global runtime using the PIT
-void timerHandler(struct registers r) {
+// timer updates the global runtime using the PIT
+void timer(struct registers r)
+{
     systemUptime += 1;
 }
 
-// setTimerFrequency sets how often irq0 fires to the 
+// setTimerFrequency sets how often irq0 fires to the
 // given frequency which must be a 16 bit number
-void setTimerFrequency(short targetFreq) {
+void setTimerFrequency(short targetFreq)
+{
     short divider = DEFAULT_FREQ / targetFreq;
     // set the command register byte
     port_byte_out(COMMAND, PIT_SETTINGS);
@@ -63,17 +65,21 @@ void setTimerFrequency(short targetFreq) {
     // get the last 8 bits
     char highByte = divider >> 8;
     port_byte_out(CHAN_0_DATA, highByte);
-
 }
 
 // initTimer initialises the PIT
-void initTimer() {
-    registerInterruptHandler(32, timerHandler);
+void initTimer()
+{
+    systemUptime = 0;
+    __asm__ volatile("cli");
+    registerInterruptHandler(32, timer);
     // set frequency to 1000 to tick every ms
     setTimerFrequency(1000);
+    __asm__ volatile("sti");
 }
 
-// kGetRunTime returns the total system up time
-int kGetSystemUptime() {
+// kGetPITCuunt returns the total system up time in ms
+int kGetPITCount()
+{
     return systemUptime;
 }

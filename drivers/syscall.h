@@ -11,6 +11,9 @@ void *keyboardHandler(int input, int functionCode);
 // memoryHandler handles calls to allocate and free heap memory.
 void *memoryHandler(int input, int functionCode);
 
+// timerHandler handles calls to the system timer
+void *timerHandler(int functionCode);
+
 // syscallHandler calls the corresponding handler for the givem driver code (DC).
 // The syscall handlers are called based of what DC the interrupt receives.
 // They each receive a function code (FC) which specifies a read or write instruction

@@ -231,5 +231,5 @@ void runShell()
 // for testing stuff
 void test()
 {
-  kPrintString("hacking into the main frame");
+  printInt(syscall(0, 4, 1));
 }

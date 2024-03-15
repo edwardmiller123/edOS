@@ -7,8 +7,8 @@ boot_sect.bin : boot/bootloader.asm
 kernel.bin : kernel_entry.o kernel.o usermode.o shell.o isr.o syscall.o screen.o keyboard.o timer.o interrupts.o idt.o IO.o mem.o stdlib.o
 	ld -m elf_i386 -o kernel.bin -Ttext 0x1000 kernel_entry.o kernel.o usermode.o shell.o isr.o syscall.o screen.o keyboard.o timer.o interrupts.o idt.o IO.o mem.o stdlib.o --oformat binary
 
-interrupts.bin : interrupts.o isr.o syscall.o keyboard.o idt.o screen.o IO.o mem.o stdlib.o
-	ld -m elf_i386 -o interrupts.bin -Ttext 0x1000 interrupts.o isr.o syscall.o keyboard.o idt.o screen.o IO.o mem.o stdlib.o --oformat binary	
+interrupts.bin : interrupts.o isr.o syscall.o keyboard.o idt.o screen.o timer.o IO.o mem.o stdlib.o
+	ld -m elf_i386 -o interrupts.bin -Ttext 0x1000 interrupts.o isr.o syscall.o keyboard.o timer.o idt.o screen.o IO.o mem.o stdlib.o --oformat binary	
 
 kernel_entry.o : boot/kernel_entry.asm
 	nasm boot/kernel_entry.asm -f elf32 -o kernel_entry.o

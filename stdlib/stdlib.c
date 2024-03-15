@@ -183,6 +183,7 @@ char *intToString(int integer)
 void printInt(int integer)
 {
   printString(intToString(integer));
+  printString("\n");
 }
 
 // compareIntArrays compares two integer arrays of the same length and returns true if
