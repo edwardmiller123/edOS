@@ -1,6 +1,6 @@
 #include "idt.h"
 #include "isr.h"
-#include "../kernel/IO.h"
+#include "../IO.h"
 #include "../drivers/screen.h"
 
 intHdlr interruptHandlers[256];

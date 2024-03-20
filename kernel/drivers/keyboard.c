@@ -1,5 +1,5 @@
-#include "../stdlib/stdlib.h"
-#include "../kernel/IO.h"
+#include "../../stdlib/stdlib.h"
+#include "../IO.h"
 #include "screen.h"
 #include "keyboard.h"
 

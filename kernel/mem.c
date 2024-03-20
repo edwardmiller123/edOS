@@ -1,5 +1,5 @@
 #include "mem.h"
-#include "../drivers/screen.h"
+#include "drivers/screen.h"
 #include "../stdlib/stdlib.h"
 
 #define HEAP_START 0x10000

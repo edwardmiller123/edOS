@@ -1,10 +1,9 @@
-#include "screen.h"
-#include "../interrupts/isr.h"
-#include "keyboard.h"
 #include "syscall.h"
-#include "../kernel/mem.h"
+#include "screen.h"
 #include "timer.h"
-#include "../stdlib/stdlib.h"
+#include "keyboard.h"
+#include "../mem.h"
+#include "../../stdlib/stdlib.h"
 
 // syscallScreenHandler handles calls to print strings to the screen
 void screenHandler(int input, int functionCode)

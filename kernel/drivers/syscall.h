@@ -1,6 +1,8 @@
 #ifndef SYSCALL
 #define SYSCALL
 
+#include "../interrupts/isr.h"
+
 // syscallScreenHandler handles calls to print strings to the screen
 void screenHandler(int input, int functionCode);
 

@@ -1,6 +1,6 @@
 #include "screen.h"
-#include "../kernel/IO.h"
-#include "../stdlib/stdlib.h"
+#include "../IO.h"
+#include "../../stdlib/stdlib.h"
 
 // This maps the row and column coordinates to the corresponding memory address in
 // video memory.

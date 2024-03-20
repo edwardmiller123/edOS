@@ -19,8 +19,8 @@ shell.o : shell/shell.c
 stdlib.o : stdlib/stdlib.c
 	gcc -g -fno-pie -ffreestanding -m32 -c stdlib/stdlib.c -o stdlib.o 	
 
-interrupts.o : interrupts/interrupts.asm
-	nasm interrupts/interrupts.asm -f elf32 -o interrupts.o
+interrupts.o : kernel/interrupts/interrupts.asm
+	nasm kernel/interrupts/interrupts.asm -f elf32 -o interrupts.o
 
 usermode.o : kernel/usermode.asm
 	nasm kernel/usermode.asm -f elf32 -o usermode.o
@@ -31,26 +31,26 @@ mem.o : kernel/mem.c
 IO.o : kernel/IO.c
 	gcc -g -fno-pie -ffreestanding -m32 -c kernel/IO.c -o IO.o
 
-syscall.o : drivers/syscall.c
-	gcc -g -fno-pie -ffreestanding -m32 -c drivers/syscall.c -o syscall.o
+syscall.o : kernel/drivers/syscall.c
+	gcc -g -fno-pie -ffreestanding -m32 -c kernel/drivers/syscall.c -o syscall.o
 
-isr.o : interrupts/isr.c
-	gcc -g -fno-pie -ffreestanding -m32 -c interrupts/isr.c -o isr.o
+isr.o : kernel/interrupts/isr.c
+	gcc -g -fno-pie -ffreestanding -m32 -c kernel/interrupts/isr.c -o isr.o
 
-idt.o : interrupts/idt.c
-	gcc -g -fno-pie -ffreestanding -m32 -c interrupts/idt.c -o idt.o
+idt.o : kernel/interrupts/idt.c
+	gcc -g -fno-pie -ffreestanding -m32 -c kernel/interrupts/idt.c -o idt.o
 
-timer.o : drivers/timer.c
-	gcc -g -fno-pie -ffreestanding -m32 -c drivers/timer.c -o timer.o
+timer.o : kernel/drivers/timer.c
+	gcc -g -fno-pie -ffreestanding -m32 -c kernel/drivers/timer.c -o timer.o
 
-screen.o : drivers/screen.c
-	gcc -g -fno-pie -ffreestanding -m32 -c drivers/screen.c -o screen.o
+screen.o : kernel/drivers/screen.c
+	gcc -g -fno-pie -ffreestanding -m32 -c kernel/drivers/screen.c -o screen.o
 
-keyboard.o : drivers/keyboard.c
-	gcc -g -fno-pie -ffreestanding -m32 -c drivers/keyboard.c -o keyboard.o
+keyboard.o : kernel/drivers/keyboard.c
+	gcc -g -fno-pie -ffreestanding -m32 -c kernel/drivers/keyboard.c -o keyboard.o
 
-kernel.o : kernel/kernel.c
-	gcc -g -fno-pie -ffreestanding -m32 -c kernel/kernel.c -o kernel.o
+kernel.o : kernel/main.c
+	gcc -g -fno-pie -ffreestanding -m32 -c kernel/main.c -o kernel.o
 
 clean : 
 	rm *.bin *.o os-image
