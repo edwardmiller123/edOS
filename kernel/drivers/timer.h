@@ -15,4 +15,7 @@ void initTimer();
 // kGetRunTime returns the total system up time
 int kGetPITCount();
 
+// kSleep waits until the given time in seconds has passed
+void kSleep(int seconds);
+
 #endif

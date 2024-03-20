@@ -13,7 +13,8 @@ void *keyboardHandler(int input, int functionCode);
 // memoryHandler handles calls to allocate and free heap memory.
 void *memoryHandler(int input, int functionCode);
 
-// timerHandler handles calls to the system timer
+// timerHandler handles calls to the system timer.
+// Read: gets the timer count
 void *timerHandler(int functionCode);
 
 // syscallHandler calls the corresponding handler for the givem driver code (DC).

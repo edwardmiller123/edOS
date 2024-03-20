@@ -14,7 +14,8 @@ void *syscall(int input, int driverCode, int functionCode)
   __asm__ volatile("int $47" : : "a"(input), "b"(driverCode), "c"(functionCode));
 
   void *output = 0;
-  if (functionCode == 1) {
+  if (functionCode == 1)
+  {
     __asm__ volatile("movl %%eax, %0" : "=r"(output) :);
   }
 
@@ -204,4 +205,15 @@ int compareIntArrays(int array1[], int array2[], int arrayLengths)
     }
   }
   return 1;
+}
+
+// sleep waits until the given time in seconds has passed
+void sleep(int seconds)
+{
+  int time = syscall(seconds, 4, 1);
+  int timeEnd = time + (seconds * 1000);
+  while (time < timeEnd)
+  {
+    time = syscall(seconds, 4, 1);
+  }
 }

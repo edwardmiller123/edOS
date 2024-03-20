@@ -36,6 +36,8 @@ void *keyboardHandler(int input, int functionCode)
 }
 
 // memoryHandler handles calls to allocate and free heap memory.
+// Read: mallocs
+// Write: frees
 void *memoryHandler(int input, int functionCode)
 {
     void *output = 0;
@@ -51,7 +53,8 @@ void *memoryHandler(int input, int functionCode)
     return output;
 }
 
-// timerHandler handles calls to the system timer
+// timerHandler handles calls to the system timer.
+// Read: gets the timer count
 void *timerHandler(int functionCode)
 {
     void *output = 0;

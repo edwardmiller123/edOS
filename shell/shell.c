@@ -231,5 +231,5 @@ void runShell()
 // for testing stuff
 void test()
 {
-  printInt(syscall(0, 4, 1));
+  sleep(5);
 }

@@ -83,3 +83,12 @@ int kGetPITCount()
 {
     return systemUptime;
 }
+
+// kSleep waits until the given time in seconds has passed
+void kSleep(int seconds)
+{
+    int timeEnd = systemUptime + (seconds * 1000);
+    while (systemUptime < timeEnd) {
+        kPrintString("sleeping\n");
+    };
+}
