@@ -14,7 +14,7 @@ void screenHandler(int input, int functionCode)
     switch (functionCode)
     {
     case 2:
-        kPrintString(input);
+        kPrintString((char*) input);
         break;
     }
 }

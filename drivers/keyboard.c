@@ -1,3 +1,4 @@
+#include "../stdlib/stdlib.h"
 #include "../kernel/IO.h"
 #include "screen.h"
 #include "keyboard.h"
