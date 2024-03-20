@@ -78,7 +78,7 @@ void initTimer()
     __asm__ volatile("sti");
 }
 
-// kGetPITCuunt returns the total system up time in ms
+// kGetPITCount returns the total system up time in ms
 int kGetPITCount()
 {
     return systemUptime;
