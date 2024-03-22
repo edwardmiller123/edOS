@@ -210,10 +210,10 @@ int compareIntArrays(int array1[], int array2[], int arrayLengths)
 // sleep waits until the given time in seconds has passed
 void sleep(int seconds)
 {
-  int time = syscall(seconds, 4, 1);
+  int time = (int)syscall(seconds, 4, 1);
   int timeEnd = time + (seconds * 1000);
   while (time < timeEnd)
   {
-    time = syscall(seconds, 4, 1);
+    time = (int)syscall(seconds, 4, 1);
   }
 }

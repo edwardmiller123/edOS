@@ -88,7 +88,5 @@ int kGetPITCount()
 void kSleep(int seconds)
 {
     int timeEnd = systemUptime + (seconds * 1000);
-    while (systemUptime < timeEnd) {
-        kPrintString("sleeping\n");
-    };
+    while (systemUptime < timeEnd) {;;};
 }
