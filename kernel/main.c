@@ -3,6 +3,7 @@
 #include "drivers/timer.h"
 #include "interrupts/isr.h"
 #include "drivers/syscall.h"
+#include "threads/threads.h"
 
 // enterUserMode is our wrapper assembly function that jumps to user mode and then
 // starts the shell
@@ -18,6 +19,8 @@ void main()
   kPrintStringAt("================================================================================\n", 0, 2);
   initPS2Keyboard(0);
   initTimer();
+  initThreads();
+
   // make the jump to user mode
   enterUserMode();
 }

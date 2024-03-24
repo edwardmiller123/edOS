@@ -1,5 +1,6 @@
 ; TSS is used for contex switching i.e when we need to use a different stack. 
-; Here we just use it to change to a new user mode stack
+; Here we just use it to change to a new user mode stack as we handle thread
+; switches in the threads directory.
 
 TSS:
   dd 0x0 ; address of previous tss (we dont need one here)
