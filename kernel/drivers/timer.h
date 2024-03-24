@@ -1,8 +1,7 @@
 #ifndef TIMER
 #define TIMER
 
-// timerHandler updates the global count using the PIT
-
+// timer updates the global runtime using the PIT
 void timer(struct registers r);
 
 // setTimerFrequency sets how often irq0 fires to the 
