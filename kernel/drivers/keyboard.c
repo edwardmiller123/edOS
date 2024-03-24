@@ -39,8 +39,8 @@ void testController(int debug)
 void testPort1(int debug)
 {
   // test ps2 port 1
-  port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAB);
-  int testResult = port_byte_in(PS2_DATA_PORT);
+  writeByte(PS2_STATUS_AND_COMMAND_REGISTER, 0xAB);
+  int testResult = readByte(PS2_DATA_PORT);
   switch (testResult)
   {
   case 0x00:
@@ -58,8 +58,8 @@ void testPort1(int debug)
 void testPort2(int debug)
 {
   // test ps2 port 1
-  port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xA9);
-  int testResult = port_byte_in(PS2_DATA_PORT);
+  writeByte(PS2_STATUS_AND_COMMAND_REGISTER, 0xA9);
+  int testResult = readByte(PS2_DATA_PORT);
   switch (testResult)
   {
   case 0x00:
@@ -484,7 +484,7 @@ char *readKeyBuffer()
 // handleKeyboardInput reads the keyboard data port and applys the corresponding action.
 void handleKeyboardInput(struct registers r)
 {
-  int keyCode = port_byte_in(PS2_DATA_PORT);
+  int keyCode = readByte(PS2_DATA_PORT);
   if (keyCode != 0)
   {
     addToQueue(keyCode);
@@ -513,19 +513,19 @@ void initPS2Keyboard(int debug)
   registerInterruptHandler(33, handleKeyboardInput);
 
   // Disable first ps/2 port.
-  port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAD);
+  writeByte(PS2_STATUS_AND_COMMAND_REGISTER, 0xAD);
 
   // Disable second ps/2 port.
-  port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xA7);
+  writeByte(PS2_STATUS_AND_COMMAND_REGISTER, 0xA7);
 
   // flush output buffer
-  port_byte_in(PS2_DATA_PORT);
+  readByte(PS2_DATA_PORT);
 
   // Test the controller and ports are working.
   testPS2Controller(debug);
 
   // Enable first ps/2 port.
-  port_byte_out(PS2_STATUS_AND_COMMAND_REGISTER, 0xAE);
+  writeByte(PS2_STATUS_AND_COMMAND_REGISTER, 0xAE);
 
   // Reset keyboard
   int resetResponse = sendCommand(0xFF, PS2_DATA_PORT, PS2_DATA_PORT);

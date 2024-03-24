@@ -17,15 +17,15 @@ int get_cursor()
   // We need to access the VGA control registers
   // register 14 is the high byte of the cursor's memory address space
   // register 15 is the low byte of the cursor's memory addres space
-  port_byte_out(REG_SCREEN_CTRL, 14);
+  writeByte(REG_SCREEN_CTRL, 14);
 
   // read the value from the VGA controller (i.e whats currently in displayed by the
   // cursor).
   // We then shift it by 8 i.e address = address * 2^8
-  int cursorAddress = port_byte_in(REG_SCREEN_DATA) << 8;
-  port_byte_out(REG_SCREEN_CTRL, 15);
+  int cursorAddress = readByte(REG_SCREEN_DATA) << 8;
+  writeByte(REG_SCREEN_CTRL, 15);
 
-  cursorAddress += port_byte_in(REG_SCREEN_DATA);
+  cursorAddress += readByte(REG_SCREEN_DATA);
   // we multiply by two because only every other byte is actually a character
   // since the second byte in video memory is the cell attribute.
   return cursorAddress * 2;
@@ -37,10 +37,10 @@ int get_cursor()
 void set_cursor(int newCursorAddress)
 {
   newCursorAddress /= 2;
-  port_byte_out(REG_SCREEN_CTRL, 15);
-  port_byte_out(REG_SCREEN_DATA, (unsigned char)(newCursorAddress & 0xFF));
-  port_byte_out(REG_SCREEN_CTRL, 14);
-  port_byte_out(REG_SCREEN_DATA, (unsigned char)((newCursorAddress >> 8) & 0xFF));
+  writeByte(REG_SCREEN_CTRL, 15);
+  writeByte(REG_SCREEN_DATA, (unsigned char)(newCursorAddress & 0xFF));
+  writeByte(REG_SCREEN_CTRL, 14);
+  writeByte(REG_SCREEN_DATA, (unsigned char)((newCursorAddress >> 8) & 0xFF));
 }
 
 // handleScreenScroll checks if the provided cursor address is on screen and if not

@@ -5,10 +5,10 @@
 // "a" refers to register eax and "d" edx
 
 // Assembly wrapper that reads a byte from the specified I/O address (port).
-unsigned char port_byte_in(unsigned short port);
+unsigned char readByte(unsigned short port);
 
 // Assembly wrapper that writes a byte to the specifed I/O address.
-void port_byte_out(unsigned short port, unsigned char data);
+void writeByte(unsigned short port, unsigned char data);
 
 // sendCommand is a wrapper around the asm helpers that writes a command byte to a specified
 // port and reads the response from the specified port.

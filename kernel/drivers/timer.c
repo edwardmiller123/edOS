@@ -55,16 +55,16 @@ void setTimerFrequency(short targetFreq)
 {
     short divider = DEFAULT_FREQ / targetFreq;
     // set the command register byte
-    port_byte_out(COMMAND, PIT_SETTINGS);
+    writeByte(COMMAND, PIT_SETTINGS);
     // write the high and low bytes of the divider to the data register
 
     // get the first 8 bits
     char lowByte = divider & 0xFF;
-    port_byte_out(CHAN_0_DATA, lowByte);
+    writeByte(CHAN_0_DATA, lowByte);
 
     // get the last 8 bits
     char highByte = divider >> 8;
-    port_byte_out(CHAN_0_DATA, highByte);
+    writeByte(CHAN_0_DATA, highByte);
 }
 
 // initTimer initialises the PIT

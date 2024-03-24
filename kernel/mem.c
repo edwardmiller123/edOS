@@ -11,7 +11,7 @@ static void *heapTop = HEAP_START;
 // kMalloc allocates memory on the heap and returns a pointer.
 // Memory is allocated in "standard blocks" of equal size (24 bytes) in a
 // structure where the 1st 4 bytes indicate whether the block is in use or
-// not and the 2nd 4 bytes denotes how many blocks are used contigously i.e if the
+// not (maybe make this less wasteful in future) and the 2nd 4 bytes denotes how many blocks are used contigously i.e if the
 // size to be allocated is larger than a single block then an appropriate number are allocated.
 // kMalloc will first iterate through allocated blocks to check if any are free and large enough before
 // creating a new block.

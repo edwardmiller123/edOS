@@ -70,21 +70,21 @@ void initPIC() {
     // In protected mode we need to remap the PIC as IRQ's (hardware interrupts) 0 - 7 overlap with the
     // default cpu exceptions
 
-    port_byte_out(MASTER_PIC_COMMAND, 0x11);
-    port_byte_out(SLAVE_PIC_COMMAND, 0x11);
-    port_byte_out(MASTER_PIC_DATA, 0x20);
-    port_byte_out(SLAVE_PIC_DATA, 0x28);
-    port_byte_out(MASTER_PIC_DATA, 0x04);
-    port_byte_out(SLAVE_PIC_DATA, 0x02);
+    writeByte(MASTER_PIC_COMMAND, 0x11);
+    writeByte(SLAVE_PIC_COMMAND, 0x11);
+    writeByte(MASTER_PIC_DATA, 0x20);
+    writeByte(SLAVE_PIC_DATA, 0x28);
+    writeByte(MASTER_PIC_DATA, 0x04);
+    writeByte(SLAVE_PIC_DATA, 0x02);
 
     // set the PIC to 8086 mode
-    port_byte_out(MASTER_PIC_DATA, 0x01);
-    port_byte_out(SLAVE_PIC_DATA, 0x01);
+    writeByte(MASTER_PIC_DATA, 0x01);
+    writeByte(SLAVE_PIC_DATA, 0x01);
 
     // Interrupt masking. Here we are masking all interrupts except irq1.
     // ~ flips all the bits i.e 00 -> 11 etc
-    port_byte_out(MASTER_PIC_DATA, 0xFC);
-    port_byte_out(SLAVE_PIC_DATA, ~0x0); 
+    writeByte(MASTER_PIC_DATA, 0xFC);
+    writeByte(SLAVE_PIC_DATA, ~0x0); 
 
     isrInstall();
     irqInstall();
@@ -140,9 +140,9 @@ void PICsendEOI(unsigned int irq)
 {
     if (irq >= 8)
     {
-        port_byte_out(SLAVE_PIC_COMMAND, 0x20);
+        writeByte(SLAVE_PIC_COMMAND, 0x20);
     }
-    port_byte_out(MASTER_PIC_COMMAND, 0x20);
+    writeByte(MASTER_PIC_COMMAND, 0x20);
 }
 
 // isrHandler prints the corresponding message for the given interrupt

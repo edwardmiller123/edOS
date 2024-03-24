@@ -3,7 +3,7 @@
 // "a" refers to register eax and "d" edx
 
 // Assembly wrapper that reads a byte from the specified I/O address (port).
-unsigned char port_byte_in(unsigned short port)
+unsigned char readByte(unsigned short port)
 {
   // port address is written to dx. The contents stored there is then
   // stored in al which we return as result. This can then be manipulated.
@@ -23,7 +23,7 @@ unsigned char port_byte_in(unsigned short port)
 }
 
 // Assembly wrapper that writes a byte to the specifed I/O address.
-void port_byte_out(unsigned short port, unsigned char data)
+void writeByte(unsigned short port, unsigned char data)
 {
   // set the port address we want to access to dx and the data we want to store in that port address
   // in al. We then store the contense of al in dx inorder to write the data to
@@ -37,8 +37,8 @@ void port_byte_out(unsigned short port, unsigned char data)
 // port and reads the response from the specified port.
 int sendCommand(unsigned char commandToSend, unsigned short readPort, unsigned short writePort)
 {
-  port_byte_out(writePort, commandToSend);
-  int result = port_byte_in(readPort);
+  writeByte(writePort, commandToSend);
+  int result = readByte(readPort);
   return result;
 }
 
@@ -46,9 +46,9 @@ int sendCommand(unsigned char commandToSend, unsigned short readPort, unsigned s
 // specified read port.
 int sendCommandWithData(unsigned char commandToSend, unsigned char dataToSend, unsigned short readPort, unsigned short writePort)
 {
-  port_byte_out(writePort, commandToSend);
-  port_byte_out(writePort, dataToSend);
-  int result = port_byte_in(readPort);
+  writeByte(writePort, commandToSend);
+  writeByte(writePort, dataToSend);
+  int result = readByte(readPort);
   return result;
 }
 
