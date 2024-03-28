@@ -4,8 +4,8 @@ os-image : boot_sect.bin kernel.bin interrupts.bin
 boot_sect.bin : boot/bootloader.asm
 	nasm -I 'boot' boot/bootloader.asm -f bin -o boot_sect.bin
 	
-kernel.bin : kernel_entry.o kernel.o usermode.o shell.o isr.o syscall.o threads.o screen.o keyboard.o timer.o interrupts.o idt.o IO.o mem.o stdlib.o
-	ld -m elf_i386 -o kernel.bin -Ttext 0x1000 kernel_entry.o kernel.o usermode.o shell.o isr.o syscall.o threads.o screen.o keyboard.o timer.o interrupts.o idt.o IO.o mem.o stdlib.o --oformat binary
+kernel.bin : kernel_entry.o kernel.o usermode.o shell.o isr.o syscall.o threads.o threadswitch.o screen.o keyboard.o timer.o interrupts.o idt.o IO.o mem.o stdlib.o
+	ld -m elf_i386 -o kernel.bin -Ttext 0x1000 kernel_entry.o kernel.o usermode.o shell.o isr.o syscall.o threads.o threadswitch.o screen.o keyboard.o timer.o interrupts.o idt.o IO.o mem.o stdlib.o --oformat binary
 
 interrupts.bin : interrupts.o isr.o syscall.o keyboard.o idt.o screen.o timer.o IO.o mem.o stdlib.o
 	ld -m elf_i386 -o interrupts.bin -Ttext 0x1000 interrupts.o isr.o syscall.o keyboard.o timer.o idt.o screen.o IO.o mem.o stdlib.o --oformat binary	
@@ -18,6 +18,9 @@ shell.o : shell/shell.c
 
 stdlib.o : stdlib/stdlib.c
 	gcc -g -fno-pie -ffreestanding -m32 -c stdlib/stdlib.c -o stdlib.o 	
+
+threadswitch.o : kernel/threads/threadswitch.asm
+	nasm kernel/threads/threadswitch.asm -f elf32 -o threadswitch.o
 
 interrupts.o : kernel/interrupts/interrupts.asm
 	nasm kernel/interrupts/interrupts.asm -f elf32 -o interrupts.o
