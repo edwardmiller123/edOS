@@ -14,10 +14,10 @@ kernel_entry.o : boot/kernel_entry.asm
 	nasm boot/kernel_entry.asm -f elf32 -o kernel_entry.o
 
 shell.o : shell/shell.c
-	gcc -g -fno-pie -ffreestanding -m32 -c shell/shell.c -o shell.o 
+	gcc -fno-pie -ffreestanding -m32 -c shell/shell.c -o shell.o 
 
 stdlib.o : stdlib/stdlib.c
-	gcc -g -fno-pie -ffreestanding -m32 -c stdlib/stdlib.c -o stdlib.o 	
+	gcc -fno-pie -ffreestanding -m32 -c stdlib/stdlib.c -o stdlib.o 	
 
 threadswitch.o : kernel/threads/threadswitch.asm
 	nasm kernel/threads/threadswitch.asm -f elf32 -o threadswitch.o
@@ -29,34 +29,34 @@ usermode.o : kernel/usermode.asm
 	nasm kernel/usermode.asm -f elf32 -o usermode.o
 
 threads.o : kernel/threads/threads.c
-	gcc -g -fno-pie -ffreestanding -m32 -c kernel/threads/threads.c -o threads.o
+	gcc -fno-pie -ffreestanding -m32 -c kernel/threads/threads.c -o threads.o
 
 mem.o : kernel/mem.c
-	gcc -g -fno-pie -ffreestanding -m32 -c kernel/mem.c -o mem.o
+	gcc -fno-pie -ffreestanding -m32 -c kernel/mem.c -o mem.o
 
 IO.o : kernel/IO.c
-	gcc -g -fno-pie -ffreestanding -m32 -c kernel/IO.c -o IO.o
+	gcc -fno-pie -ffreestanding -m32 -c kernel/IO.c -o IO.o
 
 syscall.o : kernel/drivers/syscall.c
-	gcc -g -fno-pie -ffreestanding -m32 -c kernel/drivers/syscall.c -o syscall.o
+	gcc -fno-pie -ffreestanding -m32 -c kernel/drivers/syscall.c -o syscall.o
 
 isr.o : kernel/interrupts/isr.c
-	gcc -g -fno-pie -ffreestanding -m32 -c kernel/interrupts/isr.c -o isr.o
+	gcc -fno-pie -ffreestanding -m32 -c kernel/interrupts/isr.c -o isr.o
 
 idt.o : kernel/interrupts/idt.c
-	gcc -g -fno-pie -ffreestanding -m32 -c kernel/interrupts/idt.c -o idt.o
+	gcc -fno-pie -ffreestanding -m32 -c kernel/interrupts/idt.c -o idt.o
 
 timer.o : kernel/drivers/timer.c
-	gcc -g -fno-pie -ffreestanding -m32 -c kernel/drivers/timer.c -o timer.o
+	gcc -fno-pie -ffreestanding -m32 -c kernel/drivers/timer.c -o timer.o
 
 screen.o : kernel/drivers/screen.c
-	gcc -g -fno-pie -ffreestanding -m32 -c kernel/drivers/screen.c -o screen.o
+	gcc -fno-pie -ffreestanding -m32 -c kernel/drivers/screen.c -o screen.o
 
 keyboard.o : kernel/drivers/keyboard.c
-	gcc -g -fno-pie -ffreestanding -m32 -c kernel/drivers/keyboard.c -o keyboard.o
+	gcc -fno-pie -ffreestanding -m32 -c kernel/drivers/keyboard.c -o keyboard.o
 
 kernel.o : kernel/main.c
-	gcc -g -fno-pie -ffreestanding -m32 -c kernel/main.c -o kernel.o
+	gcc -fno-pie -ffreestanding -m32 -c kernel/main.c -o kernel.o
 
 clean : 
 	rm *.bin *.o os-image
