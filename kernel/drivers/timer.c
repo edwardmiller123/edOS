@@ -43,7 +43,8 @@
 // The total time the system has been running for in ms
 static int systemUptime;
 
-// timer updates the global runtime using the PIT
+// timer updates the global runtime using the PIT. It also calls the scheduler
+// to switch between threads (TODO)
 void timer(struct registers r)
 {
     systemUptime += 1;

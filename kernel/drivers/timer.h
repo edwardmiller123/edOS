@@ -1,7 +1,8 @@
 #ifndef TIMER
 #define TIMER
 
-// timer updates the global runtime using the PIT
+// timer updates the global runtime using the PIT. It also calls the scheduler
+// to switch between threads (TODO)
 void timer(struct registers r);
 
 // setTimerFrequency sets how often irq0 fires to the 

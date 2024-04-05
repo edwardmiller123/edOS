@@ -2,7 +2,7 @@
 #include "drivers/screen.h"
 #include "../stdlib/stdlib.h"
 
-#define HEAP_START 0x10000
+#define HEAP_START 0x200000 //(2mb)
 #define STD_BLOCK_SIZE 24
 #define USEABLE_BLOCK_SIZE 16
 
@@ -29,6 +29,7 @@ void *kMalloc(int size)
     // standard blocks in use which we store in the 5th byte.
     currentBlock += STD_BLOCK_SIZE * (*(int *)(currentBlock + 4));
   }
+  // TODO: Check we dont exceed max available memory
   // set the block as used
   *(int *)currentBlock = 1;
 

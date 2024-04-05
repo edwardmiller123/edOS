@@ -9,7 +9,7 @@ KERNEL_OFFSET equ 0x1000
 mov [BOOT_DRIVE], dl
 
 ; set the stacks base (bp) and size (sp);
-mov bp, 0x9000
+mov bp, 0x9000 ; (36kb)
 mov sp, bp
 
 ; call print_string in 16 bit mode so we know everythings working
