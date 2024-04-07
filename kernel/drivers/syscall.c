@@ -61,7 +61,8 @@ void *timerHandler(int functionCode)
     switch (functionCode)
     {
     case 1:
-        output = kGetPITCount();
+        // cast to a pointer just so the compiler dopesnt complain
+        output = (void*)kGetPITCount();
         break;
     }
     return output;
