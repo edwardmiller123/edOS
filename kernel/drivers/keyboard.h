@@ -59,7 +59,8 @@ void removeFromBufferRear();
 // its full.
 char * readKeyBuffer();
 
-void handleKeyboardInput(struct registers r);
+// handleKeyboardInput reads the keyboard data port and applys the corresponding action.
+int handleKeyboardInput(struct registers r);
 
 void initPS2Keyboard(int debug);
 
