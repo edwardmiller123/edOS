@@ -482,7 +482,7 @@ char *readKeyBuffer()
 }
 
 // handleKeyboardInput reads the keyboard data port and applys the corresponding action.
-void handleKeyboardInput(struct registers r)
+int handleKeyboardInput(struct registers r)
 {
   int keyCode = readByte(PS2_DATA_PORT);
   if (keyCode != 0)
@@ -503,6 +503,7 @@ void handleKeyboardInput(struct registers r)
     addToBuffer(character);
     print_char(character, 0);
   }
+  return 0;
 }
 
 void initPS2Keyboard(int debug)
