@@ -81,6 +81,8 @@ void initPIC();
 
 void PICsendEOI(unsigned int irq);
 
+// isrHandler prints the corresponding message for the given interrupt and halts.
+// We halt as most errors at this stage are unrecoverable so no point spaming error messages.
 void isrHandler(struct registers reg);
 
 // intHndlr is a pointer to an interrupt handler function that takes a registers and returns an int.

@@ -145,7 +145,8 @@ void PICsendEOI(unsigned int irq)
     writeByte(MASTER_PIC_COMMAND, 0x20);
 }
 
-// isrHandler prints the corresponding message for the given interrupt
+// isrHandler prints the corresponding message for the given interrupt and halts.
+// We halt as most errors at this stage are unrecoverable so no point spaming error messages.
 void isrHandler(struct registers reg)
 {
     kPrintString("Interrupt received\n");
@@ -154,6 +155,7 @@ void isrHandler(struct registers reg)
     kPrintString("Error code: ");
     printInt(reg.errCode);
     kPrintString("\n");
+    __asm__ volatile("hlt");
 }
 
 // registerInterruptHandler assigns a given isr handler to the given position in
