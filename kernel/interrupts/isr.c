@@ -45,6 +45,7 @@ void isrInstall()
 // irqInstall assigns each isr to an entry in the idt.
 void irqInstall() {
     // Install the IRQs
+
     setIDTEntry(32, (unsigned int)irq0, KERNEL_MODE_FLAGS);
     setIDTEntry(33, (unsigned int)irq1, KERNEL_MODE_FLAGS);
     setIDTEntry(34, (unsigned int)irq2, KERNEL_MODE_FLAGS);

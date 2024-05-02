@@ -1,5 +1,6 @@
 #include "../interrupts/isr.h"
 #include "../IO.h"
+#include "../threads/threads.h"
 #include "screen.h"
 
 // Channel 0 generates an interrupt (IRQ0) at a set frequency.
@@ -41,13 +42,16 @@
 #define PIT_SETTINGS 0x7C
 
 // The total time the system has been running for in ms
-static int systemUptime;
+static int systemUptime = 0;
 
 // timer updates the global runtime using the PIT. It also calls the scheduler
-// to switch between threads (TODO)
-void timer(struct registers r)
+// to switch between threads
+int timer(struct registers r)
 {
+    // run the scheduler on every tick
     systemUptime += 1;
+    schedule(systemUptime);
+    return 0;
 }
 
 // setTimerFrequency sets how often irq0 fires to the

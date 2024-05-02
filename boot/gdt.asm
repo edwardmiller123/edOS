@@ -37,6 +37,13 @@ tss_end:
 ; although not very useful for memory protection, we create
 ; the simplest gdt possible with sectors (code and data)
 ; that overlap (basic flat model).
+; positions in memory of the sectors:
+    ; 0x00: Null descriptor
+    ; 0x08: Kernel code segment
+    ; 0x10: Kernel data segment
+    ; 0x18: User code segment
+    ; 0x20: User data segment
+
 gdt_start:
 
 ; This is the null descriptor that we must have for error 

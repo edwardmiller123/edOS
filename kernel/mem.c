@@ -1,6 +1,5 @@
 #include "mem.h"
 #include "drivers/screen.h"
-#include "../stdlib/stdlib.h"
 
 #define HEAP_START 0x200000 //(2mb)
 #define STD_BLOCK_SIZE 24
