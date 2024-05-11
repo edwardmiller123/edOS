@@ -16,7 +16,7 @@ int get_cursor()
 {
   // We need to access the VGA control registers
   // register 14 is the high byte of the cursor's memory address space
-  // register 15 is the low byte of the cursor's memory addres space
+  // register 15 is the low byte of the cursor's memory address space
   writeByte(REG_SCREEN_CTRL, 14);
 
   // read the value from the VGA controller (i.e whats currently in displayed by the

@@ -3,6 +3,7 @@
 #include "threads/threads.h"
 #include "drivers/timer.h"
 #include "interrupts/isr.h"
+#include "interrupts/tss.h"
 #include "drivers/syscall.h"
 #include "../stdlib/stdlib.h"
 
@@ -30,6 +31,7 @@ void main()
 {
   // set up interrupt handling
   initPIC();
+  // clear boot sector messages
   clear_screen();
   kPrintStringAt("================================================================================\n", 0, 0);
   kPrintStringAt("=============================| Welcome to edOS! |===============================\n", 0, 1);
@@ -37,6 +39,7 @@ void main()
   initPS2Keyboard(0);
   initThreads();
   initTimer();
+  initTSS();
 
   createThread(&thread1, "THREAD1");
   createThread(&thread2, "THREAD2");

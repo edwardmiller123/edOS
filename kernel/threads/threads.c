@@ -1,9 +1,8 @@
 #include "threads.h"
+#include "../consts.h"
 #include "../mem.h"
 #include "../interrupts/isr.h"
 #include "../../stdlib/stdlib.h"
-
-#define DEFAULT_STACK 0x9000 // 36kb
 
 // A linked list containing the active threads
 typedef struct threadList
@@ -61,7 +60,8 @@ void initThreads()
     runningThread = defaultThread;
 }
 
-// createThread creates a new TCB and adds it to a linked list of active threads.
+// createThread creates a new TCB and adds it to a linked list of active threads. Takes
+// the function to run in the new thread and an ID (just for debugging for now).
 // It is left up to the scheduler to actually execute the new thread. New threads are created with
 // a max space of 6kb (0x1800) for now.
 void createThread(void *threadFunction, char * id)
@@ -97,6 +97,7 @@ void createThread(void *threadFunction, char * id)
     // stack frame of the threadSwitch function. Hence all the values we expect to pop off
     // will be at higher addresses with the return address at the highest
 
+    // confusing pointer notation but its because we are storing memory addresses
     void ** ediPtr = newThread->threadStackTop ;
     *ediPtr = 0;
 
@@ -119,7 +120,7 @@ void createThread(void *threadFunction, char * id)
 
     ebxPtr = (newThread->threadStackTop) + 12 ;
     // this contains the gdt code segment as its what we set the segment registers with
-    *ebxPtr = 0x10;
+    *ebxPtr = KERNEL_DATA_SEG;
 
     // from here we are effectivly imitating a "popa" instruction
     ediPtr = newThread->threadStackTop + 16 ;
@@ -160,7 +161,7 @@ void createThread(void *threadFunction, char * id)
     *eflagsPtr = 0; // the current status of the cpu. Just set as 0 for now
 
     void ** csPtr = (newThread->threadStackTop) + 68;
-    *csPtr = 0x08; // gdt code segment
+    *csPtr = KERNEL_CODE_SEG; // gdt code segment
 
     // finally the return address of the thread entry function
     void ** EIP = (newThread->threadStackTop) + 72;
@@ -190,9 +191,10 @@ void schedule(int currentUptime)
         // the best idea to do this before the handler is finished but interrupts are disabled
         // until switchThread completes so we are probably safe
         kPrintString("switch\n");
+        // signal the end of the timer interrupt
         PICsendEOI(0);
         // make the switch. We dont return to the scheduler from here
         runningThread = runningThread->nextThread;
-        switchThread(lastThread, lastThread->nextThread, (lastThread->nextThread)->threadEntry);
+        switchThread(lastThread, lastThread->nextThread);
     }
 }

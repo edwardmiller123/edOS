@@ -13,7 +13,7 @@ typedef struct TCB {
 } __attribute__((packed)) TCB;
 
 // switchThread switches the current thread to the one in the given TCB
-extern void switchThread(TCB * currentThread, TCB * nextThread, void * nextThreadEntryFunc);
+extern void switchThread(TCB * currentThread, TCB * nextThread);
 
 // addToThreadList adds a new TCB into the circular thread list;
 void addToThreadList(TCB * newThread);
