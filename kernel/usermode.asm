@@ -1,7 +1,7 @@
 [extern runShell]
 
 global enterUserMode
-; we enter usermode by making the cpu thimk we were already there
+; we enter usermode by making the cpu think we were already there
 enterUserMode: 
     mov ax, (4 * 8) | 3 ; usermode data segment in the gdt with bottom 2 bits set for ring 3
 	mov ds, ax
