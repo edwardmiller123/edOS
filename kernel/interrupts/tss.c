@@ -43,3 +43,10 @@ void initTSS() {
     newTSS -> esp0 = DEFAULT_STACK;
     newTSS -> ss0 = KERNEL_DATA_SEG;
 }
+
+// updateRing0Stack updates the value of esp0 in the TSS to the provided memory
+// address
+void updateRing0Stack(void * newStack) {
+	TSS * tss = TSS_POSITION;
+	tss->esp0 = newStack;
+}

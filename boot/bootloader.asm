@@ -44,7 +44,7 @@ load_kernel:
 
   ; this is the number of sectors we want to load from the boot media 
   ; (currently the max possible unless we want to change the destination)
-  mov dh, 52 
+  mov dh, 52
 
   ; store the boot_drive address back in dl
   mov dl, [BOOT_DRIVE]

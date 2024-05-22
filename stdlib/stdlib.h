@@ -22,7 +22,7 @@ void free(void * ptr);
 // or clear the key buffer (code = 2)
 char *userInput(int code);
 
-// memoryCopy takes the data (string) stored at the source address and copies
+// memoryCopy takes the data stored at the source address and copies
 // it to the destination address.
 void memoryCopy(char *source, char *destination, int numberOfBytes);
 

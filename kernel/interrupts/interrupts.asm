@@ -78,7 +78,7 @@ syscall_stub:
     pop ebx
     pop edx
     pop ecx
-    add esp, 4 ; the return value from syscallHandler is stored in eax so we skip poping a value off the stack to avoid overwriting it
+    add esp, 4 ; (pop eax) the return value from syscallHandler is stored in eax so we skip poping a value off the stack to avoid overwriting it
     ; this allows us to read it from eax later.
     add esp, 8
     sti

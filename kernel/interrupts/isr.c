@@ -175,5 +175,6 @@ void irqHandler(struct registers r)
         intHdlr handler = interruptHandlers[r.intNumber];
         handler(r);
     }
+    threadSwitch(r);
     PICsendEOI(r.intNumber);
 }

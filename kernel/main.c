@@ -12,7 +12,7 @@
 extern int enterUserMode();
 
 void thread1() {
-  for (int i = 0; i < 200; i++) {
+  for (int i = 0; i < 100; i++) {
     kPrintString("T1: ");
     printInt(i);
     kPrintString(" | ");
@@ -20,7 +20,7 @@ void thread1() {
 }
 
 void thread2() {
-  for (int i = 0; i < 200; i++) {
+  for (int i = 0; i < 100; i++) {
     kPrintString("T2: ");
     printInt(i);
     kPrintString(" | ");
@@ -41,14 +41,18 @@ void main()
   initTimer();
   initTSS();
 
-  createThread(&thread1, "THREAD1");
-  createThread(&thread2, "THREAD2");
+  // createKThread(&thread1, "THREAD1");
+  // createKThread(&thread2, "THREAD2");
 
-  for (int i = 0; i < 200; i++) {
-    kPrintString("main: ");
-    printInt(i);
-    kPrintString(" | ");
-  }
+  // for (int i = 0; i < 100; i++) {
+  //   kPrintString("main: ");
+  //   printInt(i);
+  //   kPrintString(" | ");
+  // }
+
+  // while (1) {
+  //   kPrintString("e");
+  // }
 
   // make the jump to user mode
   // enterUserMode();
