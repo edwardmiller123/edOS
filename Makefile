@@ -4,11 +4,11 @@ os-image : boot_sect.bin kernel.bin interrupts.bin
 boot_sect.bin : boot/bootloader.asm
 	nasm -I 'boot' boot/bootloader.asm -f bin -o boot_sect.bin
 	
-kernel.bin : kernel_entry.o kernel.o usermode.o shell.o isr.o syscall.o screen.o keyboard.o timer.o threads.o tss.o interrupts.o idt.o IO.o mem.o stdlib.o
-	ld -m elf_i386 -o kernel.bin -Ttext 0x1000 kernel_entry.o kernel.o usermode.o shell.o isr.o syscall.o screen.o keyboard.o timer.o threads.o tss.o interrupts.o idt.o IO.o mem.o stdlib.o --oformat binary
+kernel.bin : kernel_entry.o kernel.o usermode.o shell.o isr.o syscall.o screen.o keyboard.o timer.o threads.o tss.o interrupts.o idt.o IO.o helpers.o mem.o stdlib.o
+	ld -m elf_i386 -o kernel.bin -Ttext 0x1000 kernel_entry.o kernel.o usermode.o shell.o isr.o syscall.o screen.o keyboard.o timer.o threads.o tss.o interrupts.o idt.o IO.o helpers.o mem.o stdlib.o --oformat binary
 
-interrupts.bin : interrupts.o isr.o syscall.o keyboard.o idt.o screen.o timer.o threads.o tss.o IO.o mem.o stdlib.o
-	ld -m elf_i386 -o interrupts.bin -Ttext 0x1000 interrupts.o isr.o syscall.o keyboard.o timer.o threads.o tss.o idt.o screen.o IO.o mem.o stdlib.o --oformat binary	
+interrupts.bin : interrupts.o isr.o syscall.o keyboard.o idt.o screen.o timer.o threads.o tss.o IO.o helpers.o mem.o stdlib.o
+	ld -m elf_i386 -o interrupts.bin -Ttext 0x1000 interrupts.o isr.o syscall.o keyboard.o timer.o threads.o tss.o idt.o screen.o IO.o helpers.o mem.o stdlib.o --oformat binary	
 
 kernel_entry.o : boot/kernel_entry.asm
 	nasm boot/kernel_entry.asm -f elf32 -o kernel_entry.o
@@ -48,6 +48,9 @@ idt.o : kernel/interrupts/idt.c
 
 timer.o : kernel/drivers/timer.c
 	gcc -fno-pie -ffreestanding -m32 -c kernel/drivers/timer.c -o timer.o
+
+helpers.o : kernel/helpers.c
+	gcc -fno-pie -ffreestanding -m32 -c kernel/helpers.c -o helpers.o
 
 screen.o : kernel/drivers/screen.c
 	gcc -fno-pie -ffreestanding -m32 -c kernel/drivers/screen.c -o screen.o

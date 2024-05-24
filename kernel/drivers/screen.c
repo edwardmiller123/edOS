@@ -1,6 +1,6 @@
 #include "screen.h"
 #include "../IO.h"
-#include "../../stdlib/stdlib.h"
+#include "../helpers.h"
 
 // This maps the row and column coordinates to the corresponding memory address in
 // video memory.
@@ -181,6 +181,13 @@ void kPrintStringAt(char *message, int col, int row)
   }
 
   kPrintString(message);
+}
+
+// kPrintInt prints the given integer by converting it to a string.
+void kPrintInt(int integer)
+{
+  kPrintString(kIntToString(integer));
+  kPrintString("\n");
 }
 
 // clear_screen clears the screen by printing empty spaces at

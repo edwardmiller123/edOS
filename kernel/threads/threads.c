@@ -1,4 +1,5 @@
 #include "threads.h"
+#include "../drivers/screen.h"
 #include "../consts.h"
 #include "../mem.h"
 #include "../interrupts/tss.h"
@@ -144,13 +145,13 @@ void createKThread(void *threadFunction, char * id)
     addToThreadList(newThread);
 }
 
-// threadSwitch initiates a thread switch by setting up the stack to allow the interrupt
+// threadSwitch initiates a thread switch by setting up the stack to allow
 // the interrupt handler to actually make the switch when it returns.
 // This is done by getting the values for the registers from the global runningThread 
 // TCB and putting them on the stack. These are then popped off the stack during the 
 // interrupt into the corresponding registers. Finally when the interrupt returns the new
-// value for the stack along with the retrun address are loaded by the iret 
-// instruction and and voila. This function all updates the esp0 value in the TSS.
+// value for the stack along with the return address are loaded by the iret 
+// instruction and voila. This function also updates the esp0 value in the TSS.
 void threadSwitch(struct registers r) {
     // Save the old threads registers
     struct registers * regs = kMalloc(sizeof(struct registers));
@@ -173,6 +174,8 @@ void threadSwitch(struct registers r) {
     // by the processor.
 
     // next set up the stack that the irq handler expects
+
+    // TODO: make sure the stack top is where you expect here 
 
     // First we add what iret expects
 

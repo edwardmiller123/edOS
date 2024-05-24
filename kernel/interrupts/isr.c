@@ -167,7 +167,7 @@ void registerInterruptHandler(unsigned char n, intHdlr handler)
 }
 
 // irqHandler sends the EOI command for a given interrupt and calls the appropriate handler function
-// for the given irq
+// for the given irq.
 void irqHandler(struct registers r)
 {
     if (interruptHandlers[r.intNumber] != 0)
