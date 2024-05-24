@@ -2,7 +2,7 @@
 [org 0x7c00]
 
 ; create an alias for the memory offset which we will load our kernel into.
-KERNEL_OFFSET equ 0x1000
+KERNEL_OFFSET equ 0x2000
 
 ; bios stores our boot drive in dl so we store its contense at the address 
 ; stored in the BOOT_DRIVE label so we can remember it.
@@ -43,8 +43,10 @@ load_kernel:
   mov bx, KERNEL_OFFSET
 
   ; this is the number of sectors we want to load from the boot media 
-  ; (currently the max possible unless we want to change the destination)
-  mov dh, 52
+  ; (currently the max possible otherwise we start overiding the boot sector)
+  ; To calculate the max number of sectors we do:
+  ; ( BOOT_SECT_LOCATION(0x7c00) - KERNEL_OFFSET(0x2000) ) / SECTOR_SIZE(0x200)
+  mov dh, 40
 
   ; store the boot_drive address back in dl
   mov dl, [BOOT_DRIVE]

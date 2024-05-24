@@ -5,10 +5,10 @@ boot_sect.bin : boot/bootloader.asm
 	nasm -I 'boot' boot/bootloader.asm -f bin -o boot_sect.bin
 	
 kernel.bin : kernel_entry.o kernel.o usermode.o shell.o isr.o syscall.o screen.o keyboard.o timer.o threads.o tss.o interrupts.o idt.o IO.o helpers.o mem.o stdlib.o
-	ld -m elf_i386 -o kernel.bin -Ttext 0x1000 kernel_entry.o kernel.o usermode.o shell.o isr.o syscall.o screen.o keyboard.o timer.o threads.o tss.o interrupts.o idt.o IO.o helpers.o mem.o stdlib.o --oformat binary
+	ld -m elf_i386 -o kernel.bin -Ttext 0x2000 kernel_entry.o kernel.o usermode.o shell.o isr.o syscall.o screen.o keyboard.o timer.o threads.o tss.o interrupts.o idt.o IO.o helpers.o mem.o stdlib.o --oformat binary
 
 interrupts.bin : interrupts.o isr.o syscall.o keyboard.o idt.o screen.o timer.o threads.o tss.o IO.o helpers.o mem.o stdlib.o
-	ld -m elf_i386 -o interrupts.bin -Ttext 0x1000 interrupts.o isr.o syscall.o keyboard.o timer.o threads.o tss.o idt.o screen.o IO.o helpers.o mem.o stdlib.o --oformat binary	
+	ld -m elf_i386 -o interrupts.bin -Ttext 0x2000 interrupts.o isr.o syscall.o keyboard.o timer.o threads.o tss.o idt.o screen.o IO.o helpers.o mem.o stdlib.o --oformat binary	
 
 kernel_entry.o : boot/kernel_entry.asm
 	nasm boot/kernel_entry.asm -f elf32 -o kernel_entry.o
