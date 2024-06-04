@@ -36,7 +36,7 @@ gdt_code_kernel:
   ;The order is 
   ; 1st flags : ( present ) ( privilege DPL ) ( descriptor type )
   ; type flags : ( code ) ( conforming ) ( readable ) ( accessed )
-  ; 2nd flags : ( granularity ) (32 - bit default ) (64 - bit seg ) ( AVL )
+  ; 2nd flags : ( granularity ) (32-bit default ) (64 - bit seg ) ( AVL )
   db 10011010b ; 1st flags , type flags
   db 11001111b ; 2nd flags, Limit high (bits 16 - 19)
 
@@ -116,7 +116,7 @@ gdt_descriptor:
   dw gdt_end - gdt_start - 1
 
   ; Start address of the gdt.
-  dd gdt_start 
+  dd gdt_start
 
 ; useful constants defining our segments
 KERNEL_CODE_SEG equ gdt_code_kernel - gdt_start
