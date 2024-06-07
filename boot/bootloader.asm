@@ -1,16 +1,25 @@
 ;any memory offsets will be from this point (location of boot sector)
-[org 0x7c00]
+[org 0x7C00] ; loaded at 31kb mark
 
 ; create an alias for the memory offset which we will load our kernel into.
-KERNEL_OFFSET equ 0x2000
+KERNEL_OFFSET equ 0x7E00 ; load at 31.5kb mark
+
+; set the segment registers as the bios doesnt initialise them itself
+mov ax, 0x0
+mov ds, ax
+mov es, ax
+mov fs, ax
+mov gs, ax
+mov ss, ax
+mov sp, ax
+
+;set the stack position (sp);
+mov bp, 0x7C00 ; init stack at 31kb (grows downwards)
+mov sp, bp
 
 ; bios stores our boot drive in dl so we store its contense at the address 
 ; stored in the BOOT_DRIVE label so we can remember it.
 mov [BOOT_DRIVE], dl
-
-; set the stacks base (bp) and size (sp);
-mov bp, 0x9000 ; (36kb)
-mov sp, bp
 
 ; call print_string in 16 bit mode so we know everythings working
 mov bx, MSG_REAL_MODE
@@ -43,10 +52,11 @@ load_kernel:
   mov bx, KERNEL_OFFSET
 
   ; this is the number of sectors we want to load from the boot media 
-  ; (currently the max possible otherwise we start overiding the boot sector)
-  ; To calculate the max number of sectors we do:
-  ; ( BOOT_SECT_LOCATION(0x7c00) - KERNEL_OFFSET(0x2000) ) / SECTOR_SIZE(0x200)
-  mov dh, 40
+  ; we need to ensure not to overwrite anything we shouldnt. We are loading
+  ; the kernel above the bootsector so we have 545kb until we hit bios memory
+  ; TODO: IBM PC DMA can only access 64kb of memory due to shitty design (thanks IBM) 
+  ; so we need to figure out how to load more sectors as this isnt enough
+  mov dh, 65
 
   ; store the boot_drive address back in dl
   mov dl, [BOOT_DRIVE]
@@ -54,6 +64,7 @@ load_kernel:
   ; make the call to read the disk
   call disk_load
   ret
+
 
 [bits 32]
 ; this is where we jump to after we have made the switch in switch_to_pm
@@ -74,7 +85,7 @@ BEGIN_PM:
   ltr ax
 
   ; Finally jump to the memory address of our loaded kernel.
-  call KERNEL_OFFSET
+  jmp KERNEL_OFFSET
 
   ; Hang forever (not really nessecary since we never return from the above)
   jmp $

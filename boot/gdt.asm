@@ -125,6 +125,6 @@ KERNEL_DATA_SEG equ gdt_data_kernel - gdt_start
 ; As a work around to some poor OS design, we initialise the TSS later once
 ; we have booted into the kernel. We therefor hardcode the TSS position for while 
 ; up the segment in the GDT as this is where it will be loaded later (fingers crossed).
-TSS equ 0x8000
+TSS equ 0x80000
 TSS_SIZE equ 108
 
