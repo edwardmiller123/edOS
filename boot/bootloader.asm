@@ -1,3 +1,8 @@
+; TODO: To solve issue of loading kernel across 64kb boundary need to implement
+; a 2 stage bootloader. Stage 1 will load the stage 2 at 0x600 and set the stack at 0x600 (may need to load higher as bios memory occupies below 0x500)
+; Stage 2 will load the kernel at 0x900 and make the switch to PM.
+; Stage 2 must also only be 512 bytes so we can easily load it from the floppy
+
 ;any memory offsets will be from this point (location of boot sector)
 [org 0x7C00] ; loaded at 31kb mark
 
