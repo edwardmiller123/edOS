@@ -1,9 +1,6 @@
 os-image : boot_stage_1.bin boot_stage_2.bin kernel.bin interrupts.bin
 	cat boot_stage_1.bin boot_stage_2.bin kernel.bin interrupts.bin > os-image
 
-# boot_sect.bin : boot/bootloader.asm
-# 	nasm -I 'boot' boot/bootloader.asm -f bin -o boot_sect.bin
-
 boot_stage_1.bin : boot/boot_stage_1.asm
 	nasm -I 'boot' boot/boot_stage_1.asm -f bin -o boot_stage_1.bin
 
