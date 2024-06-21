@@ -10,6 +10,15 @@
 #define KERNEL_MODE_FLAGS 0x8E
 #define USER_MODE_FLAGS 0xEE
 
+// wrapper for sti instruction (enables interrupts)
+void sti();
+
+// wrapper for cli instruction (disables interrupts)
+void cli();
+
+// hlt is a C wrapper for the hlt instruction
+void hlt();
+
 // The Isr definitions. These are what gets called for each interrupt.
 
 extern void isr0();

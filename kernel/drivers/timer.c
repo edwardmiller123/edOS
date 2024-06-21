@@ -76,11 +76,9 @@ void setTimerFrequency(short targetFreq)
 void initTimer()
 {
     systemUptime = 0;
-    __asm__ volatile("cli");
     registerInterruptHandler(32, timer);
     // set frequency to 1000 to tick every ms
     setTimerFrequency(1000);
-    __asm__ volatile("sti");
 }
 
 // kGetPITCount returns the total system up time in ms

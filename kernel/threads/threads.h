@@ -10,6 +10,7 @@ struct registers {
   unsigned int intNumber, errCode;
   // registers automattically pushed onto the stack by the processor
   // These are what iret expects to be on the stack
+  // useresp and ss are only pushed if a priviledge change occurs
   unsigned int eip, cs, eflags, useresp, ss;
 };
 

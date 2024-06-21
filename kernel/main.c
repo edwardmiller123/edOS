@@ -29,17 +29,21 @@ void thread2() {
 
 void main()
 {
-  // set up interrupt handling
-  initPIC();
+  cli();
   // clear boot sector messages
   clear_screen();
   kPrintStringAt("================================================================================\n", 0, 0);
   kPrintStringAt("=============================| Welcome to edOS! |===============================\n", 0, 1);
   kPrintStringAt("================================================================================\n", 0, 2);
+
+  // initial kernel setup
+  initPIC();
+  initTSS();
   initPS2Keyboard(0);
   initThreads();
   initTimer();
-  initTSS();
+  sti();
+  
 
   // createKThread(&thread1, "THREAD1");
   // createKThread(&thread2, "THREAD2");
@@ -48,10 +52,6 @@ void main()
   //   kPrintString("main: ");
   //   printInt(i);
   //   kPrintString(" | ");
-  // }
-
-  // while (1) {
-  //   kPrintString("e");
   // }
 
   // make the jump to user mode

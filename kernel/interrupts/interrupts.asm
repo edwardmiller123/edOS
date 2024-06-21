@@ -28,10 +28,15 @@ isr_common_stub:
 	popa
 	add esp, 8 ; Cleans up the pushed error code and pushed ISR number
 	sti
-	iret ; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
+	iret ; pops 5 things at once: CS, EIP, EFLAGS, (SS, and ESP if coming from user mode)
 
 ; very similar to the isr routine but the restore is slightly different
 irq_common_stub:
+    ; get the routines stack frame in ebp so it can be used
+    ; in the irqHandler
+    push ebp
+    mov ebp, esp 
+
     pusha 
 	mov ax, ds 
 	push eax 
@@ -42,14 +47,15 @@ irq_common_stub:
 	mov gs, ax
 
     call irqHandler
-
     pop ebx  ; To differentiate from the isr we pop ebx.
     mov ds, bx
     mov es, bx
     mov fs, bx
     mov gs, bx
     popa
-    add esp, 8
+    add esp, 4 ; this cleans up the ebp we pushed. We dont need to worry about restoring it
+    ; as the irqHandler does that for us.
+    add esp, 8 ; Cleans up the pushed error code and pushed IRQ number
     sti
     iret 
 

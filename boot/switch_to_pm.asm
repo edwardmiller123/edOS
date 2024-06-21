@@ -44,9 +44,9 @@ init_pm:
   mov fs, ax
   mov gs, ax
 
-  ; update the stack position so its at the top of the free space to avoid 
+  ; update the stack position so its well into free space to avoid 
   ; over writing things.
-  mov ebp, 0x90000
+  mov ebp, 0x900000 ; (9mb)
   mov esp, ebp
 
   ; call a label that is comfortably in our 32 bit section. Since we never return from here

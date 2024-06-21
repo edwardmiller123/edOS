@@ -54,7 +54,7 @@ load_kernel:
 
   ; this is the number of sectors we want to load from the boot media 
   ; we need to ensure not to overwrite anything we shouldnt.
-  mov dh, 100
+  mov dh, 123
 
   ; store the boot_drive address back in dl
   mov dl, [BOOT_DRIVE]

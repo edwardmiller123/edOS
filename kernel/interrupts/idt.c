@@ -28,6 +28,4 @@ void setIdt()
   __asm__ volatile("lidtl (%0)"
                    :
                    : "r"(&idtDesc));
-  // enable interrupts again
-  __asm__ volatile("sti");
 }

@@ -1,7 +1,7 @@
 #include "mem.h"
 #include "drivers/screen.h"
 
-#define HEAP_START 0x200000 //(2mb)
+#define HEAP_START 0x100000 //(1mb)
 #define STD_BLOCK_SIZE 24
 #define USEABLE_BLOCK_SIZE 16
 
@@ -57,4 +57,22 @@ void kFree(void *ptr)
     return;
   }
   *(int *)(ptr - 8) = 0;
+}
+
+// setAtAdress stores the given value at the provided bare metal memory address.
+// Allows us to store values at specific addresses in C (Normally the compiler wouldnt allow this).
+// Caution: This uses eax and ebx to actually do the move so any values already there
+// wil be overwritten which could lead to undefined behviour.
+void setAtAddress(int val, void * address) {
+  __asm__ volatile("movl %%eax, (%%ebx)" : : "a"(val), "b"(address));
+}
+
+// getAtAddress reads the value stored at a bare metal memory address.
+// Allows us to read values at specific addresses in C (Normally the compiler wouldnt allow this).
+// Caution: This uses eax and ebx to actually do the move so any values already there
+// wil be overwritten which could lead to undefined behviour.
+void * getAtAddress(void * address) {
+  void * val;
+  __asm__ volatile("movl (%%ebx), %%eax" : "=a"(val): "b"(address));
+  return val;
 }

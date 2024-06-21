@@ -508,8 +508,6 @@ int handleKeyboardInput(struct registers r)
 
 void initPS2Keyboard(int debug)
 {
-  // disable interrupts while initialising the keyboard.
-  __asm__ volatile("cli");
 
   registerInterruptHandler(33, handleKeyboardInput);
 
@@ -546,7 +544,4 @@ void initPS2Keyboard(int debug)
 
   resetQueue();
   resetKeyBuffer();
-
-  // enable interrupts again.
-  __asm__ volatile("sti");
 }
