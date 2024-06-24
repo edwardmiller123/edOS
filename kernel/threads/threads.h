@@ -6,13 +6,26 @@ struct registers {
   // the data segment register
   unsigned int ds;
   // general purpose registers we will push onto the stack
-  unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax;
-  unsigned int intNumber, errCode;
+  unsigned int edi;
+  unsigned int esi;
+  unsigned int ebp;
+  unsigned int esp;
+  unsigned int ebx;
+  unsigned int edx;
+  unsigned int ecx;
+  unsigned int eax;
+  unsigned int errCode;
+  unsigned int intNumber;
+
   // registers automattically pushed onto the stack by the processor
   // These are what iret expects to be on the stack
+  unsigned int eflags;
+  unsigned int eip;
+  unsigned int cs;
   // useresp and ss are only pushed if a priviledge change occurs
-  unsigned int eip, cs, eflags, useresp, ss;
-};
+  unsigned int useresp; 
+  unsigned int ss;
+}__attribute__((packed));
 
 // TCB (thread controller block) holds information about a running
 // thread.

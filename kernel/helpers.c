@@ -41,3 +41,9 @@ char *kIntToString(int integer)
 
   return resultString;
 }
+
+// toggleBit toggles the nth bit of the given number
+int toggleBit(int number, int n)
+{
+  return number ^ (1 << n);
+}

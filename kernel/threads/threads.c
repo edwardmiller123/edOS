@@ -2,6 +2,7 @@
 #include "../drivers/screen.h"
 #include "../consts.h"
 #include "../mem.h"
+#include "../helpers.h"
 #include "../interrupts/tss.h"
 #include "../interrupts/isr.h"
 #include "../../stdlib/stdlib.h"
@@ -200,10 +201,6 @@ void threadSwitch(struct registers r) {
     // The old value of ebp is at the top of the stack since its the first thing we pushed.
     void * oldEbpValue = getAtAddress(irqStackFrame - 4);
 
-    kPrintString("----setting new stack-----\n");
-    kPrintInt(irqStackFrame);
-    kPrintString("---------\n");
-
     // First we add what iret expects
 
     // Set the return address for the irq accordingly.
@@ -222,8 +219,10 @@ void threadSwitch(struct registers r) {
     // set cs value
     setAtAddress(runningThread->state->cs, irqStackFrame + 12);
 
-    // set EFLAGS value
-    setAtAddress(runningThread->state->eflags, irqStackFrame + 16);
+    // set EFLAGS value. We must manually flip the IF (Interrupt Enable Flag) bit 
+    // as 
+    int editedEFLAGS = toggleBit(runningThread->state->eflags, 9);
+    setAtAddress(editedEFLAGS, irqStackFrame + 16);
 
     // These are only on the stack when coming from usermode
     // void ** useresp = runningThread->state->useresp + 12;

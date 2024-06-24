@@ -54,6 +54,7 @@ void main()
   //   kPrintString(" | ");
   // }
 
+  // TODO: Figure out why this is now broken
   // make the jump to user mode
   // enterUserMode();
 

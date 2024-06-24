@@ -193,7 +193,6 @@ void irqHandler(struct registers r)
         intHdlr handler = interruptHandlers[r.intNumber];
         handler(r);
     }
-    kPrintInt(r.ebp);
     threadSwitch(r);
     PICsendEOI(r.intNumber);
 }

@@ -8,4 +8,7 @@ char *kReverseString(char *str);
 // kIntToString converts a base 10 integer to a string.
 char *kIntToString(int integer);
 
+// toggleBit toggles the nth bit of the given number
+int toggleBit(int number, int n);
+
 #endif

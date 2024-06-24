@@ -62,7 +62,7 @@ void kFree(void *ptr)
 // setAtAdress stores the given value at the provided bare metal memory address.
 // Allows us to store values at specific addresses in C (Normally the compiler wouldnt allow this).
 // Caution: This uses eax and ebx to actually do the move so any values already there
-// wil be overwritten which could lead to undefined behviour.
+// will be overwritten which could lead to undefined behviour.
 void setAtAddress(int val, void * address) {
   __asm__ volatile("movl %%eax, (%%ebx)" : : "a"(val), "b"(address));
 }
@@ -70,7 +70,7 @@ void setAtAddress(int val, void * address) {
 // getAtAddress reads the value stored at a bare metal memory address.
 // Allows us to read values at specific addresses in C (Normally the compiler wouldnt allow this).
 // Caution: This uses eax and ebx to actually do the move so any values already there
-// wil be overwritten which could lead to undefined behviour.
+// will be overwritten which could lead to undefined behviour.
 void * getAtAddress(void * address) {
   void * val;
   __asm__ volatile("movl (%%ebx), %%eax" : "=a"(val): "b"(address));

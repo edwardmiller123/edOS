@@ -15,7 +15,7 @@ mov ss, ax
 mov sp, ax
 
 ; set the stack position (sp);
-mov bp, 0x600 ; init stack at 31kb (grows downwards)
+mov bp, 0x600 ; init stack at 1.5kb (grows downwards)
 mov sp, bp
 
 ; bios stores our boot drive in dl so we store its contense at the address 
@@ -75,11 +75,6 @@ BEGIN_PM:
   ; adding increments of 160
   mov eax, 2400
   call print_string_pm
-
-  ; load the tss to allow for pivilege level changes (and context switches but
-  ; we arent using it for that here)
-  mov ax, 0x28 ; address of the tss descriptor in the gdt
-  ltr ax
 
   ; Finally jump to the memory address of our loaded kernel.
   jmp KERNEL_OFFSET
