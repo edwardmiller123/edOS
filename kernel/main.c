@@ -12,7 +12,7 @@
 extern int enterUserMode();
 
 void thread1() {
-  for (int i = 0; i < 100; i++) {
+  for (int i = 0; i < 50; i++) {
     kPrintString("T1: ");
     printInt(i);
     kPrintString(" | ");
@@ -20,7 +20,7 @@ void thread1() {
 }
 
 void thread2() {
-  for (int i = 0; i < 100; i++) {
+  for (int i = 0; i < 50; i++) {
     kPrintString("T2: ");
     printInt(i);
     kPrintString(" | ");
@@ -29,13 +29,15 @@ void thread2() {
 
 void main()
 {
-  cli();
+  // briefly enable interrupts to catch any errors before we start 
+  // initialising other things
+  sti();
   // clear boot sector messages
   clear_screen();
   kPrintStringAt("================================================================================\n", 0, 0);
   kPrintStringAt("=============================| Welcome to edOS! |===============================\n", 0, 1);
   kPrintStringAt("================================================================================\n", 0, 2);
-
+  cli();
   // initial kernel setup
   initPIC();
   initTSS();
@@ -48,7 +50,7 @@ void main()
   // createKThread(&thread1, "THREAD1");
   // createKThread(&thread2, "THREAD2");
 
-  // for (int i = 0; i < 100; i++) {
+  // for (int i = 0; i < 50; i++) {
   //   kPrintString("main: ");
   //   printInt(i);
   //   kPrintString(" | ");
