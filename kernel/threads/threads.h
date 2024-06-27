@@ -14,8 +14,8 @@ struct registers {
   unsigned int edx;
   unsigned int ecx;
   unsigned int eax;
-  unsigned int errCode;
   unsigned int intNumber;
+  unsigned int errCode;
 
   // registers automattically pushed onto the stack by the processor
   // These are what iret expects to be on the stack
@@ -23,20 +23,33 @@ struct registers {
   unsigned int eip;
   unsigned int cs;
   // useresp and ss are only pushed if a priviledge change occurs
-  unsigned int useresp; 
-  unsigned int ss;
+  unsigned int ss; 
+  unsigned int useresp;
 }__attribute__((packed));
 
 // TCB (thread controller block) holds information about a running
 // thread.
 typedef struct TCB {
     void * threadStackTop;
+
+    // the saved value of ebp at the time the thread was interrupted. We save this
+    // as an extra field here as we need to use the value of state->ebp to access
+    // values on the interrupt routines stack.
+    void * threadEbp;
+
+    // the saved values of the registers at the time the thread was interrupted
     struct registers * state;
     struct TCB * nextThread;
     struct TCB * previousThread;
+
+    // address of the threads entry function
     void * threadEntry;
-    int initTime; // the time stamp when the thread was created
-    int cpuTime; // amount of processing time spent on this thread
+
+    // the time stamp when the thread was created
+    int initTime;
+
+    // amount of processing time spent on this thread
+    int cpuTime;
     char * id;
 } __attribute__((packed)) TCB;
 
