@@ -20,7 +20,7 @@ void cli()
 // hlt is a C wrapper for the hlt instruction
 void hlt()
 {
-  __asm__ volatile("hlt");
+    __asm__ volatile("hlt");
 }
 
 // isrInstall assigns each isr to an entry in the idt.
@@ -188,11 +188,35 @@ void registerInterruptHandler(unsigned char n, intHdlr handler)
 // for the given irq.
 void irqHandler(struct registers r)
 {
+    // kPrintString("=============\n");
+    // kPrintString("intNum: ");
+    // kPrintInt(r.intNumber);
+    // kPrintString("errCode: ");
+    // kPrintInt(r.errCode);
+    // kPrintString("eip: ");
+    // kPrintInt(r.eip);
+    // kPrintString("cs: ");
+    // kPrintInt(r.cs);
+    // kPrintString("eflags: ");
+    // kPrintInt(r.eflags);
+    // kPrintString("useresp: ");
+    // kPrintInt(r.useresp);
+    // kPrintString("ss: ");
+    // kPrintInt(r.ss);
+    // kPrintString("=============\n");
+    // hlt();
+
     if (interruptHandlers[r.intNumber] != 0)
     {
         intHdlr handler = interruptHandlers[r.intNumber];
         handler(r);
     }
-    threadSwitch(r);
+
+    // kPrintInt(r.intNumber);
+    // We only load a different thread for timer interrupts.
+    if (r.intNumber == 32)
+    {
+        threadSwitch(r);
+    }
     PICsendEOI(r.intNumber);
 }

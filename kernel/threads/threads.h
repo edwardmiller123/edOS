@@ -1,15 +1,19 @@
 #ifndef THREADS
 #define THREADS
 
-// a way of storing the values of assembly registers in c.
+// a way of storing the values of the registers when 
+// calling the interrupt handler from assembly.
 struct registers {
+  // just before the call instruction we push esp on the stack. This value will actually
+  // be 4 bytes higher than the actual value since the push modifes esp in the process.
+  unsigned int calleresp;
   // the data segment register
   unsigned int ds;
   // general purpose registers we will push onto the stack
   unsigned int edi;
   unsigned int esi;
   unsigned int ebp;
-  unsigned int esp;
+  unsigned int esp; // this is always empty as the pusha instruction skips it
   unsigned int ebx;
   unsigned int edx;
   unsigned int ecx;
@@ -19,23 +23,18 @@ struct registers {
 
   // registers automattically pushed onto the stack by the processor
   // These are what iret expects to be on the stack
-  unsigned int eflags;
   unsigned int eip;
   unsigned int cs;
+  unsigned int eflags;
   // useresp and ss are only pushed if a priviledge change occurs
-  unsigned int ss; 
-  unsigned int useresp;
+  unsigned int useresp; 
+  unsigned int ss;
 }__attribute__((packed));
 
 // TCB (thread controller block) holds information about a running
 // thread.
 typedef struct TCB {
     void * threadStackTop;
-
-    // the saved value of ebp at the time the thread was interrupted. We save this
-    // as an extra field here as we need to use the value of state->ebp to access
-    // values on the interrupt routines stack.
-    void * threadEbp;
 
     // the saved values of the registers at the time the thread was interrupted
     struct registers * state;

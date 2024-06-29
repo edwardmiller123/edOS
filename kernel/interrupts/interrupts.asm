@@ -15,9 +15,13 @@ isr_common_stub:
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
+
+    push esp,
 	
     ; 2. Call C handler
 	call isrHandler
+
+    add esp, 4
 	
     ; 3. Restore state
 	pop eax 
@@ -32,11 +36,6 @@ isr_common_stub:
 
 ; very similar to the isr routine but the restore is slightly different
 irq_common_stub:
-    ; get the routines stack frame in ebp so it can be used
-    ; in the irqHandler
-    push ebp
-    mov ebp, esp 
-
     pusha 
 	mov ax, ds 
 	push eax 
@@ -46,7 +45,13 @@ irq_common_stub:
 	mov fs, ax
 	mov gs, ax
 
+    ; save esp so we can easily access the caller stack in the irqHandler
+    push esp
+
     call irqHandler
+
+    ; skip poping off esp
+    add esp, 4
 
     pop ebx  ; To differentiate from the isr we pop ebx.
     mov ds, bx
@@ -54,10 +59,6 @@ irq_common_stub:
     mov fs, bx
     mov gs, bx
     popa
-
-    add esp, 4 ; this cleans up the ebp we pushed. We dont need to worry about restoring it
-    ; as the irqHandler does that for us.
-
     add esp, 8 ; Cleans up the pushed error code and pushed IRQ number
     sti
     iret 
@@ -73,7 +74,11 @@ syscall_stub:
 	mov fs, ax
 	mov gs, ax
 
+    push esp
+
     call syscallHandler
+
+    add esp, 4
 
     pop ebx 
     mov ds, bx
@@ -380,12 +385,9 @@ irq0: ; timer
 	jmp irq_common_stub
 
 irq1: ; keyboard
-    ; stack 9437132
-    ; hlt
 	cli
 	push dword 1
 	push dword 33
-    ; stack 9437124
 	jmp irq_common_stub
 
 irq2:
