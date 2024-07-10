@@ -32,7 +32,7 @@ typedef struct threadList
 
 // runningThread is the TCB of the thread currently executing (or just about to be executed)
 // The IRQ handler always loads its registers from whatever is stored in this variable.
-static TCB *runningThread;
+static TCB *runningThread = 0;
 
 // activeThreads contains all TCBs of currently in progress threads.
 static threadList activeThreads;
@@ -127,7 +127,7 @@ void threadWrapper()
 // the function to run in the new thread and an ID (just for debugging for now).
 // It is left up to the scheduler and IRQ handler to actually execute the new thread.
 // New threads are created with a max space of 6kb (0x1800) for now.
-// The memory alloctaed for a thread gets freed when we remove it from the list.
+// The memory alloctaed for a TCB gets freed when we remove it from the list.
 void createKThread(void *threadFunction, char *id)
 {
     // create the new TCB. This gets freed when the thread gets terminated.
@@ -157,12 +157,12 @@ void createKThread(void *threadFunction, char *id)
     struct registers regs = {
         // calleresp is only used by the irq handler and is set byu the calling routine anyway so
         // just set it to 0 as the initial value doesnt matter
-        .calleresp = 0,
+        .stubesp = 0,
         .ds = KERNEL_DATA_SEG,
         .edi = 0,
         .esi = 0,
         .ebp = 0,
-        .esp = 0,
+        .unused = 0,
         // This first esp value "shouldn't" matter as it gets set from the TSS anyway by the IRET.
         .ebx = 0,
         .edx = 0,
@@ -190,6 +190,12 @@ void createKThread(void *threadFunction, char *id)
 // interrupt into the corresponding registers. Finally when the interrupt returns the new
 // value for the stack along with the return address are loaded by the iret
 // instruction and voila. This function also updates the esp0 value in the TSS.
+
+// TODO:
+// thread switch saves the current register values and puts the new values on the 
+// new threads stack. We then return to the irq stub which calls an assembly routine to
+// actually switch the satck pointer if we are in ring 0. If we are in ring 3 then the stack 
+// pointer will be pulled by the iret from the tss anyway so we just need to switch esp0.
 void threadSwitch(struct registers r)
 {
     // Save the old threads registers
@@ -207,10 +213,17 @@ void threadSwitch(struct registers r)
 
     // This is the stack frame position of the irq stub. We add 36 to the callerEsp
     // as this is the sum of all registers plus a value for ds pushed onto the stack.
-    void *irqStackFrame = (void *)(runningThread->state->calleresp + 36);
+    void *irqStackFrame = (void *)(runningThread->state->stubesp + 36);
+
+    // this is the value of esp before the interrupt fired i.e the previously running threads stack.
+    // it is 20 bytes above the irq stubs stack frame as 8 bytes are taken by the error code and int number
+    // and then the extra 12 by the various values pushed on the stack during the interrupt.
+    // NOTE: this is only needed for ring 0 interrupts as in ring 3 the useresp and ss are then pushed as well.
+    void *callerEsp = (void*)(irqStackFrame + 20);
+    
     // update esp0 in the TSS
     // TODO: fix this when doing user mode threads
-    updateRing0Stack((void *)runningThread->threadStackTop);
+    // updateRing0Stack((void *)runningThread->threadStackTop);
 
     // Get the registers from runningThread and push them onto the stack.
     // These will then be popped off by
@@ -240,48 +253,48 @@ void threadSwitch(struct registers r)
     // set cs value
     setAtAddress(runningThread->state->cs, irqStackFrame + 12);
 
-    // set EFLAGS value. We must manually flip the IF (Interrupt Enable Flag) bit
-    // as normally sti would flip it.
+    // set EFLAGS value.
     setAtAddress(runningThread->state->eflags, irqStackFrame + 16);
 
-    // set the useresp value (value of esp pushed on the stack before the irq fired)
-    setAtAddress(runningThread->state->useresp, irqStackFrame + 20);
+    // only need to do this when switching from user mode 
+    // // set the useresp value (value of esp pushed on the stack before the irq fired)
+    // setAtAddress(runningThread->state->useresp, irqStackFrame + 20);
 
-    // set ss value (stack segment)
-    setAtAddress(runningThread->state->ss, irqStackFrame + 24);
+    // // set ss value (stack segment)
+    // setAtAddress(runningThread->state->ss, irqStackFrame + 24);
 
 
     // Next implement a pusha instruction. These values are below the stack pointer
     // we set as they are in the stack frame of our general irq handler
 
     // set eax value
-    setAtAddress(runningThread->state->eax, irqStackFrame - 8);
+    setAtAddress(runningThread->state->eax, irqStackFrame - 4);
 
     // set ecx value
-    setAtAddress(runningThread->state->ecx, irqStackFrame - 12);
+    setAtAddress(runningThread->state->ecx, irqStackFrame - 8);
 
     // set edx value
-    setAtAddress(runningThread->state->edx, irqStackFrame - 16);
+    setAtAddress(runningThread->state->edx, irqStackFrame - 12);
 
     // set ebx value
-    setAtAddress(runningThread->state->ebx, irqStackFrame - 20);
+    setAtAddress(runningThread->state->ebx, irqStackFrame - 16);
 
     // move an extra 4 bytes as the irq handler skips popping esp
     // e.g skip setAtAddress(something, irqStackFrame - 24);
 
     // set ebp value
-    setAtAddress(runningThread->state->ebp, irqStackFrame - 28);
+    setAtAddress(runningThread->state->ebp, irqStackFrame - 24);
 
     // set esi value
-    setAtAddress(runningThread->state->esi, irqStackFrame - 32);
+    setAtAddress(runningThread->state->esi, irqStackFrame - 28);
 
     // set edi value
-    setAtAddress(runningThread->state->edi, irqStackFrame - 36);
+    setAtAddress(runningThread->state->edi, irqStackFrame - 32);
 
     // finally the irq handler expects a value to load the data segment
     // register (and others) with which we are using ebx to do.
     // set ebx value
-    setAtAddress(runningThread->state->ds, irqStackFrame - 40);
+    setAtAddress(runningThread->state->ds, irqStackFrame - 36);
 }
 
 // schedule updates the active TCB with the next thread to schedule. It does not

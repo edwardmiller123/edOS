@@ -45,8 +45,8 @@ void initTSS()
 	newTSS->esp0 = DEFAULT_STACK;
 	newTSS->ss0 = KERNEL_DATA_SEG;
 	void *tssSeg = TSS_SEG;
-	// 	load the tss to allow for pivilege level changes (and context switches but
-	//   we arent using it for that here)
+	// load the tss to allow for pivilege level changes (and context switches but
+	//  we arent using it for that here)
 	__asm__ volatile("ltr %%ax" : : "a"(tssSeg));
 }
 

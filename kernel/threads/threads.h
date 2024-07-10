@@ -6,14 +6,14 @@
 struct registers {
   // just before the call instruction we push esp on the stack. This value will actually
   // be 4 bytes higher than the actual value since the push modifes esp in the process.
-  unsigned int calleresp;
+  unsigned int stubesp;
   // the data segment register
   unsigned int ds;
   // general purpose registers we will push onto the stack
   unsigned int edi;
   unsigned int esi;
   unsigned int ebp;
-  unsigned int esp; // this is always empty as the pusha instruction skips it
+  unsigned int unused; // this is always empty as the pusha instruction skips esp
   unsigned int ebx;
   unsigned int edx;
   unsigned int ecx;

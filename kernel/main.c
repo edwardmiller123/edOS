@@ -50,11 +50,11 @@ void main()
   // createKThread(&thread1, "THREAD1");
   // createKThread(&thread2, "THREAD2");
 
-  // for (int i = 0; i < 50; i++) {
-  //   kPrintString("main: ");
-  //   printInt(i);
-  //   kPrintString(" | ");
-  // }
+  for (int i = 0; i < 25; i++) {
+    kPrintString("main: ");
+    printInt(i);
+    kPrintString(" | ");
+  }
 
   // TODO: Figure out why this is now broken
   // make the jump to user mode

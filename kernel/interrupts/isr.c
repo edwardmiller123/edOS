@@ -204,7 +204,6 @@ void irqHandler(struct registers r)
     // kPrintString("ss: ");
     // kPrintInt(r.ss);
     // kPrintString("=============\n");
-    // hlt();
 
     if (interruptHandlers[r.intNumber] != 0)
     {
@@ -212,7 +211,6 @@ void irqHandler(struct registers r)
         handler(r);
     }
 
-    // kPrintInt(r.intNumber);
     // We only load a different thread for timer interrupts.
     if (r.intNumber == 32)
     {

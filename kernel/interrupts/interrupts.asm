@@ -31,8 +31,8 @@ isr_common_stub:
 	mov gs, ax
 	popa
 	add esp, 8 ; Cleans up the pushed error code and pushed ISR number
-	sti
 	iret ; pops 5 things at once: CS, EIP, EFLAGS, (SS, and ESP if coming from user mode)
+    ; sti also isnt needed as iret sets the IF bit in EFLAGS
 
 ; very similar to the isr routine but the restore is slightly different
 irq_common_stub:
@@ -60,7 +60,6 @@ irq_common_stub:
     mov gs, bx
     popa
     add esp, 8 ; Cleans up the pushed error code and pushed IRQ number
-    sti
     iret 
 
 ; This could just be the irq stub however for debuging its easier to keep the syscalls seperate
@@ -95,7 +94,6 @@ syscall_stub:
     add esp, 4 ; (pop eax) the return value from syscallHandler is stored in eax so we skip poping a value off the stack to avoid overwriting it
     ; this allows us to read it from eax later.
     add esp, 8
-    sti
     iret
 
 ; We don't get information about which interrupt was called
@@ -378,13 +376,15 @@ isr31:
 
 
 ; IRQ handlers
-irq0: ; timer
+; timer
+irq0: 
 	cli
 	push dword 0
 	push dword 32
 	jmp irq_common_stub
 
-irq1: ; keyboard
+; keyboard
+irq1:
 	cli
 	push dword 1
 	push dword 33
