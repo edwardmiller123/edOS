@@ -34,7 +34,7 @@ struct registers {
 // TCB (thread controller block) holds information about a running
 // thread.
 typedef struct TCB {
-    void * threadStackTop;
+    void * threadStackPos;
 
     // the saved values of the registers at the time the thread was interrupted
     struct registers * state;
