@@ -16,12 +16,12 @@ isr_common_stub:
 	mov fs, ax
 	mov gs, ax
 
-    push esp,
+    push esp
 	
     ; 2. Call C handler
 	call isrHandler
 
-    add esp, 4
+    pop esp
 	
     ; 3. Restore state
 	pop eax 
@@ -31,8 +31,8 @@ isr_common_stub:
 	mov gs, ax
 	popa
 	add esp, 8 ; Cleans up the pushed error code and pushed ISR number
-	iret ; pops 5 things at once: CS, EIP, EFLAGS, (SS, and ESP if coming from user mode)
-    ; sti also isnt needed as iret sets the IF bit in EFLAGS
+	iret ; pops 5 things at once: EIP, CS, EFLAGS, (ESP, and SS if coming from user mode)
+    ; sti isnt needed as iret sets the IF bit in EFLAGS
 
 ; very similar to the isr routine but the restore is slightly different
 irq_common_stub:
@@ -50,8 +50,8 @@ irq_common_stub:
 
     call irqHandler
 
-    ; skip poping off esp
-    add esp, 4
+    ; either pop the original value or a new value if a thread switch has occurred
+    pop esp
 
     pop ebx  ; To differentiate from the isr we pop ebx.
     mov ds, bx
@@ -77,7 +77,7 @@ syscall_stub:
 
     call syscallHandler
 
-    add esp, 4
+    pop esp
 
     pop ebx 
     mov ds, bx

@@ -12,7 +12,7 @@
 extern int enterUserMode();
 
 void thread1() {
-  for (int i = 0; i < 50; i++) {
+  for (int i = 0; i < 25; i++) {
     kPrintString("T1: ");
     printInt(i);
     kPrintString(" | ");
@@ -20,7 +20,7 @@ void thread1() {
 }
 
 void thread2() {
-  for (int i = 0; i < 50; i++) {
+  for (int i = 0; i < 25; i++) {
     kPrintString("T2: ");
     printInt(i);
     kPrintString(" | ");
@@ -47,7 +47,7 @@ void main()
   sti();
   
 
-  // createKThread(&thread1, "THREAD1");
+  createKThread(&thread1, "THREAD1");
   // createKThread(&thread2, "THREAD2");
 
   for (int i = 0; i < 25; i++) {

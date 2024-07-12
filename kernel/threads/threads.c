@@ -37,8 +37,8 @@ static TCB *runningThread = 0;
 // activeThreads contains all TCBs of currently in progress threads.
 static threadList activeThreads;
 
-// addToThreadList adds a new TCB into the circular thread list;
-void addToThreadList(TCB *newThread)
+// addThread adds a new TCB into the circular thread list;
+void addThread(TCB *newThread)
 {
     TCB *lastThread = activeThreads.head;
     if (activeThreads.size == 0)
@@ -65,9 +65,9 @@ void addToThreadList(TCB *newThread)
     activeThreads.size += 1;
 }
 
-// removeThreadFromList removes the given TCB from the list of active threads
+// removeThread removes the given TCB from the list of active threads
 // and frees its memory
-void removeThreadFromList(TCB *threadToRemove)
+void removeThread(TCB *threadToRemove)
 {
     if (activeThreads.size == 0)
     {
@@ -105,7 +105,7 @@ void initThreads()
     struct registers regs = {0};
     *defaultThread->state = regs;
 
-    addToThreadList(defaultThread);
+    addThread(defaultThread);
     runningThread = defaultThread;
 }
 
@@ -120,7 +120,7 @@ void threadWrapper()
     (*entryFuncPtr)();
     kPrintString("thread finished. removing\n");
     // thread has finished so remove this thread from the list
-    removeThreadFromList(runningThread);
+    removeThread(runningThread);
 }
 
 // createKThread creates a new TCB and adds it to a linked list of active kernel threads. Takes
@@ -136,7 +136,7 @@ void createKThread(void *threadFunction, char *id)
     newThread->threadEntry = threadFunction;
     newThread->id = id;
 
-    // Find a new stack position by itterating through the thread list looking for
+    // Find a new stack position by iterating through the thread list looking for
     // highest address so far;
     int highestStackPosition = DEFAULT_STACK;
     TCB *thread = activeThreads.head->nextThread;
@@ -155,13 +155,13 @@ void createKThread(void *threadFunction, char *id)
     // now set up the initial register values for the new thread
     newThread->state = (struct registers *)kMalloc(sizeof(struct registers));
     struct registers regs = {
-        // calleresp is only used by the irq handler and is set byu the calling routine anyway so
-        // just set it to 0 as the initial value doesnt matter
         .stubesp = 0,
         .ds = KERNEL_DATA_SEG,
         .edi = 0,
         .esi = 0,
-        .ebp = 0,
+        // set ebp to the same value as esp when the thread starts since this is what
+        // would happen if we called a c func normally
+        .ebp = newThread->threadStackPos,
         .unused = 0,
         // This first esp value "shouldn't" matter as it gets set from the TSS anyway by the IRET.
         .ebx = 0,
@@ -170,17 +170,19 @@ void createKThread(void *threadFunction, char *id)
         .ecx = 0,
         .eax = 0,
         // can ignore the intNumber and errCode as the general irq handler calls the EOI
-        // using the original regiuster values anyway
+        // using the original register values anyway
+        // set eip to our thread wrapper for the first time only as this handles cleanup
+        // once the thread finishes
         .eip = &threadWrapper,
         .cs = KERNEL_CODE_SEG,
-        .eflags = 513, // this has the CF and IF bits set
+        .eflags = 512, // this has the IF bit set
         .useresp = newThread->threadStackPos,
         .ss = KERNEL_DATA_SEG,
     };
 
     *newThread->state = regs;
 
-    addToThreadList(newThread);
+    addThread(newThread);
 }
 
 // threadSwitch initiates a thread switch by setting up the stack to allow
@@ -192,27 +194,21 @@ void createKThread(void *threadFunction, char *id)
 // instruction and voila. This function also updates the esp0 value in the TSS.
 // Note (this only works for user mode threads)
 
-// TODO:
-// thread switch saves the current register values and puts the new values on the 
-// new threads stack. We then return to the irq stub which calls an assembly routine to
-// actually switch the satck pointer if we are in ring 0. If we are in ring 3 then the stack 
-// pointer will be pulled by the iret from the tss anyway so we just need to switch esp0.
+// TODO: handle usermode threads
 void threadSwitch(struct registers r)
 {
-    // This is the stack frame position of the irq stub. We add 36 to the stubEsp
+    // This is the saved stack frame position of the irq stub. We add 36 to the stubEsp
     // as this is the sum of all registers plus a value for ds pushed onto the stack.
-    void *irqStackFrame = (void *)(r.stubesp + 36);
+    void *oldIrqStackFrame = (void *)(r.stubesp + 36);
 
     // this is the value of esp before the interrupt fired i.e the previously running threads stack.
     // it is 20 bytes above the irq stubs stack frame as 8 bytes are taken by the error code and int number
     // and then the extra 12 by the various values pushed on the stack during the interrupt.
     // NOTE: this is only needed for ring 0 interrupts as in ring 3 the useresp and ss are then pushed as well.
-    void *callerEsp = (void*)(irqStackFrame + 20);
-    // kPrintInt(callerEsp);
-    // hlt();
+    void *callerEsp = (void*)(oldIrqStackFrame + 20);
     // Save the old threads registers and stack
     // If there are multiple threads then the state of the old thread gets
-    // stored in the previous threads TCB since runningThread global indicates
+    // stored in the previous threads TCB since the runningThread global indicates
     // either the currently running thread or the next thread to be executed.
     if (activeThreads.size > 1)
     {
@@ -224,20 +220,31 @@ void threadSwitch(struct registers r)
         *runningThread->state = r;
         runningThread->threadStackPos = callerEsp;
     }
+    kPrintString(runningThread->id);
+    kPrintString("\n");
+
+    // this is the new value of the stack which we switch the stack pointer to when the irq stub resumes.
+    // This could either be the same value as before or a new one if a thread switch has occurred
+    void * newStubEsp = (void *)(runningThread->threadStackPos - 56);
+    
+    // we put the new stack value to switch to on the old stack so it can be popped off into esp
+    // when the irq stub resumes.
+    setAtAddress(newStubEsp, r.stubesp);
+
+    // From here we proceed to restore the register values by either putitng them back on the old stack
+    // or by putting new values on the new stack.
 
     // the irq stubs stack frame in the new thread.
     void * newIrqStackFrame = (void *)(runningThread->threadStackPos - 20);
     
     // update esp0 in the TSS
     // TODO: fix this when doing user mode threads
-    // updateRing0Stack((void *)runningThread->threadStackTop);
+    // updateRing0Stack((void *)runningThread->threadStackPos);
 
     // Get the registers from runningThread and push them onto the stack.
-    // These will then be popped off by
-    // the interrupt handler and the thread switch will be taken care off
-    // by the processor.
+    // These will then be popped off by the irq stub.
 
-    // next set up the stack that the irq handler expects
+    // next set up the stack that the irq stub expects
 
     // First we add what iret expects
 
@@ -245,17 +252,9 @@ void threadSwitch(struct registers r)
     // The return address is at +8 above the stack frame as it is the first thing iret
     // expects to pop off the stack after we have cleaned up the pushed error code and
     // pushed IRQ number.
-    void *EIP = newIrqStackFrame + 8;
-    if (activeThreads.size > 1)
-    {
-        setAtAddress(&threadWrapper, EIP);
-    }
-    else
-    {
-        // if only one thread then there is no switch hence just
-        // pick up where we left off.
-        setAtAddress(runningThread->state->eip, EIP);
-    }
+    
+    // set EIP value
+    setAtAddress(runningThread->state->eip, newIrqStackFrame + 8);
 
     // set cs value
     setAtAddress(runningThread->state->cs, newIrqStackFrame + 12);
@@ -299,7 +298,7 @@ void threadSwitch(struct registers r)
     setAtAddress(runningThread->state->edi, newIrqStackFrame - 32);
 
     // finally the irq handler expects a value to load the data segment
-    // register (and others) with which we are using ebx to do.
+    // register with (and others) which we are using ebx to do.
     // set ebx value
     setAtAddress(runningThread->state->ds, newIrqStackFrame - 36);
 }

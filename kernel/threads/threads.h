@@ -55,12 +55,12 @@ typedef struct TCB {
 // switchThread switches the current thread to the one in the given TCB
 // extern void switchThread(TCB * currentThread, TCB * nextThread);
 
-// addToThreadList adds a new TCB into the circular thread list;
-void addToThreadList(TCB * newThread);
+// addThread adds a new TCB into the circular thread list;
+void addThread(TCB * newThread);
 
-// removeThreadFromList removes the given TCB from the list of active threads 
+// removeThread removes the given TCB from the list of active threads 
 // and frees its memory
-void removeThreadFromList(TCB *threadToRemove);
+void removeThread(TCB *threadToRemove);
 
 // initThreads just creates a TCB for the default thread
 void initThreads();
