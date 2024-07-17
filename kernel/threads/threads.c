@@ -175,9 +175,9 @@ void createKThread(void *threadFunction, char *id)
         // once the thread finishes
         .eip = &threadWrapper,
         .cs = KERNEL_CODE_SEG,
-        .eflags = 512, // this has the IF bit set
+        .eflags = 514, // this has the IF and reserved bits set
         .useresp = newThread->threadStackPos,
-        .ss = KERNEL_DATA_SEG,
+        .ss = 0,
     };
 
     *newThread->state = regs;
@@ -185,14 +185,16 @@ void createKThread(void *threadFunction, char *id)
     addThread(newThread);
 }
 
-// threadSwitch initiates a thread switch by setting up the stack to allow
-// the interrupt handler to actually make the switch when it returns.
-// This is done by getting the values for the registers from the global runningThread
-// TCB and putting them on the stack. These are then popped off the stack during the
-// interrupt into the corresponding registers. Finally when the interrupt returns the new
-// value for the stack along with the return address are loaded by the iret
-// instruction and voila. This function also updates the esp0 value in the TSS.
-// Note (this only works for user mode threads)
+// threadSwitch initiates a thread switch by saving and loading the state of the cpu from
+// the runningThread TCB global. The values of all the registers and the stack of the interrupted 
+// function are saved either to runningThread or to the previous TCB in the thread list if we are switching
+// to a new thread. 
+// For thread switches that were initiated in ring 0, we push the new threads stack value
+// onto the old stack so it can be popped off into esp by the irq handler and hence switched to as the first
+// action when threadSwitch returns. The register values for the new thread are then pushed onto the new stack so 
+// they can also be restored by the irq handler after esp has been switched.
+// For ring 3 thread switches we dont make any changes to the value of esp as this will be done for us by
+// by the IRET instruction when the interrupt returns.
 
 // TODO: handle usermode threads
 void threadSwitch(struct registers r)
@@ -206,6 +208,7 @@ void threadSwitch(struct registers r)
     // and then the extra 12 by the various values pushed on the stack during the interrupt.
     // NOTE: this is only needed for ring 0 interrupts as in ring 3 the useresp and ss are then pushed as well.
     void *callerEsp = (void*)(oldIrqStackFrame + 20);
+    // kPrintInt(callerEsp);
     // Save the old threads registers and stack
     // If there are multiple threads then the state of the old thread gets
     // stored in the previous threads TCB since the runningThread global indicates
@@ -220,8 +223,6 @@ void threadSwitch(struct registers r)
         *runningThread->state = r;
         runningThread->threadStackPos = callerEsp;
     }
-    kPrintString(runningThread->id);
-    kPrintString("\n");
 
     // this is the new value of the stack which we switch the stack pointer to when the irq stub resumes.
     // This could either be the same value as before or a new one if a thread switch has occurred
@@ -229,7 +230,7 @@ void threadSwitch(struct registers r)
     
     // we put the new stack value to switch to on the old stack so it can be popped off into esp
     // when the irq stub resumes.
-    setAtAddress(newStubEsp, r.stubesp);
+    setAtAddress(newStubEsp, (void *)(r.stubesp - 4));
 
     // From here we proceed to restore the register values by either putitng them back on the old stack
     // or by putting new values on the new stack.
@@ -263,8 +264,8 @@ void threadSwitch(struct registers r)
     setAtAddress(runningThread->state->eflags, newIrqStackFrame + 16);
 
     // only need to do this when switching from user mode 
-    // // set the useresp value (value of esp pushed on the stack before the irq fired)
-    // setAtAddress(runningThread->state->useresp, irqStackFrame + 20);
+    // set the useresp value (value of esp pushed on the stack before the irq fired)
+    // setAtAddress(0, newIrqStackFrame + 20);
 
     // // set ss value (stack segment)
     // setAtAddress(runningThread->state->ss, irqStackFrame + 24);
