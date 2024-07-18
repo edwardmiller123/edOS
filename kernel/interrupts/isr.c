@@ -188,22 +188,6 @@ void registerInterruptHandler(unsigned char n, intHdlr handler)
 // for the given irq.
 void irqHandler(struct registers r)
 {
-    // kPrintString("=============\n");
-    // kPrintString("intNum: ");
-    // kPrintInt(r.intNumber);
-    // kPrintString("errCode: ");
-    // kPrintInt(r.errCode);
-    // kPrintString("eip: ");
-    // kPrintInt(r.eip);
-    // kPrintString("cs: ");
-    // kPrintInt(r.cs);
-    // kPrintString("eflags: ");
-    // kPrintInt(r.eflags);
-    // kPrintString("useresp: ");
-    // kPrintInt(r.useresp);
-    // kPrintString("ss: ");
-    // kPrintInt(r.ss);
-    // kPrintString("=============\n");
 
     if (interruptHandlers[r.intNumber] != 0)
     {

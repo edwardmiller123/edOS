@@ -12,7 +12,7 @@
 extern int enterUserMode();
 
 void thread1() {
-  for (int i = 0; i < 5; i++) {
+  for (int i = 1; i <= 5; i++) {
     kPrintString("T1: ");
     printInt(i);
     kSleep(1);
@@ -21,10 +21,10 @@ void thread1() {
 }
 
 void thread2() {
-  for (int i = 0; i < 5; i++) {
+  for (int i = 1; i <= 5; i++) {
     kPrintString("T2: ");
     printInt(i);
-    kSleep(1);
+    kSleep(2);
   }
 }
 
@@ -49,12 +49,12 @@ void main()
   
 
   createKThread(&thread1, "THREAD1");
-  // createKThread(&thread2, "THREAD2");
+  createKThread(&thread2, "THREAD2");
 
-  for (int i = 0; i < 5; i++) {
+  for (int i = 1; i <= 10; i++) {
     kPrintString("main: ");
     printInt(i);
-    kSleep(1);
+    kSleep(3);
   }
 
   // TODO: Figure out why this is now broken

@@ -70,24 +70,20 @@ void addThread(TCB *newThread)
 // and frees its memory
 void removeThread(TCB *threadToRemove)
 {
-    if (activeThreads.size == 0)
+    // dont remove the default thread
+    if (activeThreads.size < 2)
     {
         return;
     }
-    // iterate through to find the TCB just before the head
-    TCB *lastThread = activeThreads.head;
-    TCB *thread = activeThreads.head->nextThread;
-    while (thread != activeThreads.head)
-    {
-        // store the current thread so we can insert the new one just before the head.
-        lastThread = thread;
-        thread = thread->nextThread;
-    }
-    // remove the thread by joining the two either side
-    lastThread->nextThread = threadToRemove->nextThread;
+    TCB * threadBehind = threadToRemove->previousThread;
+    TCB * threadInfront = threadToRemove->nextThread;
+    threadBehind->nextThread = threadInfront;
+    threadInfront->previousThread = threadBehind;
+
     // finally free the memory used for the TCB
     kFree(threadToRemove->state);
     kFree(threadToRemove);
+    activeThreads.size--;
 }
 
 // initThreads creates the TCB for the default thread
@@ -118,14 +114,21 @@ void initThreads()
 // of active threads once it completes
 void threadWrapper()
 {
-    kPrintString("called thread\n");
+    kPrintString("called thread: ");
+    kPrintString(runningThread->id);
+    kPrintString("\n");
     // cast the thread entry address to a pointer
     void (*entryFuncPtr)(void) = runningThread->threadEntry;
     // call the thread entry function
     (*entryFuncPtr)();
-    kPrintString("thread finished. removing\n");
+    kPrintString("thread finished. removing: ");
+    kPrintString(runningThread->id);
+    kPrintString("\n");
     // thread has finished so remove this thread from the list
     removeThread(runningThread);
+    // a little ugly but we do this to stop the function returning since there is
+    // no return address. 
+    while (1){;;};
 }
 
 // createKThread creates a new TCB and adds it to a linked list of active kernel threads. Takes
