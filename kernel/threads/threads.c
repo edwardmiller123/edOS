@@ -61,6 +61,7 @@ void addThread(TCB *newThread)
     // the new thread always links back to the list head.
     // if the list was previously empty then this just links to itself
     newThread->nextThread = activeThreads.head;
+    activeThreads.head->previousThread = newThread;
     newThread->previousThread = lastThread;
     activeThreads.size += 1;
 }
@@ -89,16 +90,19 @@ void removeThread(TCB *threadToRemove)
     kFree(threadToRemove);
 }
 
-// initThreads just sets the TCB for the default thread
+// initThreads creates the TCB for the default thread
 void initThreads()
 {
     activeThreads.size = 0;
+    // allocate space for the default TCB.
     TCB *defaultThread = kMalloc(sizeof(TCB));
 
     defaultThread->initTime = 0;
     // starting value of esp for the kernel
     defaultThread->threadStackPos = (void *)DEFAULT_STACK;
     defaultThread->id = "MAIN";
+    defaultThread->nextThread = defaultThread;
+    defaultThread->previousThread = defaultThread;
     // allocate memory for the registers of the default thread. We set the values
     // to all be zero as they are filled when the first interrupt fires.
     defaultThread->state = (struct registers *)kMalloc(sizeof(struct registers));
@@ -107,6 +111,7 @@ void initThreads()
 
     addThread(defaultThread);
     runningThread = defaultThread;
+    // the space allocated is never freed as the default thread is always running
 }
 
 // threadWrapper calls the threads entry function and removes it from the list
@@ -208,7 +213,6 @@ void threadSwitch(struct registers r)
     // and then the extra 12 by the various values pushed on the stack during the interrupt.
     // NOTE: this is only needed for ring 0 interrupts as in ring 3 the useresp and ss are then pushed as well.
     void *callerEsp = (void*)(oldIrqStackFrame + 20);
-    // kPrintInt(callerEsp);
     // Save the old threads registers and stack
     // If there are multiple threads then the state of the old thread gets
     // stored in the previous threads TCB since the runningThread global indicates
