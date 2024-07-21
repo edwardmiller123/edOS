@@ -11,18 +11,18 @@
 // starts the shell
 extern int enterUserMode();
 
-void thread1() {
+void thread2() {
   for (int i = 1; i <= 5; i++) {
-    kPrintString("T1: ");
+    kPrintString("T2: ");
     printInt(i);
     kSleep(1);
   }
   return;
 }
 
-void thread2() {
+void thread3() {
   for (int i = 1; i <= 5; i++) {
-    kPrintString("T2: ");
+    kPrintString("T3: ");
     printInt(i);
     kSleep(2);
   }
@@ -47,15 +47,16 @@ void main()
   initTimer();
   sti();
   
+  createKThread(&thread2);
+  // createKThread(&thread3);
 
-  createKThread(&thread1, "THREAD1");
-  createKThread(&thread2, "THREAD2");
-
-  for (int i = 1; i <= 10; i++) {
+  for (int i = 1; i <= 7; i++) {
     kPrintString("main: ");
     printInt(i);
-    kSleep(3);
+    kSleep(2);
   }
+
+  kPrintString("main finished\n");
 
   // TODO: Figure out why this is now broken
   // make the jump to user mode

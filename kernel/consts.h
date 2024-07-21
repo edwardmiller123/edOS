@@ -8,5 +8,6 @@
 #define USER_CODE_SEG 0x18
 #define USER_DATA_SEG 0x20
 #define TSS_SEG 0x28
+#define NULL (void*) 0
 
 #endif

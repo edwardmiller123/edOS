@@ -7,6 +7,8 @@
 #include "../interrupts/isr.h"
 #include "../../stdlib/stdlib.h"
 
+#define THREAD_STACK_SIZE 0x1800
+
 // TODO: add user mode threads after significantly more thought into
 // the subject
 
@@ -37,9 +39,24 @@ static TCB *runningThread = 0;
 // activeThreads contains all TCBs of currently in progress threads.
 static threadList activeThreads;
 
-// addThread adds a new TCB into the circular thread list;
-void addThread(TCB *newThread)
+// A simple way of creating unique thread ids. This number never decreases.
+static idCount = 1;
+
+// newId increments and returns the thread id counter
+int newId()
 {
+    ;
+    int id = idCount;
+    idCount++;
+    return id;
+}
+
+// add adds a new TCB into the circular thread list
+// Ensure to call this with interrupts disabled
+// to avoid strange race conditions.
+void add(TCB *newThread)
+{
+    cli();
     TCB *lastThread = activeThreads.head;
     if (activeThreads.size == 0)
     {
@@ -64,26 +81,29 @@ void addThread(TCB *newThread)
     activeThreads.head->previousThread = newThread;
     newThread->previousThread = lastThread;
     activeThreads.size += 1;
+    sti();
 }
 
-// removeThread removes the given TCB from the list of active threads
-// and frees its memory
-void removeThread(TCB *threadToRemove)
+// remove removes the given TCB from the list of active threads
+// and frees its memory. Ensure to call this with interrupts disabled
+// to avoid strange race conditions.
+void remove(TCB *threadToRemove)
 {
     // dont remove the default thread
     if (activeThreads.size < 2)
     {
         return;
     }
-    TCB * threadBehind = threadToRemove->previousThread;
-    TCB * threadInfront = threadToRemove->nextThread;
+    TCB *threadBehind = threadToRemove->previousThread;
+    TCB *threadInfront = threadToRemove->nextThread;
     threadBehind->nextThread = threadInfront;
     threadInfront->previousThread = threadBehind;
 
     // finally free the memory used for the TCB
+    activeThreads.size--;
+    // FIX: still causing issues by freeing to early
     kFree(threadToRemove->state);
     kFree(threadToRemove);
-    activeThreads.size--;
 }
 
 // initThreads creates the TCB for the default thread
@@ -93,10 +113,12 @@ void initThreads()
     // allocate space for the default TCB.
     TCB *defaultThread = kMalloc(sizeof(TCB));
 
+    defaultThread->status = ACTIVE;
+
     defaultThread->initTime = 0;
     // starting value of esp for the kernel
     defaultThread->threadStackPos = (void *)DEFAULT_STACK;
-    defaultThread->id = "MAIN";
+    defaultThread->id = newId();
     defaultThread->nextThread = defaultThread;
     defaultThread->previousThread = defaultThread;
     // allocate memory for the registers of the default thread. We set the values
@@ -105,30 +127,29 @@ void initThreads()
     struct registers regs = {0};
     *defaultThread->state = regs;
 
-    addThread(defaultThread);
+    add(defaultThread);
     runningThread = defaultThread;
     // the space allocated is never freed as the default thread is always running
 }
 
-// threadWrapper calls the threads entry function and removes it from the list
-// of active threads once it completes
-void threadWrapper()
+// TODO: we cant remove the thread while its currently executing or we overwrite the info in the main threads TCB.
+// Instead exit should just mark the thread for removal. All the marked threads should then be removed in the irq handler
+// after any thread switches have occured. e.g thread is finished -> calls exit() -> exit marks thread as done then hangs
+// -> we switch out of the done thread into another -> all marked threads are removed -> new thread resumes.
+// exit removes the currently running thread from the list and never returns.
+void exit()
 {
-    kPrintString("called thread: ");
-    kPrintString(runningThread->id);
-    kPrintString("\n");
-    // cast the thread entry address to a pointer
-    void (*entryFuncPtr)(void) = runningThread->threadEntry;
-    // call the thread entry function
-    (*entryFuncPtr)();
-    kPrintString("thread finished. removing: ");
-    kPrintString(runningThread->id);
-    kPrintString("\n");
-    // thread has finished so remove this thread from the list
-    removeThread(runningThread);
-    // a little ugly but we do this to stop the function returning since there is
-    // no return address. 
-    while (1){;;};
+    kPrintString("thread finished. ready for removal: ");
+    kPrintInt(runningThread->id);
+    runningThread->status = DONE;
+    while (1)
+    {
+        // wait until this thread is switched out into the void
+        kPrintString("done: ");
+        kPrintInt(runningThread->id);
+        kSleep(1);
+        ;
+    };
 }
 
 // createKThread creates a new TCB and adds it to a linked list of active kernel threads. Takes
@@ -136,13 +157,14 @@ void threadWrapper()
 // It is left up to the scheduler and IRQ handler to actually execute the new thread.
 // New threads are created with a max space of 6kb (0x1800) for now.
 // The memory alloctaed for a TCB gets freed when we remove it from the list.
-void createKThread(void *threadFunction, char *id)
+void createKThread(void *threadFunction)
 {
     // create the new TCB. This gets freed when the thread gets terminated.
     TCB *newThread = kMalloc(sizeof(TCB));
     // set the thread entry point
     newThread->threadEntry = threadFunction;
-    newThread->id = id;
+    newThread->id = newId();
+    newThread->status = ACTIVE;
 
     // Find a new stack position by iterating through the thread list looking for
     // highest address so far;
@@ -158,7 +180,10 @@ void createKThread(void *threadFunction, char *id)
         thread = thread->nextThread;
     }
     // set new thread stack position
-    newThread->threadStackPos = (void *)(highestStackPosition + 0x1800);
+    newThread->threadStackPos = (void *)(highestStackPosition + THREAD_STACK_SIZE);
+
+    // set our exit function as the return address for the thread.
+    setAtAddress(&exit, newThread->threadStackPos);
 
     // now set up the initial register values for the new thread
     newThread->state = (struct registers *)kMalloc(sizeof(struct registers));
@@ -179,9 +204,8 @@ void createKThread(void *threadFunction, char *id)
         .eax = 0,
         // can ignore the intNumber and errCode as the general irq handler calls the EOI
         // using the original register values anyway
-        // set eip to our thread wrapper for the first time only as this handles cleanup
-        // once the thread finishes
-        .eip = &threadWrapper,
+        // set eip to our new threads entry point
+        .eip = newThread->threadEntry,
         .cs = KERNEL_CODE_SEG,
         .eflags = 514, // this has the IF and reserved bits set
         .useresp = newThread->threadStackPos,
@@ -190,16 +214,36 @@ void createKThread(void *threadFunction, char *id)
 
     *newThread->state = regs;
 
-    addThread(newThread);
+    add(newThread);
+}
+
+// cleanUpFinished iterates through the thread list and removes any with the
+// "DONE" status
+void cleanUpFinished()
+{
+    TCB *thread = activeThreads.head->nextThread;
+    TCB *currentThread = NULL;
+    while (thread != (activeThreads.head))
+    {
+        currentThread = thread;
+        thread = thread->nextThread;
+        if (currentThread->status == DONE)
+        {
+            kPrintString("removing: ");
+            kPrintInt(currentThread->id);
+            remove(currentThread);
+        }
+    }
+
 }
 
 // threadSwitch initiates a thread switch by saving and loading the state of the cpu from
-// the runningThread TCB global. The values of all the registers and the stack of the interrupted 
+// the runningThread TCB global. The values of all the registers and the stack of the interrupted
 // function are saved either to runningThread or to the previous TCB in the thread list if we are switching
-// to a new thread. 
+// to a new thread.
 // For thread switches that were initiated in ring 0, we push the new threads stack value
 // onto the old stack so it can be popped off into esp by the irq handler and hence switched to as the first
-// action when threadSwitch returns. The register values for the new thread are then pushed onto the new stack so 
+// action when threadSwitch returns. The register values for the new thread are then pushed onto the new stack so
 // they can also be restored by the irq handler after esp has been switched.
 // For ring 3 thread switches we dont make any changes to the value of esp as this will be done for us by
 // by the IRET instruction when the interrupt returns.
@@ -207,6 +251,8 @@ void createKThread(void *threadFunction, char *id)
 // TODO: handle usermode threads
 void threadSwitch(struct registers r)
 {
+    kPrintString("switching to: ");
+    kPrintInt(runningThread->id);
     // This is the saved stack frame position of the irq stub. We add 36 to the stubEsp
     // as this is the sum of all registers plus a value for ds pushed onto the stack.
     void *oldIrqStackFrame = (void *)(r.stubesp + 36);
@@ -215,13 +261,16 @@ void threadSwitch(struct registers r)
     // it is 20 bytes above the irq stubs stack frame as 8 bytes are taken by the error code and int number
     // and then the extra 12 by the various values pushed on the stack during the interrupt.
     // NOTE: this is only needed for ring 0 interrupts as in ring 3 the useresp and ss are then pushed as well.
-    void *callerEsp = (void*)(oldIrqStackFrame + 20);
+    void *callerEsp = (void *)(oldIrqStackFrame + 20);
     // Save the old threads registers and stack
     // If there are multiple threads then the state of the old thread gets
     // stored in the previous threads TCB since the runningThread global indicates
     // either the currently running thread or the next thread to be executed.
+    // FIX: when the final thread is removed the main threads state will be overwritten
     if (activeThreads.size > 1)
     {
+        // NOTE: this only works for pre-emptive scheduling. In reality a thread may need more time
+        // so would need to switch back to itself
         *runningThread->previousThread->state = r;
         runningThread->previousThread->threadStackPos = callerEsp;
     }
@@ -229,12 +278,15 @@ void threadSwitch(struct registers r)
     {
         *runningThread->state = r;
         runningThread->threadStackPos = callerEsp;
+        // If we are switching back to the same thread then all the corrrect values are already on the stack
+        // so we can just return.
+        return;
     }
 
     // this is the new value of the stack which we switch the stack pointer to when the irq stub resumes.
     // This could either be the same value as before or a new one if a thread switch has occurred
-    void * newStubEsp = (void *)(runningThread->threadStackPos - 56);
-    
+    void *newStubEsp = (void *)(runningThread->threadStackPos - 56);
+
     // we put the new stack value to switch to on the old stack so it can be popped off into esp
     // when the irq stub resumes.
     setAtAddress(newStubEsp, (void *)(r.stubesp - 4));
@@ -243,8 +295,8 @@ void threadSwitch(struct registers r)
     // or by putting new values on the new stack.
 
     // the irq stubs stack frame in the new thread.
-    void * newIrqStackFrame = (void *)(runningThread->threadStackPos - 20);
-    
+    void *newIrqStackFrame = (void *)(runningThread->threadStackPos - 20);
+
     // update esp0 in the TSS
     // TODO: fix this when doing user mode threads
     // updateRing0Stack((void *)runningThread->threadStackPos);
@@ -260,7 +312,7 @@ void threadSwitch(struct registers r)
     // The return address is at +8 above the stack frame as it is the first thing iret
     // expects to pop off the stack after we have cleaned up the pushed error code and
     // pushed IRQ number.
-    
+
     // set EIP value
     setAtAddress(runningThread->state->eip, newIrqStackFrame + 8);
 
@@ -270,13 +322,12 @@ void threadSwitch(struct registers r)
     // set EFLAGS value.
     setAtAddress(runningThread->state->eflags, newIrqStackFrame + 16);
 
-    // only need to do this when switching from user mode 
+    // only need to do this when switching from user mode
     // set the useresp value (value of esp pushed on the stack before the irq fired)
     // setAtAddress(0, newIrqStackFrame + 20);
 
     // // set ss value (stack segment)
     // setAtAddress(runningThread->state->ss, irqStackFrame + 24);
-
 
     // Next implement a pusha instruction. These values are below the stack pointer
     // we set as they are in the stack frame of our general irq handler
@@ -309,6 +360,10 @@ void threadSwitch(struct registers r)
     // register with (and others) which we are using ebx to do.
     // set ebx value
     setAtAddress(runningThread->state->ds, newIrqStackFrame - 36);
+
+    // after every switch we need to remove finished threads. This must be done after a 
+    // switch has taken place so we dont accidently over write a threads state.
+    cleanUpFinished();
 }
 
 // schedule updates the active TCB with the next thread to schedule. It does not
@@ -319,8 +374,8 @@ void schedule(int currentUptime)
     int newCpuTime = currentUptime - (runningThread->initTime);
     runningThread->cpuTime += newCpuTime;
     // for now use a round robin schedule so we switch thread on every tick
-    // no point switching threads if there is only 1
-    if (activeThreads.size > 1)
+    // dont switch if we havent initialised the threads yet
+    if (activeThreads.size > 0)
     {
         // make the switch.
         runningThread = runningThread->nextThread;

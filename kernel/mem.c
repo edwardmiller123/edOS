@@ -48,7 +48,7 @@ void *kMalloc(int size)
 }
 
 // kFree frees the heap memory corresponding to the given pointer.
-// It  checks if the block is allocated and if so sets the "taken" 4 bytes to 0 i.e free
+// It checks if the block is allocated and if so sets the "taken" 4 bytes to 0 i.e free for use
 void kFree(void *ptr)
 {
   int blockUsed = *(int *)(ptr - 8);
@@ -60,7 +60,7 @@ void kFree(void *ptr)
 }
 
 // setAtAdress stores the given value at the provided bare metal memory address.
-// Allows us to store values at specific addresses in C (Normally the compiler wouldnt allow this).
+// Allows us to store values at specific addresses (void pointers) in C (Normally the compiler wouldnt allow this).
 // Caution: This uses eax and ebx to actually do the move so any values already there
 // will be overwritten which could lead to undefined behviour.
 void setAtAddress(int val, void * address) {
