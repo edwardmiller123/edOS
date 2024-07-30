@@ -34,7 +34,7 @@ typedef struct threadList
 
 // runningThread is the TCB of the thread currently executing (or just about to be executed)
 // The IRQ handler always loads its registers from whatever is stored in this variable.
-static TCB *runningThread = 0;
+static TCB *runningThread = NULL;
 
 // activeThreads contains all TCBs of currently in progress threads.
 static threadList activeThreads;
@@ -45,15 +45,12 @@ static idCount = 1;
 // newId increments and returns the thread id counter
 int newId()
 {
-    ;
     int id = idCount;
     idCount++;
     return id;
 }
 
 // add adds a new TCB into the circular thread list
-// Ensure to call this with interrupts disabled
-// to avoid strange race conditions.
 void add(TCB *newThread)
 {
     cli();
@@ -62,6 +59,7 @@ void add(TCB *newThread)
     {
         // if list is empty the new thread becomes the head
         activeThreads.head = newThread;
+        // when there is just one element the heads next element is itself
     }
     else
     {
@@ -89,11 +87,6 @@ void add(TCB *newThread)
 // to avoid strange race conditions.
 void remove(TCB *threadToRemove)
 {
-    // dont remove the default thread
-    if (activeThreads.size < 2)
-    {
-        return;
-    }
     TCB *threadBehind = threadToRemove->previousThread;
     TCB *threadInfront = threadToRemove->nextThread;
     threadBehind->nextThread = threadInfront;
@@ -101,7 +94,6 @@ void remove(TCB *threadToRemove)
 
     // finally free the memory used for the TCB
     activeThreads.size--;
-    // FIX: still causing issues by freeing to early
     kFree(threadToRemove->state);
     kFree(threadToRemove);
 }
@@ -119,8 +111,6 @@ void initThreads()
     // starting value of esp for the kernel
     defaultThread->threadStackPos = (void *)DEFAULT_STACK;
     defaultThread->id = newId();
-    defaultThread->nextThread = defaultThread;
-    defaultThread->previousThread = defaultThread;
     // allocate memory for the registers of the default thread. We set the values
     // to all be zero as they are filled when the first interrupt fires.
     defaultThread->state = (struct registers *)kMalloc(sizeof(struct registers));
@@ -139,15 +129,10 @@ void initThreads()
 // exit removes the currently running thread from the list and never returns.
 void exit()
 {
-    kPrintString("thread finished. ready for removal: ");
-    kPrintInt(runningThread->id);
-    runningThread->status = DONE;
+    runningThread->status = FINISHED;
     while (1)
     {
         // wait until this thread is switched out into the void
-        kPrintString("done: ");
-        kPrintInt(runningThread->id);
-        kSleep(1);
         ;
     };
 }
@@ -168,7 +153,7 @@ void createKThread(void *threadFunction)
 
     // Find a new stack position by iterating through the thread list looking for
     // highest address so far;
-    int highestStackPosition = DEFAULT_STACK;
+    void *highestStackPosition = DEFAULT_STACK;
     TCB *thread = activeThreads.head->nextThread;
     highestStackPosition = activeThreads.head->threadStackPos;
     while (thread != (activeThreads.head))
@@ -218,7 +203,7 @@ void createKThread(void *threadFunction)
 }
 
 // cleanUpFinished iterates through the thread list and removes any with the
-// "DONE" status
+// "FINISHED" status
 void cleanUpFinished()
 {
     TCB *thread = activeThreads.head->nextThread;
@@ -227,14 +212,11 @@ void cleanUpFinished()
     {
         currentThread = thread;
         thread = thread->nextThread;
-        if (currentThread->status == DONE)
+        if (currentThread->status == FINISHED)
         {
-            kPrintString("removing: ");
-            kPrintInt(currentThread->id);
             remove(currentThread);
         }
     }
-
 }
 
 // threadSwitch initiates a thread switch by saving and loading the state of the cpu from
@@ -251,8 +233,6 @@ void cleanUpFinished()
 // TODO: handle usermode threads
 void threadSwitch(struct registers r)
 {
-    kPrintString("switching to: ");
-    kPrintInt(runningThread->id);
     // This is the saved stack frame position of the irq stub. We add 36 to the stubEsp
     // as this is the sum of all registers plus a value for ds pushed onto the stack.
     void *oldIrqStackFrame = (void *)(r.stubesp + 36);
@@ -361,7 +341,7 @@ void threadSwitch(struct registers r)
     // set ebx value
     setAtAddress(runningThread->state->ds, newIrqStackFrame - 36);
 
-    // after every switch we need to remove finished threads. This must be done after a 
+    // after every switch we need to remove finished threads. This must be done after a
     // switch has taken place so we dont accidently over write a threads state.
     cleanUpFinished();
 }

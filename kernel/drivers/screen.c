@@ -184,6 +184,8 @@ void kPrintStringAt(char *message, int col, int row)
 }
 
 // kPrintInt prints the given integer by converting it to a string.
+// TODO: allocate memory for the new string here then once we have printed it 
+// it can be freed.
 void kPrintInt(int integer)
 {
   kPrintString(kIntToString(integer));

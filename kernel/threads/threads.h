@@ -33,7 +33,7 @@ struct registers {
 
 enum Status {
     ACTIVE,
-    DONE,
+    FINISHED,
 };
 
 // TCB (thread controller block) holds information about a running
