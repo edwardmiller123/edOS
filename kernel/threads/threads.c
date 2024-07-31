@@ -40,7 +40,7 @@ static TCB *runningThread = NULL;
 static threadList activeThreads;
 
 // A simple way of creating unique thread ids. This number never decreases.
-static idCount = 1;
+static int idCount = 1;
 
 // newId increments and returns the thread id counter
 int newId()

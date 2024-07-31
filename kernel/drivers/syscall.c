@@ -47,7 +47,7 @@ void *memoryHandler(int input, int functionCode)
         output = kMalloc(input);
         break;
     case 2:
-        kFree(input);
+        kFree((void *)input);
         break;
     }
     return output;
