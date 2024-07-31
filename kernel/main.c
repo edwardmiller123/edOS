@@ -11,6 +11,14 @@
 // starts the shell
 extern int enterUserMode();
 
+void thread4() {
+  for (int i = 1; i <= 5; i++) {
+    kPrintString("T4: ");
+    printInt(i);
+    kSleep(3);
+  }
+}
+
 void thread2() {
   for (int i = 1; i <= 5; i++) {
     kPrintString("T2: ");
@@ -21,6 +29,7 @@ void thread2() {
 }
 
 void thread3() {
+  createKThread(&thread4);
   for (int i = 1; i <= 5; i++) {
     kPrintString("T3: ");
     printInt(i);
@@ -48,12 +57,12 @@ void main()
   sti();
   
   createKThread(&thread2);
-  // createKThread(&thread3);
+  createKThread(&thread3);
 
-  for (int i = 1; i <= 7; i++) {
+  for (int i = 1; i <= 5; i++) {
     kPrintString("main: ");
     printInt(i);
-    kSleep(2);
+    kSleep(4);
   }
 
   kPrintString("main finished\n");
