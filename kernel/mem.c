@@ -1,10 +1,10 @@
 #include "mem.h"
 #include "drivers/screen.h"
-#include "../stdlib/stdlib.h"
 
-#define HEAP_START 0x200000 //(2mb)
+#define HEAP_START 0x100000 //(1mb)
 #define STD_BLOCK_SIZE 24
 #define USEABLE_BLOCK_SIZE 16
+#define BLOCK_DATA_SIZE 8
 
 static void *heapTop = HEAP_START;
 
@@ -25,15 +25,17 @@ void *kMalloc(int size)
   {
     // check if the current block consists of multiple std blocks, in which
     // case we need to skip the extra blocks in use
-    // for future me: here we increment the current block by the standard block size times the number of
-    // standard blocks in use which we store in the 5th byte.
-    currentBlock += STD_BLOCK_SIZE * (*(int *)(currentBlock + 4));
+    // here we increment the current block by the memory used to store block data plus all the 
+    // actualy allocated memory which is the useable block size multiplied by the number of useable
+    // blocks allocated.
+
+    currentBlock += (BLOCK_DATA_SIZE + (USEABLE_BLOCK_SIZE * (*(int *)(currentBlock + 4))));
   }
   // TODO: Check we dont exceed max available memory
   // set the block as used
   *(int *)currentBlock = 1;
 
-  // calculate how many std blocks to allocate
+  // calculate how many useable blocks to allocate
   if (size > USEABLE_BLOCK_SIZE)
   {
     while (size > USEABLE_BLOCK_SIZE * allocatedStdBlockCount)
@@ -49,7 +51,7 @@ void *kMalloc(int size)
 }
 
 // kFree frees the heap memory corresponding to the given pointer.
-// It  checks if the block is allocated and if so sets the "taken" 4 bytes to 0 i.e free
+// It checks if the block is allocated and if so sets the "taken" 4 bytes to 0 i.e free for use
 void kFree(void *ptr)
 {
   int blockUsed = *(int *)(ptr - 8);
@@ -58,4 +60,22 @@ void kFree(void *ptr)
     return;
   }
   *(int *)(ptr - 8) = 0;
+}
+
+// setAtAddress stores the given value at the provided bare metal memory address.
+// Allows us to store values at specific addresses (void pointers) in C (Normally the compiler wouldnt allow this).
+// Caution: This uses eax and ebx to actually do the move so any values already there
+// will be overwritten which could lead to undefined behviour.
+void setAtAddress(int val, void * address) {
+  __asm__ volatile("movl %%eax, (%%ebx)" : : "a"(val), "b"(address));
+}
+
+// getAtAddress reads the value stored at a bare metal memory address.
+// Allows us to read values at specific addresses in C (Normally the compiler wouldnt allow this).
+// Caution: This uses eax and ebx to actually do the move so any values already there
+// will be overwritten which could lead to undefined behviour.
+void * getAtAddress(void * address) {
+  void * val;
+  __asm__ volatile("movl (%%ebx), %%eax" : "=a"(val): "b"(address));
+  return val;
 }

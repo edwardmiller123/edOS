@@ -1,42 +1,15 @@
-; TSS is used for contex switching i.e when we need to use a different stack. 
-; Here we just use it to change to a new user mode stack as we handle thread
-; switches in the threads directory.
-
-TSS:
-  dd 0x0 ; address of previous tss (we dont need one here)
-  dd 0x9000 ; esp0: contains the value of the stack pointer during a system call
-  dd 0x10 ; ss0: contains the kernel data segment
-  dd 0x0 ; esp1
-  dd 0x0 ; ss1
-  dd 0x0 ; esp2
-  dd 0x0 ; ss2
-  dd 0x0 ; cr3
-  dd 0x0 ; eip
-  dd 0x0 ; eflags
-  dd 0x0 ; eax
-  dd 0x0 ; ecx
-  dd 0x0 ; edx
-  dd 0x0 ; ebx
-  dd 0x0 ; esp
-  dd 0x0 ; ebp
-  dd 0x0 ; esi
-  dd 0x0 ; edi
-  dd 0x0 ; es
-  dd 0x0 ; cs
-  dd 0x0 ; ss
-  dd 0x0 ; ds
-  dd 0x0 ; fs
-  dd 0x0 ; gs
-  dw 0x0 ; LDTR
-  dw 104 ; IOPB
-  dd 0x0 ; ssp
-tss_end:
-
-
 ; This is the definition of the GDT
 ; although not very useful for memory protection, we create
 ; the simplest gdt possible with sectors (code and data)
 ; that overlap (basic flat model).
+; positions in memory of the sectors:
+    ; 0x00: Null descriptor
+    ; 0x08: Kernel code segment
+    ; 0x10: Kernel data segment
+    ; 0x18: User code segment
+    ; 0x20: User data segment
+    ; 0x28: TSS segment
+
 gdt_start:
 
 ; This is the null descriptor that we must have for error 
@@ -63,7 +36,7 @@ gdt_code_kernel:
   ;The order is 
   ; 1st flags : ( present ) ( privilege DPL ) ( descriptor type )
   ; type flags : ( code ) ( conforming ) ( readable ) ( accessed )
-  ; 2nd flags : ( granularity ) (32 - bit default ) (64 - bit seg ) ( AVL )
+  ; 2nd flags : ( granularity ) (32-bit default ) (64 - bit seg ) ( AVL )
   db 10011010b ; 1st flags , type flags
   db 11001111b ; 2nd flags, Limit high (bits 16 - 19)
 
@@ -143,11 +116,15 @@ gdt_descriptor:
   dw gdt_end - gdt_start - 1
 
   ; Start address of the gdt.
-  dd gdt_start 
+  dd gdt_start
 
 ; useful constants defining our segments
 KERNEL_CODE_SEG equ gdt_code_kernel - gdt_start
 KERNEL_DATA_SEG equ gdt_data_kernel - gdt_start 
-TSS_SIZE equ tss_end - TSS
 
+; As a work around to some poor OS design, we initialise the TSS later once
+; we have booted into the kernel. We therefor hardcode the TSS segment in the GDT
+; and actually load it there later. (fingers crossed).
+TSS equ 0x100000
+TSS_SIZE equ 108
 

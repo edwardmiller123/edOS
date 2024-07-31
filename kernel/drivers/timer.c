@@ -1,5 +1,6 @@
 #include "../interrupts/isr.h"
 #include "../IO.h"
+#include "../threads/threads.h"
 #include "screen.h"
 
 // Channel 0 generates an interrupt (IRQ0) at a set frequency.
@@ -41,13 +42,16 @@
 #define PIT_SETTINGS 0x7C
 
 // The total time the system has been running for in ms
-static int systemUptime;
+static int systemUptime = 0;
 
 // timer updates the global runtime using the PIT. It also calls the scheduler
-// to switch between threads (TODO)
-void timer(struct registers r)
+// to switch between threads
+int timer(struct registers r)
 {
+    // run the scheduler on every tick
     systemUptime += 1;
+    schedule(systemUptime);
+    return 0;
 }
 
 // setTimerFrequency sets how often irq0 fires to the
@@ -72,11 +76,9 @@ void setTimerFrequency(short targetFreq)
 void initTimer()
 {
     systemUptime = 0;
-    __asm__ volatile("cli");
     registerInterruptHandler(32, timer);
     // set frequency to 1000 to tick every ms
     setTimerFrequency(1000);
-    __asm__ volatile("sti");
 }
 
 // kGetPITCount returns the total system up time in ms
@@ -86,8 +88,14 @@ int kGetPITCount()
 }
 
 // kSleep waits until the given time in seconds has passed
+// TODO: This doesnt work 
 void kSleep(int seconds)
 {
-    int timeEnd = systemUptime + (seconds * 1000);
-    while (systemUptime < timeEnd) {;;};
+    int currentTime = kGetPITCount();
+    int startTime = currentTime;
+    int timeEnd = startTime + (seconds * 1000);
+    while (currentTime < timeEnd) {
+        currentTime = kGetPITCount();
+    };
+    return;
 }

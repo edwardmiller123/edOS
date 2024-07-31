@@ -42,7 +42,7 @@ char *userInput(int code)
   return (char *)syscall(0, 2, code);
 }
 
-// memoryCopy takes the data (string) stored at the source address and copies
+// memoryCopy takes the data stored at the source address and copies
 // it to the destination address.
 void memoryCopy(char *source, char *destination, int numberOfBytes)
 {

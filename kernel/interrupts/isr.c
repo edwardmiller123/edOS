@@ -5,6 +5,24 @@
 
 intHdlr interruptHandlers[256];
 
+// wrapper for sti instruction (enables interrupts)
+void sti()
+{
+    __asm__ volatile("sti");
+}
+
+// wrapper for cli instruction (disables interrupts)
+void cli()
+{
+    __asm__ volatile("cli");
+}
+
+// hlt is a C wrapper for the hlt instruction
+void hlt()
+{
+    __asm__ volatile("hlt");
+}
+
 // isrInstall assigns each isr to an entry in the idt.
 void isrInstall()
 {
@@ -43,10 +61,12 @@ void isrInstall()
 }
 
 // irqInstall assigns each isr to an entry in the idt.
-void irqInstall() {
+void irqInstall()
+{
     // Install the IRQs
-    setIDTEntry(32, (unsigned int)irq0, KERNEL_MODE_FLAGS);
-    setIDTEntry(33, (unsigned int)irq1, KERNEL_MODE_FLAGS);
+
+    setIDTEntry(32, (unsigned int)irq0, KERNEL_MODE_FLAGS); // timer
+    setIDTEntry(33, (unsigned int)irq1, KERNEL_MODE_FLAGS); // keyboard
     setIDTEntry(34, (unsigned int)irq2, KERNEL_MODE_FLAGS);
     setIDTEntry(35, (unsigned int)irq3, KERNEL_MODE_FLAGS);
     setIDTEntry(36, (unsigned int)irq4, KERNEL_MODE_FLAGS);
@@ -65,8 +85,8 @@ void irqInstall() {
 }
 
 // initPIC initialises the idt and remaps te pic to accept irq's.
-void initPIC() {
-    
+void initPIC()
+{
     // In protected mode we need to remap the PIC as IRQ's (hardware interrupts) 0 - 7 overlap with the
     // default cpu exceptions
 
@@ -81,16 +101,15 @@ void initPIC() {
     writeByte(MASTER_PIC_DATA, 0x01);
     writeByte(SLAVE_PIC_DATA, 0x01);
 
-    // Interrupt masking. Here we are masking all interrupts except irq1.
+    // Interrupt masking. Here we are masking all interrupts except irq0 and irq1.
     // ~ flips all the bits i.e 00 -> 11 etc
     writeByte(MASTER_PIC_DATA, 0xFC);
-    writeByte(SLAVE_PIC_DATA, ~0x0); 
+    writeByte(SLAVE_PIC_DATA, ~0x0);
 
     isrInstall();
     irqInstall();
 
     setIdt();
-
 }
 
 // various exception messages for each interrupt.
@@ -155,7 +174,7 @@ void isrHandler(struct registers reg)
     kPrintString("Error code: ");
     printInt(reg.errCode);
     kPrintString("\n");
-    __asm__ volatile("hlt");
+    hlt();
 }
 
 // registerInterruptHandler assigns a given isr handler to the given position in
@@ -166,13 +185,20 @@ void registerInterruptHandler(unsigned char n, intHdlr handler)
 }
 
 // irqHandler sends the EOI command for a given interrupt and calls the appropriate handler function
-// for the given irq
+// for the given irq.
 void irqHandler(struct registers r)
 {
+
     if (interruptHandlers[r.intNumber] != 0)
     {
         intHdlr handler = interruptHandlers[r.intNumber];
         handler(r);
+    }
+
+    // We only load a different thread for timer interrupts.
+    if (r.intNumber == 32)
+    {
+        threadSwitch(r);
     }
     PICsendEOI(r.intNumber);
 }

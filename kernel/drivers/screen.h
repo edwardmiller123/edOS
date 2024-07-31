@@ -47,6 +47,9 @@ void kPrintString(char *message);
 // kPrintStringAt prints the provided string at the specifed position on screen.
 void kPrintStringAt(char *message, int col, int row);
 
+// kPrintInt prints the given integer by converting it to a string.
+void kPrintInt(int integer);
+
 // clear_screen clears the screen by printing empty spaces at
 // all points on the screen.
 void clear_screen();

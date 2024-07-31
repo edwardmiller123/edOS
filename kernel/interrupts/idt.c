@@ -1,4 +1,5 @@
 #include "idt.h"
+#include "../consts.h"
 
 // define the IDT and the IDT descriptor. Again similar to how the GDT is defined but now
 // in c.
@@ -11,7 +12,7 @@ struct idtDescriptor idtDesc;
 void setIDTEntry(int n, unsigned int handler, int flags)
 {
   idt[n].isrLow = (unsigned short)((handler) & 0xffff);
-  idt[n].kernelSegment = 0x08;
+  idt[n].kernelSegment = KERNEL_CODE_SEG;
   idt[n].reserved = 0;
   idt[n].flags = flags;
   idt[n].isrHigh = (unsigned short)(((handler) >> 16) & 0xffff);
@@ -27,6 +28,4 @@ void setIdt()
   __asm__ volatile("lidtl (%0)"
                    :
                    : "r"(&idtDesc));
-  // enable interrupts again
-  __asm__ volatile("sti");
 }

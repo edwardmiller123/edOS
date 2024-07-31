@@ -1,12 +1,23 @@
 #ifndef ISR
 #define ISR
 
+#include "../threads/threads.h"
+
 #define MASTER_PIC_COMMAND 0x20
 #define MASTER_PIC_DATA 0x21
 #define SLAVE_PIC_COMMAND 0xA0
 #define SLAVE_PIC_DATA 0xA1
 #define KERNEL_MODE_FLAGS 0x8E
 #define USER_MODE_FLAGS 0xEE
+
+// wrapper for sti instruction (enables interrupts)
+void sti();
+
+// wrapper for cli instruction (disables interrupts)
+void cli();
+
+// hlt is a C wrapper for the hlt instruction
+void hlt();
 
 // The Isr definitions. These are what gets called for each interrupt.
 
@@ -60,18 +71,6 @@ extern void irq12();
 extern void irq13();
 extern void irq14();
 extern void irq15();
-
-// a way of storing the values of assembly registers in c.
-struct registers {
-  // the data segment register
-  unsigned int ds;
-  // general purpose registers we will push onto the stack
-  unsigned int edi, esi, ebp, esp, ebx, edx, ecx, eax;
-  unsigned int intNumber, errCode;
-  // registers automattically pushed onto the stack by the processor
-  // e.g code segment register, stack segemtn register etc...
-  unsigned int eip, cs, eflags, useresp, ss;
-};
 
 void isrInstall();
 
