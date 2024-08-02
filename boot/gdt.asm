@@ -37,7 +37,7 @@ gdt_code_kernel:
   ; 1st flags : ( present ) ( privilege DPL ) ( descriptor type )
   ; type flags : ( code ) ( conforming ) ( readable ) ( accessed )
   ; 2nd flags : ( granularity ) (32-bit default ) (64 - bit seg ) ( AVL )
-  db 10011010b ; 1st flags , type flags
+  db 10011010b ; 1st flags , type flags (access byte)
   db 11001111b ; 2nd flags, Limit high (bits 16 - 19)
 
   ; final bits of the base
@@ -125,6 +125,6 @@ KERNEL_DATA_SEG equ gdt_data_kernel - gdt_start
 ; As a work around to some poor OS design, we initialise the TSS later once
 ; we have booted into the kernel. We therefor hardcode the TSS segment in the GDT
 ; and actually load it there later. (fingers crossed).
-TSS equ 0x100000
+TSS equ 0x110000
 TSS_SIZE equ 108
 

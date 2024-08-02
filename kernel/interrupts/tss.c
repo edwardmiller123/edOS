@@ -7,11 +7,11 @@ typedef struct TSS
 {
 	int prevTss; // The previous TSS - with hardware task switching these form a kind of backward linked list.
 	int esp0;	 // The stack pointer to load when changing to kernel mode.
-	int ss0;	 // The stack segment to load when changing to kernel mode.
+	int ss0;	 // The stack segment to load when changing to kernel mode. (this is actually only 2 bytes. The first 2 are reserved.)
 	int esp1;
-	int ss1;
+	int ss1; // (this is actually only 2 bytes)
 	int esp2;
-	int ss2;
+	int ss2; // (this is actually only 2 bytes)
 	int cr3;
 	int eip;
 	int eflags;
@@ -30,8 +30,9 @@ typedef struct TSS
 	int fs;
 	int gs;
 	int ldt;
-	short trap;
-	short iomap_base;
+	short iopb; // IO port permissions bit map
+	short reserved;
+	short ssp;
 } __attribute__((packed)) TSS;
 
 // initTSS creates a new TSS instance and stores it at the hardcoded
@@ -44,6 +45,9 @@ void initTSS()
 	// set the values we need
 	newTSS->esp0 = DEFAULT_STACK;
 	newTSS->ss0 = KERNEL_DATA_SEG;
+	// we dont use the IO permission bit map so we just set it to the size of
+	// the TSS
+	newTSS->iopb = 104;
 	void *tssSeg = TSS_SEG;
 	// load the tss to allow for pivilege level changes (and context switches but
 	//  we arent using it for that here)
