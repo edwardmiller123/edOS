@@ -72,6 +72,9 @@ void remove(TCB *threadToRemove);
 // initThreads just creates a TCB for the default thread
 void initThreads();
 
+// exit marks the thread for removal and then spins. All the marked threads are then removed in the irq handler
+// after any thread switches have occured. e.g thread is finished -> calls exit() -> exit marks thread as done then hangs
+// -> we switch out of the done thread into another -> all marked threads are removed -> new thread resumes.
 // exit removes the currently running thread from the list and never returns.
 void exit();
 

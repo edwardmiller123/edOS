@@ -122,8 +122,7 @@ void initThreads()
     // the space allocated is never freed as the default thread is always running
 }
 
-// TODO: we cant remove the thread while its currently executing or we overwrite the info in the main threads TCB.
-// Instead exit should just mark the thread for removal. All the marked threads should then be removed in the irq handler
+// exit marks the thread for removal and then spins. All the marked threads are then removed in the irq handler
 // after any thread switches have occured. e.g thread is finished -> calls exit() -> exit marks thread as done then hangs
 // -> we switch out of the done thread into another -> all marked threads are removed -> new thread resumes.
 // exit removes the currently running thread from the list and never returns.
