@@ -32,7 +32,7 @@ typedef struct TSS
 	int ldt;
 	short iopb; // IO port permissions bit map
 	short reserved;
-	short ssp;
+	int ssp;
 } __attribute__((packed)) TSS;
 
 // initTSS creates a new TSS instance and stores it at the hardcoded
@@ -47,7 +47,7 @@ void initTSS()
 	newTSS->ss0 = KERNEL_DATA_SEG;
 	// we dont use the IO permission bit map so we just set it to the size of
 	// the TSS
-	newTSS->iopb = 104;
+	newTSS->iopb = 108;
 	void *tssSeg = TSS_SEG;
 	// load the tss to allow for pivilege level changes (and context switches but
 	//  we arent using it for that here)

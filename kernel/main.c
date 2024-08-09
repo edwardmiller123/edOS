@@ -56,19 +56,19 @@ void main()
   initTimer();
   sti();
   
-  createKThread(&thread2);
-  createKThread(&thread3);
+  // createKThread(&thread2);
+  // createKThread(&thread3);
 
-  for (int i = 1; i <= 5; i++) {
-    kPrintString("main: ");
-    printInt(i);
-    kSleep(4);
-  }
+  // for (int i = 1; i <= 5; i++) {
+  //   kPrintString("main: ");
+  //   printInt(i);
+  //   kSleep(4);
+  // }
 
-  kPrintString("main finished\n");
+  // kPrintString("main finished\n");
 
   // TODO: Figure out why this is now broken
   // make the jump to user mode
-  // enterUserMode();
+  enterUserMode();
 
 }
