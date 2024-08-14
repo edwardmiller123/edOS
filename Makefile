@@ -1,5 +1,5 @@
-os-image : boot_stage_1.bin boot_stage_2.bin kernel.bin interrupts.bin
-	cat boot_stage_1.bin boot_stage_2.bin kernel.bin interrupts.bin > os-image
+os-image : boot_stage_1.bin boot_stage_2.bin kernel.bin
+	cat boot_stage_1.bin boot_stage_2.bin kernel.bin > os-image
 
 boot_stage_1.bin : boot/boot_stage_1.asm
 	nasm -I 'boot' boot/boot_stage_1.asm -f bin -o boot_stage_1.bin
@@ -9,9 +9,6 @@ boot_stage_2.bin : boot/boot_stage_2.asm
 	
 kernel.bin : kernel_entry.o kernel.o usermode.o shell.o isr.o syscall.o screen.o keyboard.o timer.o threads.o tss.o interrupts.o idt.o IO.o helpers.o mem.o stdlib.o
 	ld -m elf_i386 -o kernel.bin -Ttext 0x900 kernel_entry.o kernel.o usermode.o shell.o isr.o syscall.o screen.o keyboard.o timer.o threads.o tss.o interrupts.o idt.o IO.o helpers.o mem.o stdlib.o --oformat binary
-
-interrupts.bin : interrupts.o isr.o syscall.o keyboard.o idt.o screen.o timer.o threads.o tss.o IO.o helpers.o mem.o stdlib.o
-	ld -m elf_i386 -o interrupts.bin -Ttext 0x900 interrupts.o isr.o syscall.o keyboard.o timer.o threads.o tss.o idt.o screen.o IO.o helpers.o mem.o stdlib.o --oformat binary	
 
 kernel_entry.o : boot/kernel_entry.asm
 	nasm boot/kernel_entry.asm -f elf32 -o kernel_entry.o
