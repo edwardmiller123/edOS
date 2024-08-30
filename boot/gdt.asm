@@ -23,7 +23,7 @@ gdt_code_kernel:
 
   ; The segment limit is the physical size in memory
   ; segment limit low (bits 0 - 15)
-  dw 0xffff 
+  dw 0xffff
 
   ; segment base - the address where the segment begins i.e in this case the start of memory 
   ; confusingly this isnt all stored in consectutive memory addresses
@@ -47,7 +47,7 @@ gdt_code_kernel:
 ; exactly with the code segment.
 gdt_data_kernel:
   ; same as above apart from the code/data flags
-  dw 0xffff 
+  dw 0xffff
   dw 0x0   
   db 0x0   
   db 10010010b ; same as code segment but with the first bit of the type flag set to data
@@ -62,7 +62,7 @@ gdt_data_kernel:
 gdt_code_user:
 
   ; segment limit
-  dw 0xffff 
+  dw 0xffff
 
   ; segment base i.e start of memory confusingly this isnt
   ; all stored in consectutive memory addresses
@@ -81,7 +81,7 @@ gdt_code_user:
 
 gdt_data_user:
   ; same as above apart from the code/data flags
-  dw 0xffff 
+  dw 0xffff
   dw 0x0   
   db 0x0   
   ; flags. This time the privilege level is set to ring 3 i.e 11 rather than 00
@@ -93,10 +93,10 @@ gdt_data_user:
 
 gdt_tss:
   dw TSS_SIZE ; limit (bits 0 - 15)
-  dw TSS ; 
+  dw TSS ; base (bits 0 - 15)
 
   ; more bits of the base 
-  db 0x0   
+  db 0x0  
 
   ; flags 
   db 0x89
@@ -104,7 +104,7 @@ gdt_tss:
   db 0x40
 
   ; final bits of the base
-  db 0x0   
+  db 0x0
 
 ; This label lets the compiler calculate the size of the gdt.
 gdt_end:
@@ -123,8 +123,8 @@ KERNEL_CODE_SEG equ gdt_code_kernel - gdt_start
 KERNEL_DATA_SEG equ gdt_data_kernel - gdt_start 
 
 ; As a work around to some poor OS design, we initialise the TSS later once
-; we have booted into the kernel. We therefor hardcode the TSS segment in the GDT
+; we have booted into the kernel. We therefor hardcode TSS position in its segment in the GDT
 ; and actually load it there later. (fingers crossed).
-TSS equ 0x110000
-TSS_SIZE equ 108
+TSS equ 0x9000
+TSS_SIZE equ 104
 

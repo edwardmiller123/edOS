@@ -13,7 +13,7 @@ enterUserMode:
 	mov eax, esp
 	push 0x20 | 3 ; data selector
 	push eax ; current esp
-	pushf ; eflags
-	push 0x18 | 3 ; usermode code segment in gdt with bottom 2 bits set for ring 3)
+	pushfd ; eflags
+	push 0x18 | 3 ; usermode code segment in gdt with bottom 2 bits set for ring 3
 	push runShell ; function address to return to
 	iret

@@ -390,6 +390,7 @@ irq1:
 	push dword 33
 	jmp irq_common_stub
 
+; slave pic line
 irq2:
 	cli
 	push dword 2

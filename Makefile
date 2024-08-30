@@ -65,7 +65,7 @@ clean :
 	rm *.bin *.o os-image
 
 run : os-image
-	qemu-system-x86_64 -drive format=raw,file=os-image,if=floppy
+	qemu-system-x86_64 -drive format=raw,file=os-image,if=floppy -monitor stdio 
 
 debug : os-image
-	qemu-system-x86_64 -drive format=raw,file=os-image,if=floppy -monitor stdio
+	qemu-system-x86_64 -drive format=raw,file=os-image,if=floppy -monitor stdio -d int -no-reboot

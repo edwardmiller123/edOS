@@ -80,8 +80,7 @@ void irqInstall()
     setIDTEntry(44, (unsigned int)irq12, KERNEL_MODE_FLAGS);
     setIDTEntry(45, (unsigned int)irq13, KERNEL_MODE_FLAGS);
     setIDTEntry(46, (unsigned int)irq14, KERNEL_MODE_FLAGS);
-    // 47 is being used for our syscalls
-    setIDTEntry(47, (unsigned int)irq15, USER_MODE_FLAGS);
+    setIDTEntry(47, (unsigned int)irq15, USER_MODE_FLAGS); // syscalls
 }
 
 // initPIC initialises the idt and remaps te pic to accept irq's.
@@ -101,10 +100,12 @@ void initPIC()
     writeByte(MASTER_PIC_DATA, 0x01);
     writeByte(SLAVE_PIC_DATA, 0x01);
 
-    // Interrupt masking. Here we are masking all interrupts except irq0 and irq1.
+    // Interrupt masking
     // ~ flips all the bits i.e 00 -> 11 etc
-    writeByte(MASTER_PIC_DATA, 0xFC);
-    writeByte(SLAVE_PIC_DATA, ~0x0);
+    // mask all but the keyboard and the slave line
+    writeByte(MASTER_PIC_DATA, 0xF9);
+    // mask all irqs on the slave except the syscalls
+    writeByte(SLAVE_PIC_DATA, 0x7F);
 
     isrInstall();
     irqInstall();
@@ -198,7 +199,7 @@ void irqHandler(struct registers r)
     // We only load a different thread for timer interrupts.
     if (r.intNumber == 32)
     {
-        threadSwitch(r);
+        // threadSwitch(r);
     }
     PICsendEOI(r.intNumber);
 }

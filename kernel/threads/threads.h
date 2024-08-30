@@ -36,7 +36,7 @@ enum Status {
     FINISHED,
 };
 
-// TCB (thread controller block) holds information about a running
+// TCB (thread control block) holds information about a running
 // thread.
 typedef struct TCB {
     void * threadStackPos;

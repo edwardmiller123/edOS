@@ -29,10 +29,9 @@ typedef struct TSS
 	int ds;
 	int fs;
 	int gs;
-	int ldt;
-	short iopb; // IO port permissions bit map
-	short reserved;
-	int ssp;
+	int ldtr;
+	short t;
+	short iopb; // IO port permission bit map
 } __attribute__((packed)) TSS;
 
 // initTSS creates a new TSS instance and stores it at the hardcoded
@@ -42,15 +41,18 @@ void initTSS()
 {
 	// hard code the position of the TSS in memory
 	TSS *newTSS = TSS_POSITION;
+
 	// set the values we need
 	newTSS->esp0 = DEFAULT_STACK;
 	newTSS->ss0 = KERNEL_DATA_SEG;
+
 	// we dont use the IO permission bit map so we just set it to the size of
 	// the TSS
-	newTSS->iopb = 108;
+	newTSS->iopb = 104;
 	void *tssSeg = TSS_SEG;
+
 	// load the tss to allow for pivilege level changes (and context switches but
-	//  we arent using it for that here)
+	// we arent using it for that here)
 	__asm__ volatile("ltr %%ax" : : "a"(tssSeg));
 }
 
