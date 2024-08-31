@@ -6,6 +6,11 @@ a learning exercise and will hopefully be improved upon in the future.
 
 ![Picture of the shell](shell.png?raw=true "Optional Title")
 
+### Current Features
+- Interrupt driven PS/2 Keyboard, VGA, Timer
+- Usermode code and system calls
+- Kernel Threads
+
 ## Requirements
 
 The Makefile uses GCC, the GNU linker, [NASM](https://www.nasm.us/) for compliling assembly files
@@ -22,4 +27,8 @@ To compile and run simply do,
 
 ```
 make run
+```
+or with debugging output,
+```
+make debug
 ```

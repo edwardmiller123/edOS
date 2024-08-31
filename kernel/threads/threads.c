@@ -7,7 +7,7 @@
 #include "../interrupts/isr.h"
 #include "../../stdlib/stdlib.h"
 
-#define THREAD_STACK_SIZE 0x1800
+#define KTHREAD_STACK_SIZE 0x1800
 
 // TODO: add user mode threads after significantly more thought into
 // the subject
@@ -17,10 +17,8 @@
 // chosen thread. The scheduler will not make the switch as this is instead the
 // job of the general irq handler.
 // The general irq handler will always put the registers stored in the running thread TCB onto the stack
-// and store the old ones. There wil also be a function to update esp0 in the TSS. Then when any IRQ
-// returns it will (hopefully) resume the new thread if a thread switch has taken place.
-// We do not need to switch the stack pointer ourselves (apart from in the tss) as this will
-// be taken care of by the interrupt.
+// and store the old ones. We also update esp0 in the TSS durinmg the switch. Then when any IRQ
+// returns it will resume the new thread if a thread switch has taken place.
 
 // A linked list containing the active threads
 typedef struct threadList
@@ -164,7 +162,7 @@ void createKThread(void *threadFunction)
         thread = thread->nextThread;
     }
     // set new thread stack position
-    newThread->threadStackPos = (void *)(highestStackPosition + THREAD_STACK_SIZE);
+    newThread->threadStackPos = (void *)(highestStackPosition + KTHREAD_STACK_SIZE);
 
     // set our exit function as the return address for the thread.
     setAtAddress(&exit, newThread->threadStackPos);
