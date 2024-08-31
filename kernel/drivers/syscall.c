@@ -76,7 +76,7 @@ void *timerHandler(int functionCode)
 // memory: DC = 3
 // FC = 1 : read
 // FC = 2 : write
-// The handler returns a void ptr so as to use the most generic type possible and to is up to the
+// The handler returns a void ptr so as to use the most generic type possible and it is up to the
 // higher level handlers to cast the type accordingly.
 void *syscallHandler(struct registers r)
 {

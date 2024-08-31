@@ -201,6 +201,7 @@ void runShell()
   int shellRunning = 1;
   int waitingForCommand = 1;
   printString("\n[ edOS.v0.9 ]:> ");
+
   while (shellRunning == 1)
   {
 

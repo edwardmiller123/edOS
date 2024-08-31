@@ -68,4 +68,4 @@ run : os-image
 	qemu-system-x86_64 -drive format=raw,file=os-image,if=floppy -monitor stdio 
 
 debug : os-image
-	qemu-system-x86_64 -drive format=raw,file=os-image,if=floppy -monitor stdio -d int -no-reboot
+	qemu-system-x86_64 -drive format=raw,file=os-image,if=floppy -monitor stdio -d int -no-reboot -D ./log.txt

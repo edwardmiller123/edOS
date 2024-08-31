@@ -102,10 +102,10 @@ void initPIC()
 
     // Interrupt masking
     // ~ flips all the bits i.e 00 -> 11 etc
-    // mask all but the keyboard and the slave line
-    writeByte(MASTER_PIC_DATA, 0xF9);
+    // mask all but the keyboard and timer
+    writeByte(MASTER_PIC_DATA, 0xFD);
     // mask all irqs on the slave except the syscalls
-    writeByte(SLAVE_PIC_DATA, 0x7F);
+    writeByte(SLAVE_PIC_DATA, ~0x0);
 
     isrInstall();
     irqInstall();
