@@ -37,20 +37,23 @@ int strLen(char *str);
 char *strMallocAndStore(char *strToStore);
 
 // reverseString returns the reverse of the provided string.
-char *reverseString(char *str);
+char *reverseString(char *str, char* newStr);
 
 // strCmp compares to strings and returns 0 if they are not the same.
 int strCmp(char *string1, char *string2);
 
 // strConcat concatenates two strings
-char *strConcat(char *str1, char *str2);
+char *strConcat(char *str1, char *str2, char dstArr[]);
 
 // hash creates a unique hash from a string. This is the
 // djb2 algorithm http://www.cse.yorku.ca/~oz/hash.html
 unsigned long hash(unsigned char *str);
 
 // intToString converts a base 10 integer to a string.
-char *intToString(int integer);
+char *intToString(int integer, char * newStr);
+
+// getDigitCount returns the number of digits in the given integer
+int getDigitCount(int num);
 
 // printInt prints the given integer by converting it to a string.
 void printInt(int integer);

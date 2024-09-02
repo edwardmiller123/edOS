@@ -85,11 +85,10 @@ char *strMallocAndStore(char *strToStore)
 }
 
 // reverseString returns the reverse of the provided string.
-char *reverseString(char *str)
+char *reverseString(char *str, char *newStr)
 {
   int i = 0;
   int j = strLen(str) - 1;
-  char *newStr = (char *)malloc((strLen(str) + 1) * sizeof(char));
   while (i < strLen(str))
   {
     newStr[i] = str[j];
@@ -121,11 +120,11 @@ int strCmp(char *string1, char *string2)
   return 1;
 }
 
-// strConcat concatenates two strings
-char *strConcat(char *str1, char *str2)
+// strConcat concatenates two strings in the given buffer.
+// The allocated buffer must be large enough for both strings.
+char *strConcat(char *str1, char *str2, char *newStr)
 {
   int newStrLength = strLen(str1) + strLen(str2) + 1;
-  char *newStr = (char *)malloc(newStrLength * sizeof(char));
   int j = 0;
   for (int i = 0; i < strLen(str1); i++)
   {
@@ -156,7 +155,7 @@ unsigned long hash(unsigned char *str)
 }
 
 // intToString converts a base 10 integer to a string.
-char *intToString(int integer)
+char *intToString(int integer, char *newStr)
 {
   char reverseStr[50];
   int n = integer;
@@ -164,7 +163,6 @@ char *intToString(int integer)
   int j = 0;
   int a = integer;
   int b;
-
   while (n > 0)
   {
     b = a % 10;
@@ -175,15 +173,31 @@ char *intToString(int integer)
   }
   reverseStr[i] = '\0';
 
-  char *resultString = reverseString(reverseStr);
+  char *resultString = reverseString(reverseStr, newStr);
 
   return resultString;
+}
+
+// getDigitCount returns the number of digits in the given integer
+int getDigitCount(int num)
+{
+  int multiple = 10;
+  int count = 1;
+  while (num > multiple)
+  {
+    count++;
+    multiple *= 10;
+  }
+  return count;
 }
 
 // printInt prints the given integer by converting it to a string.
 void printInt(int integer)
 {
-  printString(intToString(integer));
+
+  int digitCount = getDigitCount(integer);
+  char newStr[digitCount + 1];
+  printString(intToString(integer, newStr));
   printString("\n");
 }
 
