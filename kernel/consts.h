@@ -23,9 +23,10 @@
 
 //    .
 //    .
-// 0x901800 - kernel thread stack (threads created aove here in increments of 0x1800)
+// 0x901800 - kernel thread stack (kthreads created above here in increments of 0x1800)
 // 0x900000 - kernel stack
 
+// 0x801800 - user thread stack (uthreads created above here in increments of 0x1800)
 // 0x800000 - initial kernel stack/user stacks (grows downwards)
 // set the inital stack here away from our future kernel stack so they dont conflict
 

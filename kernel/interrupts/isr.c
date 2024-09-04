@@ -103,7 +103,7 @@ void initPIC()
     // Interrupt masking
     // ~ flips all the bits i.e 00 -> 11 etc
     // mask all but the keyboard and timer
-    writeByte(MASTER_PIC_DATA, 0xFD);
+    writeByte(MASTER_PIC_DATA, 0xFC);
     // mask all irqs on the slave except the syscalls
     writeByte(SLAVE_PIC_DATA, ~0x0);
 
@@ -199,7 +199,7 @@ void irqHandler(struct registers r)
     // We only load a different thread for timer interrupts.
     if (r.intNumber == 32)
     {
-        // threadSwitch(r);
+        threadSwitch(r);
     }
     PICsendEOI(r.intNumber);
 }

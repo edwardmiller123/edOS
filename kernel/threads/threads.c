@@ -9,15 +9,20 @@
 
 #define KTHREAD_STACK_SIZE 0x1800
 
-// TODO: add user mode threads after significantly more thought into
-// the subject
+// User mode threads implementation
+// There will be one scheduler that runs in ring 0 and schedules both kernel and user threads.
+// User threads will be identical to kernel threads with the addition of a user mode stack
+// and the thread entry func will be in user space. All threads will live in the same list and be switched
+// on irq0 with different behaviour based on the thread type (kernel or user). When switching to a user thread,
+// we put the new stack to switch to on the old stack and let the iret take care of the switch (rather than doing it manually
+// like we do for kernel threads). On every thread switch (no matter which type) we update the current kernel stack in the tss.
 
 // Thread implementation:
 // The timer calls the scheduler which updates the running thread TCB with the
 // chosen thread. The scheduler will not make the switch as this is instead the
 // job of the general irq handler.
 // The general irq handler will always put the registers stored in the running thread TCB onto the stack
-// and store the old ones. We also update esp0 in the TSS durinmg the switch. Then when any IRQ
+// and store the old ones. We also update esp0 in the TSS during the switch. Then when any IRQ
 // returns it will resume the new thread if a thread switch has taken place.
 
 // A linked list containing the active threads
@@ -147,6 +152,7 @@ void createKThread(void *threadFunction)
     newThread->threadEntry = threadFunction;
     newThread->id = newId();
     newThread->status = ACTIVE;
+    newThread->type = KERNEL;
 
     // Find a new stack position by iterating through the thread list looking for
     // highest address so far;
@@ -255,7 +261,7 @@ void threadSwitch(struct registers r)
     {
         *runningThread->state = r;
         runningThread->threadStackPos = callerEsp;
-        // If we are switching back to the same thread then all the corrrect values are already on the stack
+        // If we are switching back to the same thread then all the correct values are already on the stack
         // so we can just return.
         return;
     }
@@ -275,8 +281,8 @@ void threadSwitch(struct registers r)
     void *newIrqStackFrame = (void *)(runningThread->threadStackPos - 20);
 
     // update esp0 in the TSS
-    // TODO: fix this when doing user mode threads
-    // updateRing0Stack((void *)runningThread->threadStackPos);
+
+    updateRing0Stack((void *)runningThread->threadStackPos);
 
     // Get the registers from runningThread and push them onto the stack.
     // These will then be popped off by the irq stub.

@@ -4,8 +4,7 @@
 // a way of storing the values of the registers when 
 // calling the interrupt handler from assembly.
 struct registers {
-  // just before the call instruction we push esp on the stack. This value will actually
-  // be 4 bytes higher than the actual value since the push modifes esp in the process.
+  // just before the call instruction we push esp on the stack to get its value.
   unsigned int stubesp;
   // the data segment register
   unsigned int ds;
@@ -36,6 +35,11 @@ enum Status {
     FINISHED,
 };
 
+enum ThreadType {
+    KERNEL,
+    USER,
+};
+
 // TCB (thread control block) holds information about a running
 // thread.
 typedef struct TCB {
@@ -56,6 +60,7 @@ typedef struct TCB {
     int cpuTime;
     int id;
     enum Status status;
+    enum ThreadType type;
 
 } __attribute__((packed)) TCB;
 
