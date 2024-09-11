@@ -2,6 +2,7 @@
 #include "screen.h"
 #include "timer.h"
 #include "keyboard.h"
+#include "../threads/threads.h"
 #include "../mem.h"
 #include "../../stdlib/stdlib.h"
 
@@ -53,6 +54,18 @@ void *memoryHandler(int input, int functionCode)
     return output;
 }
 
+// threadHandler handles calls to create user threads.
+// Write: create user thread
+void threadHandler(int input, int functionCode)
+{
+    switch (functionCode)
+    {
+    case 2:
+        createUThread((void *)input);
+        break;
+    }
+}
+
 // timerHandler handles calls to the system timer.
 // Read: gets the timer count
 void *timerHandler(int functionCode)
@@ -97,6 +110,8 @@ void *syscallHandler(struct registers r)
         break;
     case 4:
         output = timerHandler(FC);
+    case 5:
+        threadHandler(input, FC);
     }
     PICsendEOI(r.intNumber);
     return output;

@@ -5,12 +5,18 @@
 
 // Note: if the kernel gets to big the TSS will be overwritten so may need to move it
 #define TSS_POSITION (void *) 0x9000 // at 36.8kb
-#define DEFAULT_STACK (void *) 0x900000 // at 9.44mb
+// The initial value for the kernel stack. All kernel threads are created above here
+#define KERNEL_STACK (void *) 0x900000 // at 9.44mb
+// The initial stack value for the OS. Since we move quickly to user mode all user
+// mode threads are created above here.
+#define DEFAULT_STACK (void *) 0x800000 // at 8.39mb
 #define HEAP_START (void *) 0x200000 //(2.09mb)
 #define KERNEL_CODE_SEG 0x08
 #define KERNEL_DATA_SEG 0x10
 #define USER_CODE_SEG 0x18
+#define USER_CODE_SEG_RPL3 0x1b
 #define USER_DATA_SEG 0x20
+#define USER_DATA_SEG_RPL3 0x23
 #define TSS_SEG 0x28
 #define NULL (void*) 0
 
@@ -19,13 +25,12 @@
 //////////////////////////////////////////////////////
 ////////////////// Memory layout /////////////////////
 //////////////////////////////////////////////////////
-
-
 //    .
 //    .
 // 0x901800 - kernel thread stack (kthreads created above here in increments of 0x1800)
 // 0x900000 - kernel stack
-
+//    .
+//    .
 // 0x801800 - user thread stack (uthreads created above here in increments of 0x1800)
 // 0x800000 - initial kernel stack/user stacks (grows downwards)
 // set the inital stack here away from our future kernel stack so they dont conflict

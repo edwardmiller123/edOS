@@ -72,7 +72,6 @@ syscall_stub:
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-
     push esp
 
     call syscallHandler
@@ -377,7 +376,7 @@ isr31:
 
 ; IRQ handlers
 ; timer
-irq0: 
+irq0:
 	cli
 	push dword 0
 	push dword 32

@@ -20,7 +20,7 @@ struct registers {
   unsigned int intNumber;
   unsigned int errCode;
 
-  // registers automattically pushed onto the stack by the processor
+  // registers automatically pushed onto the stack by the processor
   // These are what iret expects to be on the stack
   unsigned int eip;
   unsigned int cs;
@@ -36,6 +36,7 @@ enum Status {
 };
 
 enum ThreadType {
+    UNSET,
     KERNEL,
     USER,
 };
@@ -43,7 +44,7 @@ enum ThreadType {
 // TCB (thread control block) holds information about a running
 // thread.
 typedef struct TCB {
-    void * threadStackPos;
+    void * kStackPos;
 
     // the saved values of the registers at the time the thread was interrupted
     struct registers * state;
@@ -83,11 +84,26 @@ void initThreads();
 // exit removes the currently running thread from the list and never returns.
 void exit();
 
+// findNewKernelStack finds a new stack position by iterating through the thread list looking for
+// the highest kernel stack address so far and incrementing it by the OS stack size;
+void * findNewKernelStack();
+
+// findNewUserStack finds a new stack position by iterating through the thread list looking for
+// the highest user stack address so far;
+void * findNewUserStack();
+
 // createKThread creates a new TCB and adds it to a linked list of active kernel threads. Takes
 // the function to run in the new thread and an ID (just for debugging for now).
 // It is left up to the scheduler and IRQ handler to actually execute the new thread. 
 // New threads are created with a max space of 6kb (0x1800) for now.
 void createKThread(void *threadFunction);
+
+// createUThread creates a new TCB for a usermode thread and adds it to a linked list of active threads. Takes
+// the function to run in the new thread.
+// It is left up to the scheduler and IRQ handler to actually execute the new thread.
+// New threads are created with a max space of 6kb (0x1800) for now.
+// The memory allocated for a TCB gets freed when we remove it from the list.
+void createUThread(void *threadFunction);
 
 // cleanUpFinished iterates through the thread list and removes any with the
 // "DONE" status

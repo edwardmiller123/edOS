@@ -7,7 +7,7 @@
 #include "../interrupts/isr.h"
 #include "../../stdlib/stdlib.h"
 
-#define KTHREAD_STACK_SIZE 0x1800
+#define THREAD_STACK_SIZE (void *)0x1800
 
 // User mode threads implementation
 // There will be one scheduler that runs in ring 0 and schedules both kernel and user threads.
@@ -101,7 +101,8 @@ void remove(TCB *threadToRemove)
     kFree(threadToRemove);
 }
 
-// initThreads creates the TCB for the default thread
+// initThreads creates a mostly empty TCB for the initial thread. This gets
+// populated on the first timer tick after it has been created.
 void initThreads()
 {
     activeThreads.size = 0;
@@ -111,13 +112,20 @@ void initThreads()
     defaultThread->status = ACTIVE;
 
     defaultThread->initTime = 0;
-    // starting value of esp for the kernel
-    defaultThread->threadStackPos = (void *)DEFAULT_STACK;
+    // starting value of esp for the kernel. This gets set on the first thread switch
+    defaultThread->kStackPos = NULL;
     defaultThread->id = newId();
+    defaultThread->type = UNSET;
     // allocate memory for the registers of the default thread. We set the values
     // to all be zero as they are filled when the first interrupt fires.
     defaultThread->state = (struct registers *)kMalloc(sizeof(struct registers));
-    struct registers regs = {0};
+    // Only set the segemnt registers as we need to read ds on the first thread switch.
+    // All other values are set when the switch takes place.
+    struct registers regs = {
+        .ds = KERNEL_DATA_SEG,
+        .cs = KERNEL_CODE_SEG,
+        .useresp = NULL,
+    };
     *defaultThread->state = regs;
 
     add(defaultThread);
@@ -139,39 +147,61 @@ void exit()
     };
 }
 
-// createKThread creates a new TCB and adds it to a linked list of active kernel threads. Takes
-// the function to run in the new thread and an ID (just for debugging for now).
+// findNewKernelStack finds a new stack position by iterating through the thread list looking for
+// the highest kernel stack address so far and incrementing it by the OS stack size;
+void *findNewKernelStack()
+{
+    void *highestStackPosition = (void *)KERNEL_STACK;
+    TCB *thread = activeThreads.head->nextThread;
+    while (thread != (activeThreads.head))
+    {
+        if ((thread->kStackPos) > highestStackPosition)
+        {
+            highestStackPosition = thread->kStackPos;
+        }
+        thread = thread->nextThread;
+    }
+    return (void *)((int)highestStackPosition + (int)THREAD_STACK_SIZE);
+}
+
+// findNewUserStack finds a new stack position by iterating through the thread list looking for
+// the highest user stack address so far;
+void *findNewUserStack()
+{
+    void *highestUStackPosition = (void *)DEFAULT_STACK;
+    TCB *thread = activeThreads.head->nextThread;
+    while (thread != (activeThreads.head))
+    {
+        if ((thread->state->useresp) > highestUStackPosition)
+        {
+            highestUStackPosition = thread->state->useresp;
+        }
+        thread = thread->nextThread;
+    }
+    return (void *)((int)highestUStackPosition + (int)THREAD_STACK_SIZE);
+}
+
+// createKThread creates a new TCB and adds it to a linked list of active threads. Takes
+// the function to run in the new thread.
 // It is left up to the scheduler and IRQ handler to actually execute the new thread.
 // New threads are created with a max space of 6kb (0x1800) for now.
-// The memory alloctaed for a TCB gets freed when we remove it from the list.
+// The memory allocated for a TCB gets freed when we remove it from the list.
 void createKThread(void *threadFunction)
 {
     // create the new TCB. This gets freed when the thread gets terminated.
     TCB *newThread = kMalloc(sizeof(TCB));
+
     // set the thread entry point
     newThread->threadEntry = threadFunction;
     newThread->id = newId();
     newThread->status = ACTIVE;
     newThread->type = KERNEL;
 
-    // Find a new stack position by iterating through the thread list looking for
-    // highest address so far;
-    void *highestStackPosition = DEFAULT_STACK;
-    TCB *thread = activeThreads.head->nextThread;
-    highestStackPosition = activeThreads.head->threadStackPos;
-    while (thread != (activeThreads.head))
-    {
-        if ((thread->threadStackPos) > highestStackPosition)
-        {
-            highestStackPosition = thread->threadStackPos;
-        }
-        thread = thread->nextThread;
-    }
     // set new thread stack position
-    newThread->threadStackPos = (void *)(highestStackPosition + KTHREAD_STACK_SIZE);
+    newThread->kStackPos = findNewKernelStack();
 
     // set our exit function as the return address for the thread.
-    setAtAddress(&exit, newThread->threadStackPos);
+    setAtAddress(&exit, newThread->kStackPos);
 
     // now set up the initial register values for the new thread
     newThread->state = (struct registers *)kMalloc(sizeof(struct registers));
@@ -182,7 +212,7 @@ void createKThread(void *threadFunction)
         .esi = 0,
         // set ebp to the same value as esp when the thread starts since this is what
         // would happen if we called a c func normally
-        .ebp = newThread->threadStackPos,
+        .ebp = newThread->kStackPos,
         .unused = 0,
         // This first esp value "shouldn't" matter as it gets set from the TSS anyway by the IRET.
         .ebx = 0,
@@ -196,8 +226,65 @@ void createKThread(void *threadFunction)
         .eip = newThread->threadEntry,
         .cs = KERNEL_CODE_SEG,
         .eflags = 514, // this has the IF and reserved bits set
-        .useresp = newThread->threadStackPos,
+        .useresp = NULL,
         .ss = 0,
+    };
+
+    *newThread->state = regs;
+
+    add(newThread);
+}
+
+// createUThread creates a new TCB for a usermode thread and adds it to a linked list of active threads. Takes
+// the function to run in the new thread.
+// It is left up to the scheduler and IRQ handler to actually execute the new thread.
+// New threads are created with a max space of 6kb (0x1800) for now.
+// The memory allocated for a TCB gets freed when we remove it from the list.
+void createUThread(void *threadFunction)
+{
+    // create the new TCB. This gets freed when the thread gets terminated.
+    TCB *newThread = kMalloc(sizeof(TCB));
+    // set the thread entry point
+    newThread->threadEntry = threadFunction;
+    newThread->id = newId();
+    newThread->status = ACTIVE;
+    newThread->type = USER;
+
+    // set new kernel thread stack position
+    newThread->kStackPos = findNewKernelStack();
+
+    // set new user thread stack position
+    void *uStackPos = findNewUserStack();
+
+    // set our exit function as the return address for the thread.
+    setAtAddress(&exit, uStackPos);
+
+    // now set up the initial register values for the new thread
+    // this differs from the kThreads as we need to set up to return to usermode
+    newThread->state = (struct registers *)kMalloc(sizeof(struct registers));
+    struct registers regs = {
+        .stubesp = 0,
+        .ds = USER_DATA_SEG_RPL3,
+        .edi = 0,
+        .esi = 0,
+        // set ebp to the same value as esp when the thread starts since this is what
+        // would happen if we called a c function normally
+        .ebp = uStackPos,
+        .unused = 0,
+        // This first esp value "shouldn't" matter as it gets set from the TSS anyway by the IRET.
+        .ebx = 0,
+        .edx = 0,
+        .edx = 0,
+        .ecx = 0,
+        .eax = 0,
+        // can ignore the intNumber and errCode as the general irq handler calls the EOI
+        // using the original register values anyway
+        // set eip to our new threads entry point
+        .eip = newThread->threadEntry,
+        .cs = USER_CODE_SEG_RPL3,
+        .eflags = 514, // this has the IF and reserved bits set
+        .useresp = uStackPos,
+        .ss = USER_DATA_SEG_RPL3,
     };
 
     *newThread->state = regs;
@@ -230,45 +317,69 @@ void cleanUpFinished()
 // onto the old stack so it can be popped off into esp by the irq handler and hence switched to as the first
 // action when threadSwitch returns. The register values for the new thread are then pushed onto the new stack so
 // they can also be restored by the irq handler after esp has been switched.
-// For ring 3 thread switches we dont make any changes to the value of esp as this will be done for us by
-// by the IRET instruction when the interrupt returns.
-
-// TODO: handle usermode threads
+// For ring 3 thread switches we also push the new user stack and the user segment registers so they can be
+// be popped into the correct registers for us by the iret.
 void threadSwitch(struct registers r)
 {
+    // The TCB created for the default thread wont have a type so
+    // we infer the type for the value of ds on the stack
+    if (runningThread->type == UNSET)
+    {
+        switch (r.ds)
+        {
+        case KERNEL_DATA_SEG:
+            runningThread->type = KERNEL;
+        case USER_DATA_SEG_RPL3:
+            runningThread->type = USER;
+        }
+    }
     // This is the saved stack frame position of the irq stub. We add 36 to the stubEsp
     // as this is the sum of all registers plus a value for ds pushed onto the stack.
     void *oldIrqStackFrame = (void *)(r.stubesp + 36);
 
     // this is the value of esp before the interrupt fired i.e the previously running threads stack.
     // it is 20 bytes above the irq stubs stack frame as 8 bytes are taken by the error code and int number
-    // and then the extra 12 by the various values pushed on the stack during the interrupt.
-    // NOTE: this is only needed for ring 0 interrupts as in ring 3 the useresp and ss are then pushed as well.
+    // and then the extra 12 (20 for user threads) by the various values pushed on the stack during the interrupt.
+
     void *callerEsp = (void *)(oldIrqStackFrame + 20);
-    // Save the old threads registers and stack
+    // For user threads we also have to account for the user esp and ss values on the stack
+    // The value of ds will determine which ring the thread we are switching from is in.
+    if (r.ds == (unsigned int)USER_DATA_SEG_RPL3)
+    {
+        callerEsp = (void *)(oldIrqStackFrame + 28);
+    }
+    // Save the old thread's registers and stack.
     // If there are multiple threads then the state of the old thread gets
     // stored in the previous threads TCB since the runningThread global indicates
     // either the currently running thread or the next thread to be executed.
-    // FIX: when the final thread is removed the main threads state will be overwritten
+    // We do not need to make any changes for user mode threads here as the user stack gets saved
+    // along with the rest of the registers.
     if (activeThreads.size > 1)
     {
         // NOTE: this only works for pre-emptive scheduling. In reality a thread may need more time
         // so would need to switch back to itself
         *runningThread->previousThread->state = r;
-        runningThread->previousThread->threadStackPos = callerEsp;
+        runningThread->previousThread->kStackPos = callerEsp;
     }
     else
     {
         *runningThread->state = r;
-        runningThread->threadStackPos = callerEsp;
+        runningThread->kStackPos = callerEsp;
         // If we are switching back to the same thread then all the correct values are already on the stack
         // so we can just return.
         return;
     }
 
+    // update esp0 in the TSS
+    updateRing0Stack((void *)runningThread->kStackPos);
+
     // this is the new value of the stack which we switch the stack pointer to when the irq stub resumes.
     // This could either be the same value as before or a new one if a thread switch has occurred
-    void *newStubEsp = (void *)(runningThread->threadStackPos - 56);
+    void *newStubEsp = (void *)(runningThread->kStackPos - 56);
+    if (runningThread->type == USER)
+    {
+        newStubEsp = (void *)(runningThread->kStackPos - 64);
+    }
 
     // we put the new stack value to switch to on the old stack so it can be popped off into esp
     // when the irq stub resumes.
@@ -278,11 +389,11 @@ void threadSwitch(struct registers r)
     // or by putting new values on the new stack.
 
     // the irq stubs stack frame in the new thread.
-    void *newIrqStackFrame = (void *)(runningThread->threadStackPos - 20);
-
-    // update esp0 in the TSS
-
-    updateRing0Stack((void *)runningThread->threadStackPos);
+    void *newIrqStackFrame = (void *)(runningThread->kStackPos - 20);
+    if (runningThread->type == USER)
+    {
+        newIrqStackFrame = (void *)(runningThread->kStackPos - 28);
+    }
 
     // Get the registers from runningThread and push them onto the stack.
     // These will then be popped off by the irq stub.
@@ -305,12 +416,16 @@ void threadSwitch(struct registers r)
     // set EFLAGS value.
     setAtAddress(runningThread->state->eflags, newIrqStackFrame + 16);
 
-    // only need to do this when switching from user mode
-    // set the useresp value (value of esp pushed on the stack before the irq fired)
-    // setAtAddress(0, newIrqStackFrame + 20);
+    // when switching to a user mode thread we need to set up the stack to allow us to
+    // return from ring 0 to ring 3
+    if (runningThread->type == USER)
+    {
+        // set the useresp value (value of esp pushed on the stack before the irq fired)
+        setAtAddress(runningThread->state->useresp, newIrqStackFrame + 20);
 
-    // // set ss value (stack segment)
-    // setAtAddress(runningThread->state->ss, irqStackFrame + 24);
+        // set ss value (stack segment)
+        setAtAddress(runningThread->state->ss, newIrqStackFrame + 24);
+    }
 
     // Next implement a pusha instruction. These values are below the stack pointer
     // we set as they are in the stack frame of our general irq handler

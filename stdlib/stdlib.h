@@ -22,6 +22,9 @@ void free(void * ptr);
 // or clear the key buffer (code = 2)
 char *userInput(int code);
 
+// createThread runs the given function in a new thread
+void createThread(void *threadFunction);
+
 // memoryCopy takes the data stored at the source address and copies
 // it to the destination address.
 void memoryCopy(char *source, char *destination, int numberOfBytes);

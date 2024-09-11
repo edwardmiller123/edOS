@@ -13,9 +13,18 @@ extern int enterUserMode();
 
 void thread2() {
   for (int i = 1; i <= 5; i++) {
-    kPrintString("T2: ");
+    kPrintString("KT2: ");
     printInt(i);
     kSleep(1);
+  }
+  return;
+}
+
+void thread3() {
+  for (int i = 1; i <= 5; i++) {
+    kPrintString("KT3: ");
+    printInt(i);
+    kSleep(2);
   }
   return;
 }
@@ -38,6 +47,15 @@ void main()
   initThreads();
   initTimer();
   sti();
+
+  // createKThread(&thread2);
+  // createKThread(&thread3);
+
+  // for (int i = 1; i <= 5; i++) {
+  //   kPrintString("KT1: ");
+  //   printInt(i);
+  //   kSleep(3);
+  // }
 
   // make the jump to user mode
   enterUserMode();

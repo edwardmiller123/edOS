@@ -7,14 +7,17 @@ boot_stage_1.bin : boot/boot_stage_1.asm
 boot_stage_2.bin : boot/boot_stage_2.asm
 	nasm -I 'boot' boot/boot_stage_2.asm -f bin -o boot_stage_2.bin
 	
-kernel.bin : kernel_entry.o kernel.o usermode.o shell.o isr.o syscall.o screen.o keyboard.o timer.o threads.o tss.o interrupts.o idt.o IO.o helpers.o mem.o stdlib.o
-	ld -m elf_i386 -o kernel.bin -Ttext 0x900 kernel_entry.o kernel.o usermode.o shell.o isr.o syscall.o screen.o keyboard.o timer.o threads.o tss.o interrupts.o idt.o IO.o helpers.o mem.o stdlib.o --oformat binary
+kernel.bin : kernel_entry.o kernel.o enterusermode.o userspace.o shell.o isr.o syscall.o screen.o keyboard.o timer.o threads.o tss.o interrupts.o idt.o IO.o helpers.o mem.o stdlib.o
+	ld -m elf_i386 -o kernel.bin -Ttext 0x900 kernel_entry.o kernel.o enterusermode.o userspace.o shell.o isr.o syscall.o screen.o keyboard.o timer.o threads.o tss.o interrupts.o idt.o IO.o helpers.o mem.o stdlib.o --oformat binary
 
 kernel_entry.o : boot/kernel_entry.asm
 	nasm boot/kernel_entry.asm -f elf32 -o kernel_entry.o
 
-shell.o : shell/shell.c
-	gcc -fno-pie -ffreestanding -m32 -c shell/shell.c -o shell.o 
+userspace.o : userspace/userspace.c
+	gcc -fno-pie -ffreestanding -m32 -c userspace/userspace.c -o userspace.o
+
+shell.o : userspace/shell.c
+	gcc -fno-pie -ffreestanding -m32 -c userspace/shell.c -o shell.o 
 
 stdlib.o : stdlib/stdlib.c
 	gcc -fno-pie -ffreestanding -m32 -c stdlib/stdlib.c -o stdlib.o 	
@@ -22,8 +25,8 @@ stdlib.o : stdlib/stdlib.c
 interrupts.o : kernel/interrupts/interrupts.asm
 	nasm kernel/interrupts/interrupts.asm -f elf32 -o interrupts.o
 
-usermode.o : kernel/usermode.asm
-	nasm kernel/usermode.asm -f elf32 -o usermode.o
+enterusermode.o : kernel/enterusermode.asm
+	nasm kernel/enterusermode.asm -f elf32 -o enterusermode.o
 
 threads.o : kernel/threads/threads.c
 	gcc -fno-pie -ffreestanding -m32 -c kernel/threads/threads.c -o threads.o
@@ -68,4 +71,4 @@ run : os-image
 	qemu-system-x86_64 -drive format=raw,file=os-image,if=floppy -monitor stdio 
 
 debug : os-image
-	qemu-system-x86_64 -drive format=raw,file=os-image,if=floppy -monitor stdio -d int -no-reboot -D ./log.txt
+	qemu-system-x86_64 -drive format=raw,file=os-image,if=floppy -monitor stdio -d int -no-reboot

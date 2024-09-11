@@ -42,6 +42,11 @@ char *userInput(int code)
   return (char *)syscall(0, 2, code);
 }
 
+// createThread runs the given function in a new thread
+void createThread(void *threadFunction) {
+  syscall(threadFunction, 5, 2);
+}
+
 // memoryCopy takes the data stored at the source address and copies
 // it to the destination address.
 void memoryCopy(char *source, char *destination, int numberOfBytes)

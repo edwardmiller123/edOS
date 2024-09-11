@@ -57,40 +57,39 @@ void parseAndRunCommand(char *command)
   }
 }
 
-// runShell runs a mock shell in the kernel. Hopefully one day it will run
-// as an application in user mode.
+// runShell runs a userspace shell interface that takes user input to run commands. 
 void runShell()
 {
-  char *input;
+  char *input = 0;
   int shellRunning = 1;
   int waitingForCommand = 1;
   printString("\n[ edOS.v0.9 ]:> ");
 
-  while (shellRunning == 1)
-  {
+  // while (shellRunning == 1)
+  // {
 
-    if (waitingForCommand == 1)
-    {
-      // read the key buffer
-      input = userInput(1);
+  //   if (waitingForCommand == 1)
+  //   {
+  //     // read the key buffer
+  //     input = userInput(1);
 
-      for (int i = 0; i < strLen(input); i++)
-      {
-        if (input[i] == '\n')
-        {
-          waitingForCommand = 0;
-        }
-      }
-    }
-    else
-    {
-      parseAndRunCommand(input);
-      // clear the key buffer
-      userInput(2);
-      waitingForCommand = 1;
-      printString("[ edOS.v0.9 ]:> ");
-    }
-  }
+  //     for (int i = 0; i < strLen(input); i++)
+  //     {
+  //       if (input[i] == '\n')
+  //       {
+  //         waitingForCommand = 0;
+  //       }
+  //     }
+  //   }
+  //   else
+  //   {
+  //     parseAndRunCommand(input);
+  //     // clear the key buffer
+  //     userInput(2);
+  //     waitingForCommand = 1;
+  //     printString("[ edOS.v0.9 ]:> ");
+  //   }
+  // }
 }
 
 // for testing stuff
