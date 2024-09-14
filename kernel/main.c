@@ -39,6 +39,7 @@ void main()
   kPrintStringAt("================================================================================\n", 0, 0);
   kPrintStringAt("=============================| Welcome to edOS! |===============================\n", 0, 1);
   kPrintStringAt("================================================================================\n", 0, 2);
+
   cli();
   // initial kernel setup
   initPIC();
@@ -47,6 +48,10 @@ void main()
   initThreads();
   initTimer();
   sti();
+
+  // a little dirty but this ensures the timer has a chance to tick and initialise the threads
+  // correctly before we enter usermode.
+  kSleep(1);
 
   // createKThread(&thread2);
   // createKThread(&thread3);

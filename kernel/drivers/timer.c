@@ -88,7 +88,6 @@ int kGetPITCount()
 }
 
 // kSleep waits until the given time in seconds has passed
-// TODO: This doesnt work 
 void kSleep(int seconds)
 {
     int currentTime = kGetPITCount();

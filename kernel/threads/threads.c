@@ -325,12 +325,13 @@ void threadSwitch(struct registers r)
     // we infer the type for the value of ds on the stack
     if (runningThread->type == UNSET)
     {
-        switch (r.ds)
-        {
-        case KERNEL_DATA_SEG:
+        if (r.ds == KERNEL_DATA_SEG) {
             runningThread->type = KERNEL;
-        case USER_DATA_SEG_RPL3:
+        } else if (r.ds == USER_DATA_SEG_RPL3) {
             runningThread->type = USER;
+        } else {
+            kPrintString("unknown ds value, halting\n");
+            hlt();
         }
     }
     // This is the saved stack frame position of the irq stub. We add 36 to the stubEsp

@@ -72,6 +72,7 @@ syscall_stub:
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
+
     push esp
 
     call syscallHandler
