@@ -30,16 +30,16 @@ struct registers {
   unsigned int ss;
 }__attribute__((packed));
 
-enum Status {
+typedef enum Status {
     ACTIVE,
     FINISHED,
-};
+} Status;
 
-enum ThreadType {
-    UNSET,
+typedef enum ThreadType {
+    UNKNOWN,
     KERNEL,
     USER,
-};
+} ThreadType;
 
 // TCB (thread control block) holds information about a running
 // thread.
@@ -60,8 +60,7 @@ typedef struct TCB {
     // amount of processing time spent on this thread
     int cpuTime;
     int id;
-    enum Status status;
-    enum ThreadType type;
+    Status status;
 
 } __attribute__((packed)) TCB;
 

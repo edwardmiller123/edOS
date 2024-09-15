@@ -115,7 +115,6 @@ void initThreads()
     // starting value of esp for the kernel. This gets set on the first thread switch
     defaultThread->kStackPos = NULL;
     defaultThread->id = newId();
-    defaultThread->type = USER;
     // allocate memory for the registers of the default thread. We set the values
     // to all be zero as they are filled when the first interrupt fires.
     defaultThread->state = (struct registers *)kMalloc(sizeof(struct registers));
@@ -194,7 +193,6 @@ void createKThread(void *threadFunction)
     newThread->threadEntry = threadFunction;
     newThread->id = newId();
     newThread->status = ACTIVE;
-    newThread->type = KERNEL;
 
     // set new thread stack position
     newThread->kStackPos = findNewKernelStack();
@@ -247,7 +245,6 @@ void createUThread(void *threadFunction)
     newThread->threadEntry = threadFunction;
     newThread->id = newId();
     newThread->status = ACTIVE;
-    newThread->type = USER;
 
     // set new kernel thread stack position
     newThread->kStackPos = findNewKernelStack();
@@ -308,6 +305,18 @@ void cleanUpFinished()
     }
 }
 
+// threadType determines the thread type based off the passed in value
+// of ds.
+ThreadType threadType(int ds) {
+    if (ds == (unsigned int)USER_DATA_SEG_RPL3) {
+        return USER;
+    }
+    if (ds == (unsigned int)KERNEL_DATA_SEG) {
+        return KERNEL;
+    }
+    return UNKNOWN;
+}
+
 // threadSwitch initiates a thread switch by saving and loading the state of the cpu from
 // the runningThread TCB global. The values of all the registers and the stack of the interrupted
 // function are saved either to runningThread or to the previous TCB in the thread list if we are switching
@@ -320,19 +329,9 @@ void cleanUpFinished()
 // be popped into the correct registers for us by the iret.
 void threadSwitch(struct registers r)
 {
-    // The TCB created for the default thread wont have a type so
-    // we infer the type for the value of ds on the stack
-    if (runningThread->type == UNSET)
-    {
-        if (r.ds == KERNEL_DATA_SEG) {
-            runningThread->type = KERNEL;
-        } else if (r.ds == USER_DATA_SEG_RPL3) {
-            runningThread->type = USER;
-        } else {
-            kPrintString("unknown ds value, halting\n");
-            hlt();
-        }
-    }
+    // The value of ds will determine which ring the threads involved in the switch are in.
+    ThreadType oldThreadType = threadType(r.ds);
+    ThreadType newThreadType = threadType(runningThread->state->ds);
     // This is the saved stack frame position of the irq stub. We add 36 to the stubEsp
     // as this is the sum of all registers plus a value for ds pushed onto the stack.
     void *oldIrqStackFrame = (void *)(r.stubesp + 36);
@@ -344,7 +343,7 @@ void threadSwitch(struct registers r)
     void *callerEsp = (void *)(oldIrqStackFrame + 20);
     // For user threads we also have to account for the user esp and ss values on the stack
     // The value of ds will determine which ring the thread we are switching from is in.
-    if (r.ds == (unsigned int)USER_DATA_SEG_RPL3)
+    if (oldThreadType == USER)
     {
         callerEsp = (void *)(oldIrqStackFrame + 28);
     }
@@ -376,7 +375,7 @@ void threadSwitch(struct registers r)
     // this is the new value of the stack which we switch the stack pointer to when the irq stub resumes.
     // This could either be the same value as before or a new one if a thread switch has occurred
     void *newStubEsp = (void *)(runningThread->kStackPos - 56);
-    if (runningThread->type == USER)
+    if (newThreadType == USER)
     {
         newStubEsp = (void *)(runningThread->kStackPos - 64);
     }
@@ -390,7 +389,7 @@ void threadSwitch(struct registers r)
 
     // the irq stubs stack frame in the new thread.
     void *newIrqStackFrame = (void *)(runningThread->kStackPos - 20);
-    if (runningThread->type == USER)
+    if (runningThread->state->ds == (unsigned int)USER_DATA_SEG_RPL3)
     {
         newIrqStackFrame = (void *)(runningThread->kStackPos - 28);
     }
@@ -418,7 +417,7 @@ void threadSwitch(struct registers r)
 
     // when switching to a user mode thread we need to set up the stack to allow us to
     // return from ring 0 to ring 3
-    if (runningThread->type == USER)
+    if (newThreadType == USER)
     {
         // set the useresp value (value of esp pushed on the stack before the irq fired)
         setAtAddress(runningThread->state->useresp, newIrqStackFrame + 20);
