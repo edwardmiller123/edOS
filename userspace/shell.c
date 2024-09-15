@@ -65,35 +65,44 @@ void runShell()
   int waitingForCommand = 1;
   printString("\n[ edOS.v0.9 ]:> ");
 
-  // while (shellRunning == 1)
-  // {
+  while (shellRunning == 1)
+  {
 
-  //   if (waitingForCommand == 1)
-  //   {
-  //     // read the key buffer
-  //     input = userInput(1);
+    if (waitingForCommand == 1)
+    {
+      // read the key buffer
+      input = userInput(1);
 
-  //     for (int i = 0; i < strLen(input); i++)
-  //     {
-  //       if (input[i] == '\n')
-  //       {
-  //         waitingForCommand = 0;
-  //       }
-  //     }
-  //   }
-  //   else
-  //   {
-  //     parseAndRunCommand(input);
-  //     // clear the key buffer
-  //     userInput(2);
-  //     waitingForCommand = 1;
-  //     printString("[ edOS.v0.9 ]:> ");
-  //   }
-  // }
+      for (int i = 0; i < strLen(input); i++)
+      {
+        if (input[i] == '\n')
+        {
+          waitingForCommand = 0;
+        }
+      }
+    }
+    else
+    {
+      parseAndRunCommand(input);
+      // clear the key buffer
+      userInput(2);
+      waitingForCommand = 1;
+      printString("[ edOS.v0.9 ]:> ");
+    }
+  }
+}
+
+void userThread2() {
+  for (int i = 1; i <= 5; i++) {
+    kPrintString("UT2: ");
+    printInt(i);
+    sleep(1);
+  }
+  return;
 }
 
 // for testing stuff
 void test()
 {
-  sleep(5);
+  createThread(&userThread2);
 }

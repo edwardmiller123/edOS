@@ -115,7 +115,7 @@ void initThreads()
     // starting value of esp for the kernel. This gets set on the first thread switch
     defaultThread->kStackPos = NULL;
     defaultThread->id = newId();
-    defaultThread->type = UNSET;
+    defaultThread->type = USER;
     // allocate memory for the registers of the default thread. We set the values
     // to all be zero as they are filled when the first interrupt fires.
     defaultThread->state = (struct registers *)kMalloc(sizeof(struct registers));
@@ -134,9 +134,8 @@ void initThreads()
 }
 
 // exit marks the thread for removal and then spins. All the marked threads are then removed in the irq handler
-// after any thread switches have occured. e.g thread is finished -> calls exit() -> exit marks thread as done then hangs
+// after any thread switches have occurred. e.g thread is finished -> calls exit() -> exit marks thread as done then hangs
 // -> we switch out of the done thread into another -> all marked threads are removed -> new thread resumes.
-// exit removes the currently running thread from the list and never returns.
 void exit()
 {
     runningThread->status = FINISHED;
