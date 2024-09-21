@@ -94,11 +94,10 @@ void runShell()
 
 void userThread2() {
   for (int i = 1; i <= 5; i++) {
-    kPrintString("UT2: ");
+    printString("UT2: ");
     printInt(i);
     sleep(1);
   }
-  return;
 }
 
 // for testing stuff

@@ -149,11 +149,11 @@ void exit()
 // the highest kernel stack address so far and incrementing it by the OS stack size;
 void *findNewKernelStack()
 {
-    void *highestStackPosition = (void *)KERNEL_STACK;
+    void *highestStackPosition = KERNEL_STACK;
     TCB *thread = activeThreads.head->nextThread;
     while (thread != (activeThreads.head))
     {
-        if ((thread->kStackPos) > highestStackPosition)
+        if ((thread->kStackPos) > (int)highestStackPosition)
         {
             highestStackPosition = thread->kStackPos;
         }
@@ -166,11 +166,11 @@ void *findNewKernelStack()
 // the highest user stack address so far;
 void *findNewUserStack()
 {
-    void *highestUStackPosition = (void *)DEFAULT_STACK;
+    void *highestUStackPosition = DEFAULT_STACK;
     TCB *thread = activeThreads.head->nextThread;
     while (thread != (activeThreads.head))
     {
-        if ((thread->state->useresp) > highestUStackPosition)
+        if ((thread->state->useresp) > (int)highestUStackPosition)
         {
             highestUStackPosition = thread->state->useresp;
         }
@@ -307,11 +307,14 @@ void cleanUpFinished()
 
 // threadType determines the thread type based off the passed in value
 // of ds.
-ThreadType threadType(int ds) {
-    if (ds == (unsigned int)USER_DATA_SEG_RPL3) {
+ThreadType threadType(unsigned int ds)
+{
+    if (ds == (unsigned int)USER_DATA_SEG_RPL3)
+    {
         return USER;
     }
-    if (ds == (unsigned int)KERNEL_DATA_SEG) {
+    if (ds == (unsigned int)KERNEL_DATA_SEG)
+    {
         return KERNEL;
     }
     return UNKNOWN;
@@ -329,9 +332,11 @@ ThreadType threadType(int ds) {
 // be popped into the correct registers for us by the iret.
 void threadSwitch(struct registers r)
 {
+
     // The value of ds will determine which ring the threads involved in the switch are in.
     ThreadType oldThreadType = threadType(r.ds);
     ThreadType newThreadType = threadType(runningThread->state->ds);
+
     // This is the saved stack frame position of the irq stub. We add 36 to the stubEsp
     // as this is the sum of all registers plus a value for ds pushed onto the stack.
     void *oldIrqStackFrame = (void *)(r.stubesp + 36);
@@ -384,12 +389,12 @@ void threadSwitch(struct registers r)
     // when the irq stub resumes.
     setAtAddress(newStubEsp, (void *)(r.stubesp - 4));
 
-    // From here we proceed to restore the register values by either putitng them back on the old stack
+    // From here we proceed to restore the register values by either putting them back on the old stack
     // or by putting new values on the new stack.
 
     // the irq stubs stack frame in the new thread.
     void *newIrqStackFrame = (void *)(runningThread->kStackPos - 20);
-    if (runningThread->state->ds == (unsigned int)USER_DATA_SEG_RPL3)
+    if (newThreadType == USER)
     {
         newIrqStackFrame = (void *)(runningThread->kStackPos - 28);
     }
