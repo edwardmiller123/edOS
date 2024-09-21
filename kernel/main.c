@@ -51,16 +51,7 @@ void main()
 
   // a little dirty but this ensures the timer has a chance to tick and initialise the threads
   // correctly before we enter usermode.
-  kSleep(1);
-
-  // createKThread(&thread2);
-  // createKThread(&thread3);
-
-  // for (int i = 1; i <= 5; i++) {
-  //   kPrintString("KT1: ");
-  //   printInt(i);
-  //   kSleep(3);
-  // }
+  kSleep(10);
 
   // make the jump to user mode
   enterUserMode();

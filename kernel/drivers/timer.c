@@ -87,12 +87,12 @@ int kGetPITCount()
     return systemUptime;
 }
 
-// kSleep waits until the given time in seconds has passed
-void kSleep(int seconds)
+// kSleep waits until the given time in milliseconds has passed
+void kSleep(int ms)
 {
     int currentTime = kGetPITCount();
     int startTime = currentTime;
-    int timeEnd = startTime + (seconds * 1000);
+    int timeEnd = startTime + ms;
     while (currentTime < timeEnd) {
         currentTime = kGetPITCount();
     };

@@ -65,7 +65,7 @@ void printInt(int integer);
 // all elements in array1 are equal to those of array2. If the lengths are different it returns false.
 int compareIntArrays(int array1[], int array2[], int arrayLengths);
 
-// sleep waits until the given time in seconds has passed
-void sleep(int seconds);
+// sleep waits until the given time in milliseconds has passed
+void sleep(int ms);
 
 #endif

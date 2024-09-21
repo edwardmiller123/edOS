@@ -57,7 +57,7 @@ void parseAndRunCommand(char *command)
   }
 }
 
-// runShell runs a userspace shell interface that takes user input to run commands. 
+// runShell runs a userspace shell interface that takes user input to run commands.
 void runShell()
 {
   char *input = 0;
@@ -93,15 +93,17 @@ void runShell()
 }
 
 void userThread2() {
-  for (int i = 1; i <= 5; i++) {
+  for (int i = 1; i <= 3; i++) {
     printString("UT2: ");
     printInt(i);
-    sleep(1);
+    sleep(1000);
   }
 }
 
 // for testing stuff
 void test()
 {
+  // TODO: should improve the "stdin and stdout" system as only the shell
+  // should only be reading characters that were added to the buffer while it was running
   createThread(&userThread2);
 }

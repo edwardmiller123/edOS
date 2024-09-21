@@ -226,13 +226,13 @@ int compareIntArrays(int array1[], int array2[], int arrayLengths)
   return 1;
 }
 
-// sleep waits until the given time in seconds has passed
-void sleep(int seconds)
+// sleep waits until the given time in milliseconds has passed
+void sleep(int ms)
 {
-  int time = (int)syscall(seconds, 4, 1);
-  int timeEnd = time + (seconds * 1000);
+  int time = (int)syscall(ms, 4, 1);
+  int timeEnd = time + ms;
   while (time < timeEnd)
   {
-    time = (int)syscall(seconds, 4, 1);
+    time = (int)syscall(ms, 4, 1);
   }
 }
