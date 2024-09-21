@@ -8,8 +8,9 @@ a learning exercise and will hopefully be improved upon in the future.
 
 ### Current Features
 - Interrupt driven PS/2 Keyboard, VGA, Timer
-- Usermode code and system calls
+- Usermode "shell" and system calls
 - Kernel Threads
+- User Threads
 
 ## Requirements
 
