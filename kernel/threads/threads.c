@@ -307,7 +307,7 @@ void cleanUpFinished()
 
 // threadType determines the thread type based off the passed in value
 // of ds.
-ThreadType threadType(unsigned int ds)
+ThreadType getThreadType(unsigned int ds)
 {
     if (ds == (unsigned int)USER_DATA_SEG_RPL3)
     {
@@ -334,8 +334,8 @@ void threadSwitch(struct registers r)
 {
 
     // The value of ds will determine which ring the threads involved in the switch are in.
-    ThreadType oldThreadType = threadType(r.ds);
-    ThreadType newThreadType = threadType(runningThread->state->ds);
+    ThreadType oldThreadType = getThreadType(r.ds);
+    ThreadType newThreadType = getThreadType(runningThread->state->ds);
 
     // This is the saved stack frame position of the irq stub. We add 36 to the stubEsp
     // as this is the sum of all registers plus a value for ds pushed onto the stack.

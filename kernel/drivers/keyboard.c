@@ -455,7 +455,7 @@ void addToBuffer(char character)
   }
   else
   {
-    kPrintString("Buffer Full");
+    kPrintString("key buffer Full");
   }
 }
 
@@ -501,6 +501,9 @@ int handleKeyboardInput(struct registers r)
   if (character != 0)
   {
     addToBuffer(character);
+    // TODO: currently the keyboard driver is directly printing to the screen but really
+    // it should just add to the "stdin" buffer which is then read from (and printed) by 
+    // the current running thread.
     print_char(character, 0);
   }
   return 0;

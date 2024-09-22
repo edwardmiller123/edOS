@@ -1,7 +1,7 @@
 #ifndef KEYBOARD
 #define KEYBOARD
 
-#include "../interrupts//isr.h"
+#include "../types.h"
 
 // To talk to the keyboard encoder directly
 // we read data and write command codes both to 0x60.
@@ -9,6 +9,12 @@
 #define PS2_STATUS_AND_COMMAND_REGISTER 0x64
 #define QUEUE_SIZE 6
 #define BUFFER_SIZE 256
+
+typedef struct KeyboardInput {
+    char buffer[BUFFER_SIZE];
+    int bufferFront;
+    int bufferRear;
+} KeyboardInput;
 
 void testController();
 
