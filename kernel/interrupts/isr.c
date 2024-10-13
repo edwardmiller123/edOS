@@ -1,5 +1,6 @@
 #include "idt.h"
 #include "isr.h"
+#include "../log.h"
 #include "../IO.h"
 #include "../drivers/screen.h"
 
@@ -122,8 +123,6 @@ char *exceptionMessages[] = {
     "Breakpoint",
     "Into Detected Overflow",
     "Out of Bounds",
-    // TODO: Figure out whats causing the spam of invalid opcode
-    // when interrupts arent masked.
     "Invalid Opcode",
     "No Coprocessor",
 
@@ -189,7 +188,6 @@ void registerInterruptHandler(unsigned char n, intHdlr handler)
 // for the given irq.
 void irqHandler(struct registers r)
 {
-
     if (interruptHandlers[r.intNumber] != 0)
     {
         intHdlr handler = interruptHandlers[r.intNumber];

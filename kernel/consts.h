@@ -18,7 +18,6 @@
 #define USER_DATA_SEG 0x20
 #define USER_DATA_SEG_RPL3 0x23
 #define TSS_SEG 0x28
-#define NULL (void*) 0
 
 #endif
 

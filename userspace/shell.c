@@ -60,6 +60,8 @@ void parseAndRunCommand(char *command)
 // runShell runs a userspace shell interface that takes user input to run commands.
 void runShell()
 {
+  // set the thread running the shell as in focus since
+  setFocus();
   char *input = 0;
   int shellRunning = 1;
   int waitingForCommand = 1;
@@ -103,7 +105,5 @@ void userThread2() {
 // for testing stuff
 void test()
 {
-  // TODO: should improve the "stdin and stdout" system as only the shell
-  // should only be reading characters that were added to the buffer while it was running
   createThread(&userThread2);
 }

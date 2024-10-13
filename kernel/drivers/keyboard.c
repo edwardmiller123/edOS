@@ -3,6 +3,7 @@
 #include "screen.h"
 #include "keyboard.h"
 
+
 static int heldKey, keyCodeQueuePosition, waitingForKeyCode;
 
 // keyCodeQueue holds the list of key codes from the keyboard waiting to be interpreted
@@ -10,11 +11,30 @@ static int heldKey, keyCodeQueuePosition, waitingForKeyCode;
 static int keyCodeQueue[QUEUE_SIZE];
 
 // keyBuffer holds the characters printed to the screen to be read from by
-// the shell (or any other caller).
-static char keyBuffer[BUFFER_SIZE];
-
+// the shell (or any other caller). Define as a ptr since we switch it to
+// the buffer for the currently in focus thread.
+static char *keyBuffer = NULL;
 static int keyBufferRear = 0;
 static int keyBufferFront = 0;
+
+// newKeyboardInput initialises a keyboard input structure. Remember to free it once finished with
+KeyboardInput *newKeyboardInput()
+{
+  KeyboardInput *input = (KeyboardInput *)kMalloc(sizeof(KeyboardInput));
+  char *buffer = (char *)kMalloc(sizeof(char) * KEY_BUFFER_SIZE);
+  input->buffer = buffer;
+  input->bufferFront = 0;
+  input->bufferRear = 0;
+  return input;
+}
+
+// switchActiveKeyQueue updates the currently active key buffer to the given one.
+void switchActiveKeyQueue(KeyboardInput *newInputDst)
+{
+  keyBuffer = newInputDst->buffer;
+  keyBufferRear = newInputDst->bufferRear;
+  keyBufferFront = newInputDst->bufferFront;
+}
 
 void testController(int debug)
 {
@@ -23,7 +43,8 @@ void testController(int debug)
   switch (testResult)
   {
   case 0x55:
-    if (debug) {
+    if (debug)
+    {
       kPrintString("Controller Operational\n");
     }
     break;
@@ -44,7 +65,8 @@ void testPort1(int debug)
   switch (testResult)
   {
   case 0x00:
-    if (debug) {
+    if (debug)
+    {
       kPrintString("Port 1 Operational\n");
     }
     break;
@@ -63,7 +85,8 @@ void testPort2(int debug)
   switch (testResult)
   {
   case 0x00:
-    if (debug) {
+    if (debug)
+    {
       kPrintString("Port 2 Operational\n");
     }
     break;
@@ -78,7 +101,8 @@ void testPort2(int debug)
 void testPS2Controller(int debug)
 {
   // test ps2 controller and ports.
-  if (debug) {
+  if (debug)
+  {
     kPrintString("Running PS/2 Controller tests...\n");
   }
   testController(debug);
@@ -419,7 +443,7 @@ int isBufferEmpty()
 // isBufferFull checks if the buffer is full
 int isBufferFull()
 {
-  if (keyBufferRear == BUFFER_SIZE)
+  if (keyBufferRear == KEY_BUFFER_SIZE)
   {
     return 1;
   }
@@ -429,7 +453,7 @@ int isBufferFull()
 // resetKeyBuffer resets all values in the key buffer to 0;
 void resetKeyBuffer()
 {
-  for (int i = 0; i < BUFFER_SIZE; i++)
+  for (int i = 0; i < KEY_BUFFER_SIZE; i++)
   {
     keyBuffer[i] = 0;
   }
@@ -440,7 +464,7 @@ void resetKeyBuffer()
 // addToBuffer adds a character to the key buffer
 void addToBuffer(char character)
 {
-  if (keyBufferRear <= BUFFER_SIZE)
+  if (keyBufferRear <= KEY_BUFFER_SIZE)
   {
     if (keyBufferFront <= keyBufferRear)
     {
@@ -475,7 +499,8 @@ void removeFromBufferRear()
 char *readKeyBuffer()
 {
   char *readBuffer = keyBuffer;
-  if (isBufferFull() == 1) {
+  if (isBufferFull() == 1)
+  {
     resetKeyBuffer();
   }
   return readBuffer;
@@ -497,12 +522,12 @@ int handleKeyboardInput(struct registers r)
   {
     resetQueue();
   }
-  
+
   if (character != 0)
   {
     addToBuffer(character);
     // TODO: currently the keyboard driver is directly printing to the screen but really
-    // it should just add to the "stdin" buffer which is then read from (and printed) by 
+    // it should just add to the "stdin" buffer which is then read from (and printed) by
     // the current running thread.
     print_char(character, 0);
   }
@@ -511,9 +536,6 @@ int handleKeyboardInput(struct registers r)
 
 void initPS2Keyboard(int debug)
 {
-
-  registerInterruptHandler(33, handleKeyboardInput);
-
   // Disable first ps/2 port.
   writeByte(PS2_STATUS_AND_COMMAND_REGISTER, 0xAD);
 
@@ -534,7 +556,8 @@ void initPS2Keyboard(int debug)
   switch (resetResponse)
   {
   case 0xFA:
-    if (debug) {
+    if (debug)
+    {
       kPrintString("Keyboard ready\n");
     }
     break;
@@ -547,4 +570,5 @@ void initPS2Keyboard(int debug)
 
   resetQueue();
   resetKeyBuffer();
+  registerInterruptHandler(33, handleKeyboardInput);
 }

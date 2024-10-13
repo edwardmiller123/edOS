@@ -1,6 +1,8 @@
 #ifndef STDLIB
 #define STDLIB
 
+#define NULL (void*) 0
+
 // syscall triggers a system call to run the appropriate function based on the provided driver
 // code (DC) and function code (FC).
 // screen: DC = 1
@@ -18,12 +20,15 @@ void *malloc(int size);
 // free frees the memory associated with the given pointer
 void free(void * ptr);
 
-// userInput makes a syscall to either read the keyboard (code = 1) input
-// or clear the key buffer (code = 2)
+// userInput makes a syscall to either read the keyboard stdin buffer (code = 1
+// or clear it (code = 2)
 char *userInput(int code);
 
 // createThread runs the given function in a new thread
 void createThread(void *threadFunction);
+
+// setFocus gives the currently executing thread ownership of the stdin buffer
+void setFocus();
 
 // memoryCopy takes the data stored at the source address and copies
 // it to the destination address.

@@ -1,4 +1,5 @@
 #include "drivers/screen.h"
+#include "log.h"
 #include "drivers/keyboard.h"
 #include "threads/threads.h"
 #include "drivers/timer.h"
@@ -40,12 +41,14 @@ void main()
   kPrintStringAt("=============================| Welcome to edOS! |===============================\n", 0, 1);
   kPrintStringAt("================================================================================\n", 0, 2);
 
+  setLogLevel(ERROR);
+
   cli();
   // initial kernel setup
   initPIC();
   initTSS();
-  initPS2Keyboard(0);
   initThreads();
+  initPS2Keyboard(0);
   initTimer();
   sti();
 

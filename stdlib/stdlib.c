@@ -1,3 +1,4 @@
+#include "stdlib.h"
 // syscall triggers a system call to run the appropriate function based on the provided driver
 // code (DC) and function code (FC).
 // screen: DC = 1
@@ -25,6 +26,9 @@ void *syscall(int input, int driverCode, int functionCode)
 // malloc makes a call to the kernel to allocate heap memory
 void *malloc(int size)
 {
+  // right now this is just a system call to kMalloc but if we ever implement paging
+  // then this will allocate memory for the current process and make the system call
+  // to request more from the kernel if needed.
   return syscall(size, 3, 1);
 }
 
@@ -34,8 +38,8 @@ void free(void *ptr)
   syscall(ptr, 3, 2);
 }
 
-// userInput makes a syscall to either read the keyboard (code = 1) input
-// or clear the key buffer (code = 2)
+// userInput makes a syscall to either read the keyboard stdin buffer (code = 1
+// or clear it (code = 2)
 char *userInput(int code)
 {
   // use 0 as an input when none is required
@@ -45,6 +49,11 @@ char *userInput(int code)
 // createThread runs the given function in a new thread
 void createThread(void *threadFunction) {
   syscall(threadFunction, 5, 2);
+}
+
+// setFocus gives the currently executing thread ownership of the stdin buffer
+void setFocus() {
+  syscall(0, 5, 1);
 }
 
 // memoryCopy takes the data stored at the source address and copies

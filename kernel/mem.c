@@ -1,12 +1,11 @@
 #include "mem.h"
 #include "drivers/screen.h"
 #include "consts.h"
+#include "../stdlib/stdlib.h"
 
 #define STD_BLOCK_SIZE 24
 #define USEABLE_BLOCK_SIZE 16
 #define BLOCK_DATA_SIZE 8
-
-static void *heapTop = HEAP_START;
 
 // kMalloc allocates memory on the heap and returns a pointer.
 // Memory is allocated in "standard blocks" of equal size (24 bytes) in a
@@ -53,7 +52,10 @@ void *kMalloc(int size)
 // kFree frees the heap memory corresponding to the given pointer.
 // It checks if the block is allocated and if so sets the "taken" 4 bytes to 0 i.e free for use
 void kFree(void *ptr)
-{
+{ 
+  if (ptr == NULL) {
+    return;
+  }
   int blockUsed = *(int *)(ptr - 8);
   if (blockUsed == 0)
   {

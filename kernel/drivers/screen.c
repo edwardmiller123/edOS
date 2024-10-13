@@ -1,6 +1,5 @@
 #include "screen.h"
 #include "../IO.h"
-#include "../helpers.h"
 #include "../../stdlib/stdlib.h"
 
 // This maps the row and column coordinates to the corresponding memory address in
@@ -162,34 +161,47 @@ void print_char_at(char character, int col, int row, char attribute_byte)
   print_char(character, attribute_byte);
 }
 
-// kPrintString prints the provided string at the current cursor position on screen.
-void kPrintString(char *message)
-{
+// kPrintString prints the provided string at the current cursor position on screen with the given
+// VGA colour.
+void kPrintStringColour(char *message, char attributeByte) {
   int i = 0;
   while (message[i] != '\0' || message[i] != 0)
   {
-    print_char(message[i], 0);
+    print_char(message[i], attributeByte);
     i++;
   }
 }
 
-// kPrintStringAt prints the provided string at the specifed position on screen.
-void kPrintStringAt(char *message, int col, int row)
+// kPrintString prints the provided string at the current cursor position on screen.
+void kPrintString(char *message)
+{
+  kPrintStringColour(message, 0);
+}
+
+// kPrintStringAt prints the provided string at the specifed position on screen using
+// the given VGA colour.
+void kPrintStringColourAt(char *message, int col, int row, char attributeByte)
 {
   if (col >= 0 && row >= 0)
   {
     set_cursor(cell_to_mem_address(col, row));
   }
 
-  kPrintString(message);
+  kPrintStringColour(message, attributeByte);
+}
+
+// kPrintStringAt prints the provided string at the specifed position on screen.
+void kPrintStringAt(char *message, int col, int row)
+{
+  kPrintStringColourAt(message, col, row, 0);
 }
 
 // kPrintInt prints the given integer by converting it to a string.
-// TODO: allocate memory for the new string here then once we have printed it 
-// it can be freed.
 void kPrintInt(int integer)
 {
-  kPrintString(kIntToString(integer));
+  int digitCount = getDigitCount(integer);
+  char newStr[digitCount + 1];
+  kPrintString(intToString(integer, newStr));
   kPrintString("\n");
 }
 

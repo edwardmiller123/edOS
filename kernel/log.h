@@ -16,4 +16,7 @@ void kLogWarning(char* msg);
 
 void kLogError(char* msg);
 
+// kLogf logs a formmated message at the given log level
+void kLogf(LogLevel level, char *msg, int args[], int argCount);
+
 #endif

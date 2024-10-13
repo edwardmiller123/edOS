@@ -14,7 +14,7 @@ void screenHandler(int input, int functionCode)
     switch (functionCode)
     {
     case 2:
-        kPrintString((char*) input);
+        kPrintString((char *)input);
         break;
     }
 }
@@ -55,11 +55,15 @@ void *memoryHandler(int input, int functionCode)
 }
 
 // threadHandler handles calls to create user threads.
+// Read: Set the current thread as in focus
 // Write: create user thread
 void threadHandler(int input, int functionCode)
 {
     switch (functionCode)
     {
+    case 1:
+        makeInFocus();
+        break;
     case 2:
         createUThread((void *)input);
         break;
@@ -75,7 +79,7 @@ void *timerHandler(int functionCode)
     {
     case 1:
         // cast to a pointer just so the compiler dopesnt complain
-        output = (void*)kGetPITCount();
+        output = (void *)kGetPITCount();
         break;
     }
     return output;
@@ -110,8 +114,10 @@ void *syscallHandler(struct registers r)
         break;
     case 4:
         output = timerHandler(FC);
+        break;
     case 5:
         threadHandler(input, FC);
+        break;
     }
     PICsendEOI(r.intNumber);
     return output;

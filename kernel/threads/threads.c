@@ -1,16 +1,16 @@
 #include "threads.h"
 #include "../drivers/screen.h"
+#include "../drivers/keyboard.h"
 #include "../consts.h"
 #include "../mem.h"
-#include "../helpers.h"
 #include "../interrupts/tss.h"
 #include "../interrupts/isr.h"
 #include "../../stdlib/stdlib.h"
 
 #define THREAD_STACK_SIZE (void *)0x1800
 
-// User mode threads implementation
-// There will be one scheduler that runs in ring 0 and schedules both kernel and user threads.
+// User threads implementation
+// The scheduler runs in ring 0 and schedules both kernel and user threads.
 // User threads will be identical to kernel threads with the addition of a user mode stack
 // and the thread entry func will be in user space. All threads will live in the same list and be switched
 // on irq0 with different behaviour based on the thread type (kernel or user). When switching to a user thread,
@@ -32,9 +32,6 @@ typedef struct threadList
     TCB *head;
 } __attribute__((packed)) threadList;
 
-// switchThread is only defined in the header since we link against the assembly
-// file for the function body
-
 // runningThread is the TCB of the thread currently executing (or just about to be executed)
 // The IRQ handler always loads its registers from whatever is stored in this variable.
 static TCB *runningThread = NULL;
@@ -44,6 +41,13 @@ static threadList activeThreads;
 
 // A simple way of creating unique thread ids. This number never decreases.
 static int idCount = 1;
+
+// makeInFocus sets the currently running thread to store keyboard input in its stdin buffer
+void makeInFocus() {
+    // TODO: somehow this is causing ds to not get set correctly when switching threads
+    runningThread->inFocus = 1;
+    switchActiveKeyQueue(runningThread->stdin);
+}
 
 // newId increments and returns the thread id counter
 int newId()
@@ -56,7 +60,6 @@ int newId()
 // add adds a new TCB into the circular thread list
 void add(TCB *newThread)
 {
-    cli();
     TCB *lastThread = activeThreads.head;
     if (activeThreads.size == 0)
     {
@@ -82,7 +85,6 @@ void add(TCB *newThread)
     activeThreads.head->previousThread = newThread;
     newThread->previousThread = lastThread;
     activeThreads.size += 1;
-    sti();
 }
 
 // remove removes the given TCB from the list of active threads
@@ -97,9 +99,12 @@ void remove(TCB *threadToRemove)
 
     // finally free the memory used for the TCB
     activeThreads.size--;
+    kFree(threadToRemove->stdin);
     kFree(threadToRemove->state);
     kFree(threadToRemove);
 }
+
+// TODO: something about the default thread is corrupting the stack when we switch rings
 
 // initThreads creates a mostly empty TCB for the initial thread. This gets
 // populated on the first timer tick after it has been created.
@@ -118,7 +123,7 @@ void initThreads()
     // allocate memory for the registers of the default thread. We set the values
     // to all be zero as they are filled when the first interrupt fires.
     defaultThread->state = (struct registers *)kMalloc(sizeof(struct registers));
-    // Only set the segemnt registers as we need to read ds on the first thread switch.
+    // Only set the segment registers as we need to read ds on the first thread switch.
     // All other values are set when the switch takes place.
     struct registers regs = {
         .ds = KERNEL_DATA_SEG,
@@ -127,9 +132,13 @@ void initThreads()
     };
     *defaultThread->state = regs;
 
+    KeyboardInput *stdin = newKeyboardInput();
+    defaultThread->stdin = stdin;
+
     add(defaultThread);
     runningThread = defaultThread;
     // the space allocated is never freed as the default thread is always running
+    makeInFocus();
 }
 
 // exit marks the thread for removal and then spins. All the marked threads are then removed in the irq handler
@@ -229,6 +238,10 @@ void createKThread(void *threadFunction)
 
     *newThread->state = regs;
 
+    // dont need to allocate a stdin buffer for kernel threads since they wont
+    // take user input directly
+    newThread->stdin = NULL;
+
     add(newThread);
 }
 
@@ -285,6 +298,9 @@ void createUThread(void *threadFunction)
 
     *newThread->state = regs;
 
+    KeyboardInput *stdin = newKeyboardInput();
+    newThread->stdin = stdin;
+
     add(newThread);
 }
 
@@ -317,6 +333,7 @@ ThreadType getThreadType(unsigned int ds)
     {
         return KERNEL;
     }
+
     return UNKNOWN;
 }
 
@@ -332,10 +349,16 @@ ThreadType getThreadType(unsigned int ds)
 // be popped into the correct registers for us by the iret.
 void threadSwitch(struct registers r)
 {
-
     // The value of ds will determine which ring the threads involved in the switch are in.
     ThreadType oldThreadType = getThreadType(r.ds);
     ThreadType newThreadType = getThreadType(runningThread->state->ds);
+
+    if (oldThreadType == UNKNOWN) {
+        return;
+    }
+    if (newThreadType == UNKNOWN) {
+        return;
+    }
 
     // This is the saved stack frame position of the irq stub. We add 36 to the stubEsp
     // as this is the sum of all registers plus a value for ds pushed onto the stack.
@@ -352,6 +375,7 @@ void threadSwitch(struct registers r)
     {
         callerEsp = (void *)(oldIrqStackFrame + 28);
     }
+
     // Save the old thread's registers and stack.
     // If there are multiple threads then the state of the old thread gets
     // stored in the previous threads TCB since the runningThread global indicates
@@ -477,6 +501,8 @@ void schedule(int currentUptime)
     runningThread->cpuTime += newCpuTime;
     // for now use a round robin schedule so we switch thread on every tick
     // dont switch if we havent initialised the threads yet
+    // kPrintString("running thread: ");
+    // kPrintInt(runningThread->id);
     if (activeThreads.size > 0)
     {
         // make the switch.

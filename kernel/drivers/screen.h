@@ -41,8 +41,16 @@ void print_char(char character, char attribute_byte);
 // Does this by setting the cursor position then printing the character.
 void print_char_at(char character, int col, int row, char attribute_byte);
 
+// kPrintString prints the provided string at the current cursor position on screen with the given
+// VGA colour.
+void kPrintStringColour(char *message, char attributeByte);
+
 // kPrintString prints the provided string at the current cursor on screen.
 void kPrintString(char *message);
+
+// kPrintStringAt prints the provided string at the specifed position on screen using
+// the given VGA colour.
+void kPrintStringColourAt(char *message, int col, int row, char attributeByte);
 
 // kPrintStringAt prints the provided string at the specifed position on screen.
 void kPrintStringAt(char *message, int col, int row);
@@ -53,9 +61,5 @@ void kPrintInt(int integer);
 // clear_screen clears the screen by printing empty spaces at
 // all points on the screen.
 void clear_screen();
-
-// printInt prints the given integer by converting it to a string.
-void printInt(int integer);
-
 
 #endif

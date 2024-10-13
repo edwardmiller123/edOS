@@ -5,13 +5,15 @@
 static LogLevel level = INFO;
 
 // setLogLevel sets the global logging level
-void setLogLevel(LogLevel logLevel) {
+void setLogLevel(LogLevel logLevel)
+{
     level = logLevel;
 }
 
-
-void log(char * levelStr, char* msg, char attributeByte) {
-    if (msg == NULL) {
+void log(char *levelStr, char *msg, char attributeByte)
+{
+    if (msg == NULL)
+    {
         kPrintStringColour("Log message cannot be NULL\n", attributeByte);
         return;
     }
@@ -24,32 +26,103 @@ void log(char * levelStr, char* msg, char attributeByte) {
     kPrintString("\n");
 }
 
-void kLogInfo(char* msg) {
-    if (level > INFO) {
+void kLogInfo(char *msg)
+{
+    if (level > INFO)
+    {
         return;
-    } 
+    }
 
     char colour = 0x02;
-    char * levelStr = "INFO: ";
+    char *levelStr = "INFO: ";
     log(levelStr, msg, colour);
 }
 
-void kLogWarning(char* msg) {
-    if (level > WARNING) {
+void kLogWarning(char *msg)
+{
+    if (level > WARNING)
+    {
         return;
-    } 
+    }
 
     char colour = 0xE;
-    char * levelStr = "WARNING: ";
+    char *levelStr = "WARNING: ";
     log(levelStr, msg, colour);
 }
 
-void kLogError(char* msg) {
-    if (level > ERROR) {
+void kLogError(char *msg)
+{
+    if (level > ERROR)
+    {
         return;
-    } 
+    }
 
     char colour = 0x04;
-    char * levelStr = "ERROR: ";
+    char *levelStr = "ERROR: ";
     log(levelStr, msg, colour);
+}
+
+// kLogf logs a formmated message at the given log level
+void kLogf(LogLevel level, char *msg, int args[], int argCount)
+{
+    if (msg == NULL)
+    {
+        kLogError("Log message cannot be NULL");
+        return;
+    }
+    char msgParts[10][128];
+    int argIdx = 0;
+    int partIdx = 0;
+    int j = 0;
+    for (int i = 0; i < strLen(msg); i++)
+    {
+        if (msg[i] == '$')
+        {
+            msgParts[partIdx][j] = '\0';
+            partIdx++;
+            j = 0;
+            // intToString needs the space for the string pre allocated so we pass in the
+            // next array in msgParts
+            intToString(args[argIdx], msgParts[partIdx]);
+            argIdx++;
+            // skip again to the next part.
+            partIdx++;
+        }
+        else
+        {
+            msgParts[partIdx][j] = msg[i];
+            j++;
+        }
+
+        if (partIdx > 10)
+        {
+            kLogError("Log message has to many parts");
+            return;
+        }
+        if (argIdx > argCount)
+        {
+            kLogError("Found to many input args");
+            return;
+        }
+    }
+    // now concatenate the parts of the string
+    char *formattedMsg = msgParts[0];
+    for (int i = 1; i <= partIdx; i++)
+    {
+        char newStr[128];
+        formattedMsg = strConcat(formattedMsg, msgParts[i], newStr);
+    }
+
+    switch (level)
+    {
+    case INFO:
+        kLogInfo(formattedMsg);
+        break;
+    case WARNING:
+        kLogWarning(formattedMsg);
+        break;
+    case ERROR:
+        kLogError(formattedMsg);
+        break;
+    }
 }

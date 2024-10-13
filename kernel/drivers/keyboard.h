@@ -8,13 +8,20 @@
 #define PS2_DATA_PORT 0x60
 #define PS2_STATUS_AND_COMMAND_REGISTER 0x64
 #define QUEUE_SIZE 6
-#define BUFFER_SIZE 256
+#define KEY_BUFFER_SIZE 256
 
-typedef struct KeyboardInput {
-    char buffer[BUFFER_SIZE];
+typedef struct KeyboardInput
+{
+    char *buffer;
     int bufferFront;
     int bufferRear;
 } KeyboardInput;
+
+// newKeyboardInput initialises a keyboard input structure. Remember to free it once finished with
+KeyboardInput *newKeyboardInput();
+
+// switchActiveKeyQueue updates the currently active key buffer to the given one.
+void switchActiveKeyQueue(KeyboardInput *newInputDst);
 
 void testController();
 
@@ -29,7 +36,7 @@ unsigned char keyCodeToAscii(int keyCode, int heldKey);
 
 char singleKeyCodeHandler(int keyCode);
 
-int * trimQueue(int keyCodes[6]);
+int *trimQueue(int keyCodes[6]);
 
 void multipleKeyCodeHandler();
 
@@ -63,7 +70,7 @@ void removeFromBufferRear();
 
 // readKeyBuffer returns the key buffer and clears it if
 // its full.
-char * readKeyBuffer();
+char *readKeyBuffer();
 
 // handleKeyboardInput reads the keyboard data port and applys the corresponding action.
 int handleKeyboardInput(struct registers r);
