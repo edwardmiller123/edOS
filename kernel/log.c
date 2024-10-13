@@ -28,7 +28,7 @@ void log(char *levelStr, char *msg, char attributeByte)
 
 void kLogInfo(char *msg)
 {
-    if (level > INFO)
+    if (level < INFO)
     {
         return;
     }
@@ -40,7 +40,7 @@ void kLogInfo(char *msg)
 
 void kLogWarning(char *msg)
 {
-    if (level > WARNING)
+    if (level < WARNING)
     {
         return;
     }
@@ -52,7 +52,7 @@ void kLogWarning(char *msg)
 
 void kLogError(char *msg)
 {
-    if (level > ERROR)
+    if (level < ERROR)
     {
         return;
     }
@@ -62,7 +62,15 @@ void kLogError(char *msg)
     log(levelStr, msg, colour);
 }
 
-// kLogf logs a formmated message at the given log level
+void kLogFatal(char *msg)
+{
+    char colour = 0x06;
+    char *levelStr = "FATAL: ";
+    log(levelStr, msg, colour);
+    hlt();
+}
+
+// kLogf logs a formatted message at the given log level
 void kLogf(LogLevel level, char *msg, int args[], int argCount)
 {
     if (msg == NULL)
@@ -123,6 +131,9 @@ void kLogf(LogLevel level, char *msg, int args[], int argCount)
         break;
     case ERROR:
         kLogError(formattedMsg);
+        break;
+    case FATAL:
+        kLogFatal(formattedMsg);
         break;
     }
 }

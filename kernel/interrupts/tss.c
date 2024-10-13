@@ -1,4 +1,6 @@
 #include "../consts.h"
+#include "../log.h"
+#include "../../stdlib/stdlib.h"
 
 // The TSS is used for hardware task switching. We however just use it for
 // permission level switches. When an interrupt (iret) occurs while in ring 3
@@ -54,12 +56,20 @@ void initTSS()
 	// load the tss to allow for pivilege level changes (and context switches but
 	// we arent using it for that here)
 	__asm__ volatile("ltr %%ax" : : "a"(tssSeg));
+	int args[] = {(int)tssSeg};
+	kLogf(INFO, "TSS segment loaded. Address: $", args, 1);
 }
 
 // updateRing0Stack updates the value of esp0 in the TSS to the provided memory
 // address
 void updateRing0Stack(void *newStack)
 {
+	if (newStack == NULL) {
+		kLogError("esp0 cant be NULL");
+		return;
+	}
 	TSS *tss = TSS_POSITION;
 	tss->esp0 = newStack;
+	int args[] = {(int)newStack};
+	kLogf(INFO, "TSS: esp0 set to $", args, 1);
 }

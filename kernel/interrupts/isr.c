@@ -1,6 +1,7 @@
 #include "idt.h"
 #include "isr.h"
 #include "../log.h"
+#include "../../stdlib/stdlib.h"
 #include "../IO.h"
 #include "../drivers/screen.h"
 
@@ -112,6 +113,8 @@ void initPIC()
     irqInstall();
 
     setIdt();
+
+    kLogInfo("PIC initialised");
 }
 
 // various exception messages for each interrupt.
@@ -168,13 +171,14 @@ void PICsendEOI(unsigned int irq)
 // We halt as most errors at this stage are unrecoverable so no point spaming error messages.
 void isrHandler(struct registers reg)
 {
-    kPrintString("Interrupt received\n");
-    kPrintString(exceptionMessages[reg.intNumber]);
-    kPrintString("\n");
-    kPrintString("Error code: ");
-    printInt(reg.errCode);
-    kPrintString("\n");
-    hlt();
+    char newStr[30];
+    char * msg = strConcat(
+        "Kernel Interrupted\n ISR: $, Error Code: $\n Reason: ", 
+        exceptionMessages[reg.intNumber], 
+        newStr
+    );
+    int args[] = {reg.intNumber, reg.errCode};
+    kLogf(FATAL, msg, args, 2);
 }
 
 // registerInterruptHandler assigns a given isr handler to the given position in

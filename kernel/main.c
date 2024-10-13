@@ -41,7 +41,7 @@ void main()
   kPrintStringAt("=============================| Welcome to edOS! |===============================\n", 0, 1);
   kPrintStringAt("================================================================================\n", 0, 2);
 
-  setLogLevel(ERROR);
+  setLogLevel(INFO);
 
   cli();
   // initial kernel setup

@@ -1,4 +1,5 @@
 #include "threads.h"
+#include "../log.h"
 #include "../drivers/screen.h"
 #include "../drivers/keyboard.h"
 #include "../consts.h"
@@ -47,6 +48,8 @@ void makeInFocus() {
     // TODO: somehow this is causing ds to not get set correctly when switching threads
     runningThread->inFocus = 1;
     switchActiveKeyQueue(runningThread->stdin);
+    int args[] = {runningThread->id};
+    kLogf(INFO, "Thread $ has the focus", args, 1);
 }
 
 // newId increments and returns the thread id counter
@@ -85,6 +88,13 @@ void add(TCB *newThread)
     activeThreads.head->previousThread = newThread;
     newThread->previousThread = lastThread;
     activeThreads.size += 1;
+    int args[] = {
+        newThread->id, 
+        newThread->state->ds, 
+        newThread->state->cs, 
+        newThread->kStackPos,
+        newThread->state->useresp};
+    kLogf(INFO, "Added thread $, ds: $, cs: $, K Stack: $, U Stack: $", args, 5);
 }
 
 // remove removes the given TCB from the list of active threads
@@ -98,10 +108,17 @@ void remove(TCB *threadToRemove)
     threadInfront->previousThread = threadBehind;
 
     // finally free the memory used for the TCB
+    int args[] = {
+        threadToRemove->id, 
+        threadToRemove->state->ds, 
+        threadToRemove->state->cs, 
+        threadToRemove->kStackPos,
+        threadToRemove->state->useresp};
     activeThreads.size--;
     kFree(threadToRemove->stdin);
     kFree(threadToRemove->state);
     kFree(threadToRemove);
+    kLogf(INFO, "Removed thread $, ds: $, cs: $, K Stack: $, U Stack: $", args, 5);
 }
 
 // TODO: something about the default thread is corrupting the stack when we switch rings
@@ -137,6 +154,7 @@ void initThreads()
 
     add(defaultThread);
     runningThread = defaultThread;
+    kLogInfo("Initialised default thread.");
     // the space allocated is never freed as the default thread is always running
     makeInFocus();
 }

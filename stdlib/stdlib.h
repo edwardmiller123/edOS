@@ -3,6 +3,8 @@
 
 #define NULL (void*) 0
 
+typedef enum { false, true } Bool;
+
 // syscall triggers a system call to run the appropriate function based on the provided driver
 // code (DC) and function code (FC).
 // screen: DC = 1

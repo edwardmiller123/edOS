@@ -2,6 +2,7 @@
 #define LOG
 
 typedef enum LogLevel {
+    FATAL,
     ERROR,
     WARNING,
     INFO,
@@ -16,7 +17,9 @@ void kLogWarning(char* msg);
 
 void kLogError(char* msg);
 
-// kLogf logs a formmated message at the given log level
+void kLogFatal(char *msg);
+
+// kLogf logs a formatted message at the given log level
 void kLogf(LogLevel level, char *msg, int args[], int argCount);
 
 #endif
