@@ -2,6 +2,7 @@
 #include "screen.h"
 #include "timer.h"
 #include "keyboard.h"
+#include "../log.h"
 #include "../threads/threads.h"
 #include "../mem.h"
 #include "../../stdlib/stdlib.h"
@@ -101,6 +102,8 @@ void *syscallHandler(struct registers r)
     int DC = r.ebx;
     int FC = r.ecx;
     void *output = 0;
+    int args[] = {DC, FC};
+    kLogf(DEBUG, "Syscall received. DC: $, FC: $", args, 2);
     switch (DC)
     {
     case 1:

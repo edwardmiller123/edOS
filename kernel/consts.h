@@ -10,6 +10,7 @@
 // The initial stack value for the OS. Since we move quickly to user mode all user
 // mode threads are created above here.
 #define DEFAULT_STACK (void *) 0x800000 // at 8.39mb
+#define THREAD_STACK_SIZE (void *)0x1800 // 6.14 kb
 #define HEAP_START (void *) 0x200000 //(2.09mb)
 #define KERNEL_CODE_SEG 0x08
 #define KERNEL_DATA_SEG 0x10

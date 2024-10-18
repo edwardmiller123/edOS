@@ -8,8 +8,6 @@
 #include "../interrupts/isr.h"
 #include "../../stdlib/stdlib.h"
 
-#define THREAD_STACK_SIZE (void *)0x1800
-
 // User threads implementation
 // The scheduler runs in ring 0 and schedules both kernel and user threads.
 // User threads will be identical to kernel threads with the addition of a user mode stack
@@ -120,8 +118,6 @@ void remove(TCB *threadToRemove)
     kFree(threadToRemove);
     kLogf(INFO, "Removed thread $, ds: $, cs: $, K Stack: $, U Stack: $", args, 5);
 }
-
-// TODO: something about the default thread is corrupting the stack when we switch rings
 
 // initThreads creates a mostly empty TCB for the initial thread. This gets
 // populated on the first timer tick after it has been created.
@@ -372,9 +368,13 @@ void threadSwitch(struct registers r)
     ThreadType newThreadType = getThreadType(runningThread->state->ds);
 
     if (oldThreadType == UNKNOWN) {
+        int args[] = {r.ds};
+        kLogf(FATAL, "Last thread has unknown type. ds: $", args, 1);
         return;
     }
     if (newThreadType == UNKNOWN) {
+        int args[] = {runningThread->state->ds, runningThread->id};
+        kLogf(FATAL, "New thread has unknown type. ds: $, Thread: $", args, 2);
         return;
     }
 
@@ -514,16 +514,14 @@ void threadSwitch(struct registers r)
 // make the switch itself as this is done by the general IRQ handler.
 void schedule(int currentUptime)
 {
-    // first update the cpuTime of the currently running thread
-    int newCpuTime = currentUptime - (runningThread->initTime);
-    runningThread->cpuTime += newCpuTime;
     // for now use a round robin schedule so we switch thread on every tick
     // dont switch if we havent initialised the threads yet
-    // kPrintString("running thread: ");
-    // kPrintInt(runningThread->id);
+
     if (activeThreads.size > 0)
     {
         // make the switch.
         runningThread = runningThread->nextThread;
+        int args[] = {runningThread->id};
+        kLogf(DEBUG, "Switching Threads. Next loaded will be $", args, 1);
     }
 }

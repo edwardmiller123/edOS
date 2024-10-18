@@ -57,6 +57,7 @@ void main()
   kSleep(10);
 
   // make the jump to user mode
+  kLogInfo("Entering user mode");
   enterUserMode();
 
 }

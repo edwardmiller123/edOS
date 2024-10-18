@@ -6,10 +6,13 @@ typedef enum LogLevel {
     ERROR,
     WARNING,
     INFO,
+    DEBUG,
 } LogLevel;
 
 // setLogLevel sets the global logging level
 void setLogLevel(LogLevel logLevel);
+
+void kLogDebug(char *msg);
 
 void kLogInfo(char* msg);
 

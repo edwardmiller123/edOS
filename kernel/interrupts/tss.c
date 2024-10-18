@@ -71,5 +71,5 @@ void updateRing0Stack(void *newStack)
 	TSS *tss = TSS_POSITION;
 	tss->esp0 = newStack;
 	int args[] = {(int)newStack};
-	kLogf(INFO, "TSS: esp0 set to $", args, 1);
+	kLogf(DEBUG, "TSS: esp0 set to $", args, 1);
 }

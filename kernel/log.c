@@ -26,6 +26,18 @@ void log(char *levelStr, char *msg, char attributeByte)
     kPrintString("\n");
 }
 
+void kLogDebug(char *msg)
+{
+    if (level < DEBUG)
+    {
+        return;
+    }
+
+    char colour = 0x03;
+    char *levelStr = "DEBUG: ";
+    log(levelStr, msg, colour);
+}
+
 void kLogInfo(char *msg)
 {
     if (level < INFO)
@@ -64,7 +76,7 @@ void kLogError(char *msg)
 
 void kLogFatal(char *msg)
 {
-    char colour = 0x06;
+    char colour = 0x04;
     char *levelStr = "FATAL: ";
     log(levelStr, msg, colour);
     hlt();
@@ -123,6 +135,9 @@ void kLogf(LogLevel level, char *msg, int args[], int argCount)
 
     switch (level)
     {
+    case DEBUG:
+        kLogDebug(formattedMsg);
+        break;
     case INFO:
         kLogInfo(formattedMsg);
         break;
