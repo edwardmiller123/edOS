@@ -101,7 +101,7 @@ void *syscallHandler(struct registers r)
     int input = r.eax;
     int DC = r.ebx;
     int FC = r.ecx;
-    void *output = 0;
+    void *output = NULL;
     int args[] = {DC, FC};
     kLogf(DEBUG, "Syscall received. DC: $, FC: $", args, 2);
     switch (DC)

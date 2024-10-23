@@ -42,7 +42,8 @@ static threadList activeThreads;
 static int idCount = 1;
 
 // makeInFocus sets the currently running thread to store keyboard input in its stdin buffer
-void makeInFocus() {
+void makeInFocus()
+{
     // TODO: somehow this is causing ds to not get set correctly when switching threads
     runningThread->inFocus = 1;
     switchActiveKeyQueue(runningThread->stdin);
@@ -87,9 +88,9 @@ void add(TCB *newThread)
     newThread->previousThread = lastThread;
     activeThreads.size += 1;
     int args[] = {
-        newThread->id, 
-        newThread->state->ds, 
-        newThread->state->cs, 
+        newThread->id,
+        newThread->state->ds,
+        newThread->state->cs,
         newThread->kStackPos,
         newThread->state->useresp};
     kLogf(INFO, "Added thread $, ds: $, cs: $, K Stack: $, U Stack: $", args, 5);
@@ -105,14 +106,15 @@ void remove(TCB *threadToRemove)
     threadBehind->nextThread = threadInfront;
     threadInfront->previousThread = threadBehind;
 
-    // finally free the memory used for the TCB
     int args[] = {
-        threadToRemove->id, 
-        threadToRemove->state->ds, 
-        threadToRemove->state->cs, 
+        threadToRemove->id,
+        threadToRemove->state->ds,
+        threadToRemove->state->cs,
         threadToRemove->kStackPos,
         threadToRemove->state->useresp};
+
     activeThreads.size--;
+    // finally free the memory used for the TCB
     kFree(threadToRemove->stdin);
     kFree(threadToRemove->state);
     kFree(threadToRemove);
@@ -189,7 +191,7 @@ void *findNewKernelStack()
 // the highest user stack address so far;
 void *findNewUserStack()
 {
-    void *highestUStackPosition = DEFAULT_STACK;
+    void *highestUStackPosition = USER_STACK;
     TCB *thread = activeThreads.head->nextThread;
     while (thread != (activeThreads.head))
     {
@@ -259,10 +261,10 @@ void createKThread(void *threadFunction)
     add(newThread);
 }
 
-// createUThread creates a new TCB for a usermode thread and adds it to a linked list of active threads. Takes
-// the function to run in the new thread.
+// createUThread creates a new TCB for a usermode thread and adds it to a list of active threads. 
+// Takes the function to run in the new thread.
 // It is left up to the scheduler and IRQ handler to actually execute the new thread.
-// New threads are created with a max space of 6kb (0x1800) for now.
+// New threads are created with a max space of 12kib (0x3000) for now.
 // The memory allocated for a TCB gets freed when we remove it from the list.
 void createUThread(void *threadFunction)
 {
@@ -363,20 +365,6 @@ ThreadType getThreadType(unsigned int ds)
 // be popped into the correct registers for us by the iret.
 void threadSwitch(struct registers r)
 {
-    // The value of ds will determine which ring the threads involved in the switch are in.
-    ThreadType oldThreadType = getThreadType(r.ds);
-    ThreadType newThreadType = getThreadType(runningThread->state->ds);
-
-    if (oldThreadType == UNKNOWN) {
-        int args[] = {r.ds};
-        kLogf(FATAL, "Last thread has unknown type. ds: $", args, 1);
-        return;
-    }
-    if (newThreadType == UNKNOWN) {
-        int args[] = {runningThread->state->ds, runningThread->id};
-        kLogf(FATAL, "New thread has unknown type. ds: $, Thread: $", args, 2);
-        return;
-    }
 
     // This is the saved stack frame position of the irq stub. We add 36 to the stubEsp
     // as this is the sum of all registers plus a value for ds pushed onto the stack.
@@ -385,8 +373,34 @@ void threadSwitch(struct registers r)
     // this is the value of esp before the interrupt fired i.e the previously running threads stack.
     // it is 20 bytes above the irq stubs stack frame as 8 bytes are taken by the error code and int number
     // and then the extra 12 (20 for user threads) by the various values pushed on the stack during the interrupt.
-
     void *callerEsp = (void *)(oldIrqStackFrame + 20);
+
+    int args[] = {
+        runningThread->id,
+        (int)callerEsp,
+        runningThread->kStackPos,
+        r.useresp,
+        runningThread->state->useresp,
+    };
+    kLogf(DEBUG, "Switching to thread $, kStack: $ -> $, uStack: $ -> $", args, 5);
+
+    // The value of ds will determine which ring the threads involved in the switch are in.
+    ThreadType oldThreadType = getThreadType(r.ds);
+    ThreadType newThreadType = getThreadType(runningThread->state->ds);
+
+    if (oldThreadType == UNKNOWN)
+    {
+        int args[] = {r.ds};
+        kLogf(FATAL, "Last thread has unknown type. ds: $", args, 1);
+        return;
+    }
+    if (newThreadType == UNKNOWN)
+    {
+        int args[] = {runningThread->state->ds, runningThread->id};
+        kLogf(FATAL, "New thread has unknown type. ds: $, Thread: $", args, 2);
+        return;
+    }
+
     // For user threads we also have to account for the user esp and ss values on the stack
     // The value of ds will determine which ring the thread we are switching from is in.
     if (oldThreadType == USER)
@@ -522,6 +536,6 @@ void schedule(int currentUptime)
         // make the switch.
         runningThread = runningThread->nextThread;
         int args[] = {runningThread->id};
-        kLogf(DEBUG, "Switching Threads. Next loaded will be $", args, 1);
+        kLogf(DEBUG, "Thread switch scheduled. Next will be $", args, 1);
     }
 }

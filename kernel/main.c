@@ -6,6 +6,7 @@
 #include "interrupts/isr.h"
 #include "interrupts/tss.h"
 #include "drivers/syscall.h"
+#include "../userspace/userspace.h"
 #include "../stdlib/stdlib.h"
 
 // enterUserMode is our wrapper assembly function that jumps to user mode and then
@@ -13,10 +14,13 @@
 extern int enterUserMode();
 
 void thread2() {
-  for (int i = 1; i <= 5; i++) {
-    kPrintString("KT2: ");
-    printInt(i);
-    kSleep(1);
+  // for (int i = 1; i <= 5; i++) {
+  //   kPrintString("KT2: ");
+  //   printInt(i);
+  //   kSleep(1);
+  // }
+  while(1) {
+    ;
   }
   return;
 }
@@ -41,7 +45,7 @@ void main()
   kPrintStringAt("=============================| Welcome to edOS! |===============================\n", 0, 1);
   kPrintStringAt("================================================================================\n", 0, 2);
 
-  setLogLevel(INFO);
+  setLogLevel(DEBUG);
 
   cli();
   // initial kernel setup
@@ -55,9 +59,9 @@ void main()
   // a little dirty but this ensures the timer has a chance to tick and initialise the threads
   // correctly before we enter usermode.
   kSleep(10);
+  // createKThread(&thread2);
 
   // make the jump to user mode
   kLogInfo("Entering user mode");
-  enterUserMode();
-
+  createUThread(&initUserSpace);
 }

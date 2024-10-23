@@ -2,6 +2,7 @@
 #include "drivers/screen.h"
 #include "consts.h"
 #include "../stdlib/stdlib.h"
+
 static LogLevel level = INFO;
 
 // setLogLevel sets the global logging level
@@ -46,7 +47,7 @@ void kLogInfo(char *msg)
     }
 
     char colour = 0x02;
-    char *levelStr = "INFO: ";
+    char *levelStr = "INFO : ";
     log(levelStr, msg, colour);
 }
 
@@ -90,7 +91,11 @@ void kLogf(LogLevel level, char *msg, int args[], int argCount)
         kLogError("Log message cannot be NULL");
         return;
     }
-    char msgParts[10][128];
+
+    const partLimit = 15;
+
+    // TODO: This uses alot of stack. May need to bump the thread stack allowence
+    char msgParts[partLimit][128];
     int argIdx = 0;
     int partIdx = 0;
     int j = 0;
@@ -114,7 +119,7 @@ void kLogf(LogLevel level, char *msg, int args[], int argCount)
             j++;
         }
 
-        if (partIdx > 10)
+        if (partIdx > partLimit)
         {
             kLogError("Log message has to many parts");
             return;

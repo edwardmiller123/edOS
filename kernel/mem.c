@@ -1,11 +1,12 @@
 #include "mem.h"
 #include "drivers/screen.h"
+#include "log.h"
 #include "consts.h"
 #include "../stdlib/stdlib.h"
 
 #define STD_BLOCK_SIZE 24
 #define USEABLE_BLOCK_SIZE 16
-#define BLOCK_DATA_SIZE 8
+#define BLOCK_METADATA_SIZE 8
 
 // kMalloc allocates memory on the heap and returns a pointer.
 // Memory is allocated in "standard blocks" of equal size (24 bytes) in a
@@ -28,7 +29,7 @@ void *kMalloc(int size)
     // actualy allocated memory which is the useable block size multiplied by the number of useable
     // blocks allocated.
 
-    currentBlock += (BLOCK_DATA_SIZE + (USEABLE_BLOCK_SIZE * (*(int *)(currentBlock + 4))));
+    currentBlock += (BLOCK_METADATA_SIZE + (USEABLE_BLOCK_SIZE * (*(int *)(currentBlock + 4))));
   }
   // TODO: Check we dont exceed max available memory
   // set the block as used
@@ -54,6 +55,7 @@ void *kMalloc(int size)
 void kFree(void *ptr)
 { 
   if (ptr == NULL) {
+    kLogWarning("Cant free a NULL pointer");
     return;
   }
   int blockUsed = *(int *)(ptr - 8);
