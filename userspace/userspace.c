@@ -5,7 +5,7 @@ void initUserSpace()
 {
     // start the shell in a new usermode thread
     // createThread(&runShell);
-    userInput(1);
+    // userInput(1);
     // printString("hi\n");
     while (1)
     {

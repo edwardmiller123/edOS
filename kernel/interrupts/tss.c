@@ -45,7 +45,7 @@ void initTSS()
 	TSS *newTSS = TSS_POSITION;
 
 	// set the values we need.
-	newTSS->esp0 = KERNEL_STACK;
+	newTSS->esp0 = 0x700000;
 	newTSS->ss0 = KERNEL_DATA_SEG;
 
 	// we dont use the IO permission bit map so we just set it to the size of

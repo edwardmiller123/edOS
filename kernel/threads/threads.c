@@ -375,15 +375,6 @@ void threadSwitch(struct registers r)
     // and then the extra 12 (20 for user threads) by the various values pushed on the stack during the interrupt.
     void *callerEsp = (void *)(oldIrqStackFrame + 20);
 
-    int args[] = {
-        runningThread->id,
-        (int)callerEsp,
-        runningThread->kStackPos,
-        r.useresp,
-        runningThread->state->useresp,
-    };
-    kLogf(DEBUG, "Switching to thread $, kStack: $ -> $, uStack: $ -> $", args, 5);
-
     // The value of ds will determine which ring the threads involved in the switch are in.
     ThreadType oldThreadType = getThreadType(r.ds);
     ThreadType newThreadType = getThreadType(runningThread->state->ds);
@@ -408,6 +399,15 @@ void threadSwitch(struct registers r)
         callerEsp = (void *)(oldIrqStackFrame + 28);
     }
 
+    int args[] = {
+        runningThread->id,
+        (int)callerEsp,
+        runningThread->kStackPos,
+        r.useresp,
+        runningThread->state->useresp,
+    };
+    kLogf(DEBUG, "Switching to thread $, kStack: $ -> $, uStack: $ -> $", args, 5);
+
     // Save the old thread's registers and stack.
     // If there are multiple threads then the state of the old thread gets
     // stored in the previous threads TCB since the runningThread global indicates
@@ -430,8 +430,9 @@ void threadSwitch(struct registers r)
         return;
     }
 
+    // TODO: in user mode this is being set to a huge number
     // update esp0 in the TSS
-    updateRing0Stack((void *)runningThread->kStackPos);
+    updateRing0Stack(runningThread->kStackPos);
 
     // this is the new value of the stack which we switch the stack pointer to when the irq stub resumes.
     // This could either be the same value as before or a new one if a thread switch has occurred

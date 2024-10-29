@@ -60,38 +60,38 @@ void parseAndRunCommand(char *command)
 // runShell runs a userspace shell interface that takes user input to run commands.
 void runShell()
 {
-  // set the thread running the shell as in focus since
-  // setFocus();
-  // char *input = 0;
-  // int shellRunning = 1;
-  // int waitingForCommand = 1;
-  // printString("\n[ edOS.v0.9 ]:> ");
+  // set the thread running the shell as in focus
+  setFocus();
+  char *input = 0;
+  int shellRunning = 1;
+  int waitingForCommand = 1;
+  printString("\n[ edOS.v0.9 ]:> ");
 
-  // while (shellRunning == 1)
-  // {
+  while (shellRunning == 1)
+  {
 
-  //   if (waitingForCommand == 1)
-  //   {
-  //     // read the key buffer
-  //     input = userInput(1);
+    if (waitingForCommand == 1)
+    {
+      // read the key buffer
+      input = userInput(1);
 
-  //     for (int i = 0; i < strLen(input); i++)
-  //     {
-  //       if (input[i] == '\n')
-  //       {
-  //         waitingForCommand = 0;
-  //       }
-  //     }
-  //   }
-  //   else
-  //   {
-  //     parseAndRunCommand(input);
-  //     // clear the key buffer
-  //     userInput(2);
-  //     waitingForCommand = 1;
-  //     printString("[ edOS.v0.9 ]:> ");
-  //   }
-  // }
+      for (int i = 0; i < strLen(input); i++)
+      {
+        if (input[i] == '\n')
+        {
+          waitingForCommand = 0;
+        }
+      }
+    }
+    else
+    {
+      parseAndRunCommand(input);
+      // clear the key buffer
+      userInput(2);
+      waitingForCommand = 1;
+      printString("[ edOS.v0.9 ]:> ");
+    }
+  }
 }
 
 void userThread2() {
