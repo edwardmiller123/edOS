@@ -150,6 +150,12 @@ void initThreads()
     KeyboardInput *stdin = newKeyboardInput();
     defaultThread->stdin = stdin;
 
+    // the default thread has both canaries as NULL since it doesnt really have a stack limit for now.
+    // In future this should just be the standard size since there is always the danger of colliding with the heap with the 
+    // current memory layout.
+    defaultThread->kCanaryAddress = NULL;
+    defaultThread->uCanaryAddress = NULL;
+
     add(defaultThread);
     runningThread = defaultThread;
     kLogInfo("Initialised default thread.");
@@ -220,7 +226,8 @@ void createKThread(void *threadFunction)
     newThread->status = ACTIVE;
 
     // set new thread stack position
-    newThread->kStackPos = findNewKernelStack();
+    void * kStackPos = findNewKernelStack();
+    newThread->kStackPos = kStackPos;
 
     // set our exit function as the return address for the thread.
     setAtAddress(&exit, newThread->kStackPos);
@@ -259,6 +266,13 @@ void createKThread(void *threadFunction)
     newThread->stdin = NULL;
 
     add(newThread);
+
+    // Set the Stack canary
+    int kernelCanaryPosition = (int)kStackPos - (int)THREAD_STACK_SIZE;
+    setAtAddress((int)STACK_CANARY, kernelCanaryPosition);
+
+    newThread->kCanaryAddress = kernelCanaryPosition;
+    newThread->uCanaryAddress = NULL;
 }
 
 // createUThread creates a new TCB for a usermode thread and adds it to a list of active threads. 
@@ -276,7 +290,8 @@ void createUThread(void *threadFunction)
     newThread->status = ACTIVE;
 
     // set new kernel thread stack position
-    newThread->kStackPos = findNewKernelStack();
+    void * kStackPos = findNewKernelStack();
+    newThread->kStackPos = kStackPos;
 
     // set new user thread stack position
     void *uStackPos = findNewUserStack();
@@ -316,6 +331,17 @@ void createUThread(void *threadFunction)
 
     KeyboardInput *stdin = newKeyboardInput();
     newThread->stdin = stdin;
+
+    // Set the Stack canaries
+    void * kernelCanaryPosition = (void*)((int)kStackPos - (int)THREAD_STACK_SIZE);
+    setAtAddress((int)STACK_CANARY, kernelCanaryPosition);
+
+    newThread->kCanaryAddress = kernelCanaryPosition;
+
+    int userCanaryPosition = (int)uStackPos - (int)THREAD_STACK_SIZE;
+    setAtAddress((int)STACK_CANARY, userCanaryPosition);
+
+    newThread->uCanaryAddress = userCanaryPosition;
 
     add(newThread);
 }
@@ -365,16 +391,6 @@ ThreadType getThreadType(unsigned int ds)
 // be popped into the correct registers for us by the iret.
 void threadSwitch(struct registers r)
 {
-
-    // This is the saved stack frame position of the irq stub. We add 36 to the stubEsp
-    // as this is the sum of all registers plus a value for ds pushed onto the stack.
-    void *oldIrqStackFrame = (void *)(r.stubesp + 36);
-
-    // this is the value of esp before the interrupt fired i.e the previously running threads stack.
-    // it is 20 bytes above the irq stubs stack frame as 8 bytes are taken by the error code and int number
-    // and then the extra 12 (20 for user threads) by the various values pushed on the stack during the interrupt.
-    void *callerEsp = (void *)(oldIrqStackFrame + 20);
-
     // The value of ds will determine which ring the threads involved in the switch are in.
     ThreadType oldThreadType = getThreadType(r.ds);
     ThreadType newThreadType = getThreadType(runningThread->state->ds);
@@ -391,6 +407,37 @@ void threadSwitch(struct registers r)
         kLogf(FATAL, "New thread has unknown type. ds: $, Thread: $", args, 2);
         return;
     }
+
+    // Check the stack canaries
+    int kCanary = (int)NULL;
+    if (runningThread->kCanaryAddress != NULL) {
+        kCanary = (int)getAtAddress(runningThread->kCanaryAddress);
+    }
+    if ((void *)kCanary != NULL && kCanary != STACK_CANARY) {
+        int args[] = {runningThread->id};
+        kLogf(ERROR, "Thread $ kernel stack limit reached. Exiting", args, 1);
+        return;
+    }
+
+    int uCanary = (int)NULL;
+    if (runningThread->uCanaryAddress != NULL) {
+        uCanary = (int)getAtAddress(runningThread->uCanaryAddress);
+    }
+    if ((void *)uCanary != NULL && uCanary != STACK_CANARY) {
+        int args[] = {runningThread->id};
+        kLogf(ERROR, "Thread $ user stack limit reached. Exiting", args, 1);
+        exit();
+        return;
+    }
+
+    // This is the saved stack frame position of the irq stub. We add 36 to the stubEsp
+    // as this is the sum of all registers plus a value for ds pushed onto the stack.
+    void *oldIrqStackFrame = (void *)(r.stubesp + 36);
+
+    // this is the value of esp before the interrupt fired i.e the previously running threads stack.
+    // it is 20 bytes above the irq stubs stack frame as 8 bytes are taken by the error code and int number
+    // and then the extra 12 (20 for user threads) by the various values pushed on the stack during the interrupt.
+    void *callerEsp = (void *)(oldIrqStackFrame + 20);
 
     // For user threads we also have to account for the user esp and ss values on the stack
     // The value of ds will determine which ring the thread we are switching from is in.

@@ -4,6 +4,11 @@
 #include "../types.h"
 #include "../drivers/keyboard.h"
 
+// Use the stack canary to tell if a threads stack has grown to large. We set this at the end of the
+// allocated stack space for every thread. When switching to a new thread if this value is missing 
+// then we know the stack has grown to large so we exit.
+#define STACK_CANARY 0xbeef
+
 typedef enum Status
 {
     ACTIVE,
@@ -38,6 +43,10 @@ typedef struct TCB
     int cpuTime;
     int id;
     Status status;
+    // Location of the stack canaries at the end of the allocated stack spaces;
+    // This is effectivly the threads stack limit
+    void * kCanaryAddress;
+    void * uCanaryAddress;
 
     // if a thread is in focus then it is actively being used by the user and so
     // input should go to the associated stdin buffer
