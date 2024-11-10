@@ -25,13 +25,16 @@ void *kMalloc(int size)
   {
     // check if the current block consists of multiple std blocks, in which
     // case we need to skip the extra blocks in use
-    // here we increment the current block by the memory used to store block data plus all the 
+    // here we increment the current block by the memory used to store block data plus all the
     // actualy allocated memory which is the useable block size multiplied by the number of useable
     // blocks allocated.
 
     currentBlock += (BLOCK_METADATA_SIZE + (USEABLE_BLOCK_SIZE * (*(int *)(currentBlock + 4))));
   }
   // TODO: Check we dont exceed max available memory
+
+  int args[1] = {(int)currentBlock};
+  kLogf(DEBUG, "Allocating new heap block at $", args, 1);
   // set the block as used
   *(int *)currentBlock = 1;
 
@@ -53,14 +56,19 @@ void *kMalloc(int size)
 // kFree frees the heap memory corresponding to the given pointer.
 // It checks if the block is allocated and if so sets the "taken" 4 bytes to 0 i.e free for use
 void kFree(void *ptr)
-{ 
-  if (ptr == NULL) {
-    kLogWarning("Cant free a NULL pointer");
+{
+  int args[1] = {(int)ptr};
+  kLogf(DEBUG, "Freeing heap block $", args, 1);
+
+  if (ptr == NULL)
+  {
+    kLogWarning("Tried to free NULL pointer");
     return;
   }
   int blockUsed = *(int *)(ptr - 8);
   if (blockUsed == 0)
   {
+    kLogWarning("Tried to free unused heap block");
     return;
   }
   *(int *)(ptr - 8) = 0;
@@ -70,7 +78,8 @@ void kFree(void *ptr)
 // Allows us to store values at specific addresses (void pointers) in C (Normally the compiler wouldnt allow this).
 // Caution: This uses eax and ebx to actually do the move so any values already there
 // will be overwritten which could lead to undefined behviour.
-void setAtAddress(int val, void * address) {
+void setAtAddress(int val, void *address)
+{
   __asm__ volatile("movl %%eax, (%%ebx)" : : "a"(val), "b"(address));
 }
 
@@ -78,8 +87,9 @@ void setAtAddress(int val, void * address) {
 // Allows us to read values at specific addresses in C (Normally the compiler wouldnt allow this).
 // Caution: This uses eax and ebx to actually do the move so any values already there
 // will be overwritten which could lead to undefined behviour.
-void * getAtAddress(void * address) {
-  void * val;
-  __asm__ volatile("movl (%%ebx), %%eax" : "=a"(val): "b"(address));
+void *getAtAddress(void *address)
+{
+  void *val;
+  __asm__ volatile("movl (%%ebx), %%eax" : "=a"(val) : "b"(address));
   return val;
 }

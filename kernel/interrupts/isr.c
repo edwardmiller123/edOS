@@ -11,12 +11,14 @@ intHdlr interruptHandlers[256];
 void sti()
 {
     __asm__ volatile("sti");
+    kLogDebug("Interrupts enabled");
 }
 
 // wrapper for cli instruction (disables interrupts)
 void cli()
 {
     __asm__ volatile("cli");
+    kLogDebug("Interrupts disabled");
 }
 
 // hlt is a C wrapper for the hlt instruction

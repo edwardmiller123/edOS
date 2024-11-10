@@ -1,8 +1,8 @@
 #include "../../stdlib/stdlib.h"
 #include "../IO.h"
+#include "../log.h"
 #include "screen.h"
 #include "keyboard.h"
-
 
 static int heldKey, keyCodeQueuePosition, waitingForKeyCode;
 
@@ -453,6 +453,11 @@ int isBufferFull()
 // resetKeyBuffer resets all values in the key buffer to 0;
 void resetKeyBuffer()
 {
+  if ((void *)keyBuffer == NULL)
+  {
+    kLogWarning("skipping reset of NULL keybuffer");
+    return;
+  }
   for (int i = 0; i < KEY_BUFFER_SIZE; i++)
   {
     keyBuffer[i] = 0;
@@ -464,6 +469,12 @@ void resetKeyBuffer()
 // addToBuffer adds a character to the key buffer
 void addToBuffer(char character)
 {
+   if ((void *)keyBuffer == NULL)
+  {
+    kLogWarning("skipped adding character to NULL keyBuffer");
+    return;
+  }
+
   if (keyBufferRear <= KEY_BUFFER_SIZE)
   {
     if (keyBufferFront <= keyBufferRear)
@@ -498,6 +509,12 @@ void removeFromBufferRear()
 // its full.
 char *readKeyBuffer()
 {
+  if ((void *)keyBuffer == NULL)
+  {
+    kLogWarning("read from of NULL keybuffer");
+    return NULL;
+  }
+
   char *readBuffer = keyBuffer;
   if (isBufferFull() == 1)
   {
