@@ -60,7 +60,8 @@ void main()
   // correctly before we enter usermode.
   kSleep(10);
 
-  // TODO: There is potentially still stack corruption happening so should rule this out
+  // TODO: There is still stack corruption happening as we sometimes get UB so still need
+  // to do some investigating
 
   // make the jump to user mode
   kLogInfo("Entering user mode");
