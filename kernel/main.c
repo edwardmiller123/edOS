@@ -52,7 +52,7 @@ void main()
   initPIC();
   initTSS();
   initThreads();
-  initPS2Keyboard(0);
+  initPS2Keyboard();
   initTimer();
   sti();
 

@@ -23,15 +23,6 @@ KeyboardInput *newKeyboardInput();
 // switchActiveKeyQueue updates the currently active key buffer to the given one.
 void switchActiveKeyQueue(KeyboardInput *newInputDst);
 
-void testController();
-
-void testPort1();
-
-void testPort2();
-
-// testPS2Controller runs a simple test to see if the ps2 controller is working.
-void testPS2Controller(int debug);
-
 unsigned char keyCodeToAscii(int keyCode, int heldKey);
 
 char singleKeyCodeHandler(int keyCode);
@@ -75,6 +66,6 @@ char *readKeyBuffer();
 // handleKeyboardInput reads the keyboard data port and applys the corresponding action.
 int handleKeyboardInput(struct registers r);
 
-void initPS2Keyboard(int debug);
+void initPS2Keyboard();
 
 #endif

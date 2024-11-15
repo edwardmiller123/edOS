@@ -36,78 +36,69 @@ void switchActiveKeyQueue(KeyboardInput *newInputDst)
   keyBufferFront = newInputDst->bufferFront;
 }
 
-void testController(int debug)
+void testController()
 {
   // test ps2 controller
   int testResult = sendCommand(0xAA, PS2_DATA_PORT, PS2_STATUS_AND_COMMAND_REGISTER);
+  int args[] = {testResult};
   switch (testResult)
   {
   case 0x55:
-    if (debug)
-    {
-      kPrintString("Controller Operational\n");
-    }
+    kLogDebug("PS/2 controller test passed\n");
     break;
   case 0xFC:
-    kPrintString("Controller failed with fault\n");
+    kLogf(ERROR, "PS/2 controller failed with fault: $", args, 1);
     break;
   default:
-    kPrintString("Controller failed with unexpected result\n");
+    kLogf(ERROR, "PS/2 controller failed with unexpected result: $", args, 1);
+
     break;
   }
 }
 
-void testPort1(int debug)
+void testPort1()
 {
   // test ps2 port 1
   writeByte(PS2_STATUS_AND_COMMAND_REGISTER, 0xAB);
   int testResult = readByte(PS2_DATA_PORT);
+  int args[] = {testResult};
   switch (testResult)
   {
   case 0x00:
-    if (debug)
-    {
-      kPrintString("Port 1 Operational\n");
-    }
+    kLogDebug("PS/2 port 1 test passed");
     break;
   default:
-    kPrintString("Port 1 failed with unexpected result\n");
-    printInt(testResult);
+    kLogf(ERROR, "PS/2 port 1 failed with unexpected result", args, 1);
     break;
   }
 }
 
-void testPort2(int debug)
+void testPort2()
 {
   // test ps2 port 1
   writeByte(PS2_STATUS_AND_COMMAND_REGISTER, 0xA9);
   int testResult = readByte(PS2_DATA_PORT);
+  int args[] = {testResult};
   switch (testResult)
   {
   case 0x00:
-    if (debug)
-    {
-      kPrintString("Port 2 Operational\n");
-    }
+    kLogDebug("PS/2 port 2 Operational");
     break;
   default:
-    kPrintString("Port 2 failed with unexpected result\n");
-    printInt(testResult);
+    kLogf(ERROR, "PS/2, port 2 failed with unexpected result", args, 1);
     break;
   }
 }
 
 // testPS2Controller runs a simple test to see if the ps2 controller is working.
-void testPS2Controller(int debug)
+void testPS2Controller()
 {
   // test ps2 controller and ports.
-  if (debug)
-  {
-    kPrintString("Running PS/2 Controller tests...\n");
-  }
-  testController(debug);
-  testPort1(debug);
-  testPort2(debug);
+  kLogDebug("Running PS/2 Controller tests...");
+
+  testController();
+  testPort1();
+  testPort2();
 }
 
 unsigned char keyCodeToAscii(int keyCode, int heldKey)
@@ -469,7 +460,7 @@ void resetKeyBuffer()
 // addToBuffer adds a character to the key buffer
 void addToBuffer(char character)
 {
-   if ((void *)keyBuffer == NULL)
+  if ((void *)keyBuffer == NULL)
   {
     kLogWarning("skipped adding character to NULL keyBuffer");
     return;
@@ -551,7 +542,7 @@ int handleKeyboardInput(struct registers r)
   return 0;
 }
 
-void initPS2Keyboard(int debug)
+void initPS2Keyboard()
 {
   // Disable first ps/2 port.
   writeByte(PS2_STATUS_AND_COMMAND_REGISTER, 0xAD);
@@ -563,29 +554,28 @@ void initPS2Keyboard(int debug)
   readByte(PS2_DATA_PORT);
 
   // Test the controller and ports are working.
-  testPS2Controller(debug);
+  testPS2Controller();
 
   // Enable first ps/2 port.
   writeByte(PS2_STATUS_AND_COMMAND_REGISTER, 0xAE);
 
   // Reset keyboard
   int resetResponse = sendCommand(0xFF, PS2_DATA_PORT, PS2_DATA_PORT);
+  int args[] = {resetResponse};
   switch (resetResponse)
   {
   case 0xFA:
-    if (debug)
-    {
-      kPrintString("Keyboard ready\n");
-    }
+    kLogDebug("Keyboard ready");
     break;
   case 0:
-    kPrintString("Keyboard not found (empty response)\n");
+    kLogWarning("Keyboard not found (empty response)");
     break;
   default:
-    kPrintString("Error resetting keyboard\n");
+    kLogf(ERROR, "Error resetting keyboard", args, 1);
   }
 
   resetQueue();
   resetKeyBuffer();
   registerInterruptHandler(33, handleKeyboardInput);
+  kLogInfo("PS/2 controller initialised");
 }
