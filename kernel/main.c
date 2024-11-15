@@ -45,7 +45,7 @@ void main()
   kPrintStringAt("=============================| Welcome to edOS! |===============================\n", 0, 1);
   kPrintStringAt("================================================================================\n", 0, 2);
 
-  setLogLevel(DEBUG);
+  setLogLevel(INFO);
 
   cli();
   // initial kernel setup
@@ -59,9 +59,10 @@ void main()
   // a little dirty but this ensures the timer has a chance to tick and initialise the threads
   // correctly before we enter usermode.
   kSleep(10);
-  createKThread(&thread2);
+
+  // TODO: There is potentially still stack corruption happening so should rule this out
 
   // make the jump to user mode
-  // kLogInfo("Entering user mode");
-  // createUThread(&initUserSpace);
+  kLogInfo("Entering user mode");
+  createUThread(&initUserSpace);
 }

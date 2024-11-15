@@ -37,6 +37,11 @@ isr_common_stub:
 ; very similar to the isr routine but the restore is slightly different
 irq_common_stub:
     pusha 
+
+    ; zero eax so we dont corrupt ds with whatever was left there from before
+    ; e.g a function return value
+    xor eax, eax
+
 	mov ax, ds 
 	push eax 
 	mov ax, 0x10 
@@ -65,6 +70,10 @@ irq_common_stub:
 ; This could just be the irq stub however for debuging its easier to keep the syscalls seperate
 syscall_stub:
     pusha
+    ; zero eax so we dont corrupt ds with whatever was left there from before
+    ; e.g a function return value
+    xor eax, eax
+
     mov ax, ds 
 	push eax 
 	mov ax, 0x10 

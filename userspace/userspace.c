@@ -4,9 +4,9 @@
 void initUserSpace()
 {
     // start the shell in a new usermode thread
-    // createThread(&runShell);
-    // userInput(1);
-    // printString("hi\n");
+    createThread(&runShell);
+
+    // hang here so we remain in user mode
     while (1)
     {
         ;
