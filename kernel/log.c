@@ -18,7 +18,7 @@ void log(char *levelStr, char *msg, char attributeByte)
         kPrintStringColour("Log message cannot be NULL\n", attributeByte);
         return;
     }
-    int cursorAddress = get_cursor();
+    int cursorAddress = getCursor();
     int currentRow = cursorAddress / (2 * MAX_COLS);
 
     int col = 0;

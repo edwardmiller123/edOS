@@ -13,33 +13,12 @@
 #define REG_SCREEN_CTRL 0x3D4
 #define REG_SCREEN_DATA 0x3D5
 
-// This maps the row and column coordinates to the corresponding memory address in
-// video memory.
-int cell_to_mem_address(int col, int row);
+// printChar takes a character and prints it at the current location of the cursor.
+void printChar(char character, char attribute_byte);
 
-// Gets the memory address of the current cursor position.
-int get_cursor();
-
-// Sets the new position of the cursor to the provided memory address. Similar to
-// get_cursor but instead writing to the I/O registers
-// TODO: understand whats happing with the bitwise operations.
-void set_cursor(int newCursorAddress);
-
-// handleScreenScroll checks if the provided cursor address is on screen and if not
-// scrolls the screen down by one line.
-int handleScreenScroll(int cursorAddress);
-
-// moveCursor moves the cursor in the corresponding diraction for the given
-// argument. 0: left, 1: right, 2: up, 3: down.
-// TODO: Implement up and down.
-void moveCursor(int direction);
-
-// print_char takes a character and prints it at the current location of the cursor.
-void print_char(char character, char attribute_byte);
-
-// print_char_at prints the given character at the given position on screen.
+// printCharAt prints the given character at the given position on screen.
 // Does this by setting the cursor position then printing the character.
-void print_char_at(char character, int col, int row, char attribute_byte);
+void printCharAt(char character, int col, int row, char attribute_byte);
 
 // kPrintString prints the provided string at the current cursor position on screen with the given
 // VGA colour.

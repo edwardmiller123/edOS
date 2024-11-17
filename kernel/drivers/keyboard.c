@@ -294,7 +294,7 @@ char singleKeyCodeHandler(int keyCode)
     // backspace
     character = 0x0E;
     removeFromBufferRear();
-    print_char(character, 0);
+    printChar(character, 0);
     character = 0;
     break;
   case 0x2A:
@@ -374,7 +374,7 @@ void addToQueue(int keyCode)
   else
   {
     // Not strictly nessecary but catches index out of bounds errors.
-    kPrintString("Queue Full\n");
+    kLogWarning("Key code queue is full. Resetting");
     resetQueue();
   }
 }
@@ -475,13 +475,13 @@ void addToBuffer(char character)
     }
     else
     {
-      kPrintString("Buffer Overrun");
+      kLogError("Key buffer overrun. Resetting");
       resetKeyBuffer();
     }
   }
   else
   {
-    kPrintString("key buffer Full");
+    kLogWarning("skipped adding character as keyBuffer is full");
   }
 }
 
@@ -502,7 +502,7 @@ char *readKeyBuffer()
 {
   if ((void *)keyBuffer == NULL)
   {
-    kLogWarning("read from of NULL keybuffer");
+    kLogWarning("Cannot read from NULL keybuffer");
     return NULL;
   }
 
@@ -537,7 +537,7 @@ int handleKeyboardInput(struct registers r)
     // TODO: currently the keyboard driver is directly printing to the screen but really
     // it should just add to the "stdin" buffer which is then read from (and printed) by
     // the current running thread.
-    print_char(character, 0);
+    printChar(character, 0);
   }
   return 0;
 }

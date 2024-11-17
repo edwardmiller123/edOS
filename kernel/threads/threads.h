@@ -58,16 +58,6 @@ typedef struct TCB
 // makeInFocus sets the currently running thread to store keyboard input in its stdin buffer
 void makeInFocus();
 
-// newId increments and returns the thread id counter
-int newId();
-
-// addThread adds a new TCB into the circular thread list;
-void add(TCB *newThread);
-
-// removeThread removes the given TCB from the list of active threads
-// and frees its memory
-void remove(TCB *threadToRemove);
-
 // initThreads just creates a TCB for the default thread
 void initThreads();
 
@@ -75,14 +65,6 @@ void initThreads();
 // after any thread switches have occurred. e.g thread is finished -> calls exit() -> exit marks thread as done then hangs
 // -> we switch out of the done thread into another -> all marked threads are removed -> new thread resumes.
 void exit();
-
-// findNewKernelStack finds a new stack position by iterating through the thread list looking for
-// the highest kernel stack address so far and incrementing it by the OS stack size;
-void *findNewKernelStack();
-
-// findNewUserStack finds a new stack position by iterating through the thread list looking for
-// the highest user stack address so far;
-void *findNewUserStack();
 
 // createKThread creates a new TCB and adds it to a linked list of active kernel threads. Takes
 // the function to run in the new thread and an ID (just for debugging for now).
@@ -96,10 +78,6 @@ void createKThread(void *threadFunction);
 // New threads are created with a max space of 6kb (0x1800) for now.
 // The memory allocated for a TCB gets freed when we remove it from the list.
 void createUThread(void *threadFunction);
-
-// cleanUpFinished iterates through the thread list and removes any with the
-// "DONE" status
-void cleanUpFinished();
 
 void threadSwitch(struct registers r);
 
