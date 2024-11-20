@@ -1,0 +1,6 @@
+# pretty small but saves having to build and run the image every time
+services:
+  build-env:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile

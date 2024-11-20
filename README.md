@@ -22,9 +22,18 @@ Can install GCC, Qemu and NASM (for ubuntu) with,
 sudo apt-get install nasm gcc qemu-system
 ```
 
+For compiling on non-linux or x86 platforms youll need to install [docker](https://docs.docker.com/get-started/get-docker/).
+
 ## Running/Compiling
 
-To compile and run simply do,
+### linux/amd64
+
+To compile the bootable image,
+
+```
+make os-image
+```
+To compile and run in the emulator,
 
 ```
 make run
@@ -33,3 +42,12 @@ or with debugging output,
 ```
 make debug
 ```
+
+### Other platforms
+
+After docker is installed for your platform use the following to compile and run edOS
+on qemu in the container,
+```
+DOCKER_DEFAULT_PLATFORM=linux/amd64 docker compose up build-env --build -d
+```
+
