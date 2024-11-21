@@ -45,9 +45,17 @@ make debug
 
 ### Other platforms
 
-After docker is installed for your platform use the following to compile and run edOS
-on qemu in the container,
+For compiling on other platforms (e.g arm64) the easiest way is to build the image in a
+docker container then copy it over to the host.
+You can create the container and compile the image with,
 ```
 DOCKER_DEFAULT_PLATFORM=linux/amd64 docker compose up build-env --build -d
 ```
-
+The image can then be copied out of the container to your current directory with the following command
+```
+docker cp <containerId>:/edOS/os-image .
+```
+Assuming you have qemu installed you then run edOS in the emulator with,
+```
+qemu-system-x86_64 -drive format=raw,file=os-image,if=floppy -monitor stdio
+```
