@@ -92,10 +92,15 @@ void kLogf(LogLevel level, char *msg, int args[], int argCount)
         return;
     }
 
-    const partLimit = 15;
+    const int partLimit = 15;
+    const int partLength = 32;
 
-    // TODO: This uses alot of stack. May need to bump the thread stack allowence
-    char msgParts[partLimit][128];
+    if (strLen(msg) > (partLimit * partLength)) {
+        kLogError("Log message is to long");
+        return;
+    }
+
+    char msgParts[partLimit][partLength];
     int argIdx = 0;
     int partIdx = 0;
     int j = 0;
