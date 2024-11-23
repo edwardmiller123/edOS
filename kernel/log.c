@@ -3,6 +3,8 @@
 #include "consts.h"
 #include "../stdlib/stdlib.h"
 
+#define MAX_MESSAGE_LENGTH 32
+
 static LogLevel level = INFO;
 
 // setLogLevel sets the global logging level
@@ -93,14 +95,13 @@ void kLogf(LogLevel level, char *msg, int args[], int argCount)
     }
 
     const int partLimit = 15;
-    const int partLength = 32;
 
-    if (strLen(msg) > (partLimit * partLength)) {
-        kLogError("Log message is to long");
+    if (strLen(msg) > MAX_MESSAGE_LENGTH ) {
+        kLogError("Log message too long");
         return;
     }
 
-    char msgParts[partLimit][partLength];
+    char msgParts[partLimit][MAX_MESSAGE_LENGTH];
     int argIdx = 0;
     int partIdx = 0;
     int j = 0;
@@ -139,7 +140,7 @@ void kLogf(LogLevel level, char *msg, int args[], int argCount)
     char *formattedMsg = msgParts[0];
     for (int i = 1; i <= partIdx; i++)
     {
-        char newStr[128];
+        char newStr[MAX_MESSAGE_LENGTH];
         formattedMsg = strConcat(formattedMsg, msgParts[i], newStr);
     }
 

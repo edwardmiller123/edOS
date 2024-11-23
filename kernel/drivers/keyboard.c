@@ -1,4 +1,5 @@
 #include "../../stdlib/stdlib.h"
+#include "../mem.h"
 #include "../IO.h"
 #include "../log.h"
 #include "screen.h"
