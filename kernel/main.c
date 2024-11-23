@@ -43,6 +43,6 @@ void main()
   // to do some investigating
 
   // make the jump to user mode
-  // kLogInfo("Entering user mode");
-  // createUThread(&initUserSpace);
+  kLogInfo("Entering user mode");
+  createUThread(&initUserSpace);
 }
