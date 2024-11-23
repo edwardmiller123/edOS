@@ -3,7 +3,7 @@
 #include "timer.h"
 #include "keyboard.h"
 #include "../log.h"
-#include "../threads/threads.h"
+#include "../threads.h"
 #include "../mem.h"
 #include "../../stdlib/stdlib.h"
 

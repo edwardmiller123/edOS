@@ -1,8 +1,8 @@
 #ifndef THREADS
 #define THREADS
 
-#include "../types.h"
-#include "../drivers/keyboard.h"
+#include "types.h"
+#include "drivers/keyboard.h"
 
 // Use the stack canary to tell if a threads stack has grown to large. We set this at the end of the
 // allocated stack space for every thread. When switching to a new thread if this value is missing 

@@ -1,7 +1,7 @@
 #ifndef ISR
 #define ISR
 
-#include "../threads/threads.h"
+#include "../threads.h"
 
 #define MASTER_PIC_COMMAND 0x20
 #define MASTER_PIC_DATA 0x21

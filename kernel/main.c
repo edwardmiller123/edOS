@@ -1,7 +1,7 @@
 #include "drivers/screen.h"
 #include "log.h"
 #include "drivers/keyboard.h"
-#include "threads/threads.h"
+#include "threads.h"
 #include "drivers/timer.h"
 #include "interrupts/isr.h"
 #include "interrupts/tss.h"
@@ -12,27 +12,6 @@
 // enterUserMode is our wrapper assembly function that jumps to user mode and then
 // starts the shell
 extern int enterUserMode();
-
-void thread2() {
-  // for (int i = 1; i <= 5; i++) {
-  //   kPrintString("KT2: ");
-  //   printInt(i);
-  //   kSleep(1);
-  // }
-  while(1) {
-    ;
-  }
-  return;
-}
-
-void thread3() {
-  for (int i = 1; i <= 5; i++) {
-    kPrintString("KT3: ");
-    printInt(i);
-    kSleep(2);
-  }
-  return;
-}
 
 void main()
 {
@@ -45,7 +24,7 @@ void main()
   kPrintStringAt("=============================| Welcome to edOS! |===============================\n", 0, 1);
   kPrintStringAt("================================================================================\n", 0, 2);
 
-  setLogLevel(INFO);
+  setLogLevel(DEBUG);
 
   cli();
   // initial kernel setup
@@ -64,6 +43,6 @@ void main()
   // to do some investigating
 
   // make the jump to user mode
-  kLogInfo("Entering user mode");
-  createUThread(&initUserSpace);
+  // kLogInfo("Entering user mode");
+  // createUThread(&initUserSpace);
 }

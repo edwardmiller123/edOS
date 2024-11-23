@@ -31,8 +31,8 @@ enterusermode.o : kernel/enterusermode.asm
 log.o : kernel/log.c
 	gcc -fno-pie -ffreestanding -m32 -c kernel/log.c -o log.o
 
-threads.o : kernel/threads/threads.c
-	gcc -fno-pie -ffreestanding -m32 -c kernel/threads/threads.c -o threads.o
+threads.o : kernel/threads.c
+	gcc -fno-pie -ffreestanding -m32 -c kernel/threads.c -o threads.o
 
 mem.o : kernel/mem.c
 	gcc -fno-pie -ffreestanding -m32 -c kernel/mem.c -o mem.o

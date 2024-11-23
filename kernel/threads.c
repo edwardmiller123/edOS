@@ -1,12 +1,12 @@
 #include "threads.h"
-#include "../log.h"
-#include "../drivers/screen.h"
-#include "../drivers/keyboard.h"
-#include "../consts.h"
-#include "../mem.h"
-#include "../interrupts/tss.h"
-#include "../interrupts/isr.h"
-#include "../../stdlib/stdlib.h"
+#include "log.h"
+#include "drivers/screen.h"
+#include "drivers/keyboard.h"
+#include "consts.h"
+#include "mem.h"
+#include "interrupts/tss.h"
+#include "interrupts/isr.h"
+#include "../stdlib/stdlib.h"
 
 // User threads implementation
 // The scheduler runs in ring 0 and schedules both kernel and user threads.

@@ -1,6 +1,6 @@
 #include "../interrupts/isr.h"
 #include "../IO.h"
-#include "../threads/threads.h"
+#include "../threads.h"
 #include "screen.h"
 
 // Channel 0 generates an interrupt (IRQ0) at a set frequency.
