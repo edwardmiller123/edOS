@@ -47,12 +47,14 @@ char *userInput(int code)
 }
 
 // createThread runs the given function in a new thread
-void createThread(void *threadFunction) {
+void createThread(void *threadFunction)
+{
   syscall(threadFunction, 5, 2);
 }
 
 // setFocus gives the currently executing thread ownership of the stdin buffer
-void setFocus() {
+void setFocus()
+{
   syscall(0, 5, 1);
 }
 
@@ -63,6 +65,15 @@ void memoryCopy(char *source, char *destination, int numberOfBytes)
   for (int i = 0; i < numberOfBytes; i++)
   {
     *(destination + i) = *(source + i);
+  }
+}
+
+// memoryZero sets the given number bytes in the given pointer to zero
+void memoryZero(char *dst, int numBytes)
+{
+  for (int i; i < numBytes; i++)
+  {
+    *(dst + i) = 0;
   }
 }
 
@@ -138,8 +149,8 @@ int strCmp(char *string1, char *string2)
 // The allocated buffer must be large enough for both strings.
 char *strConcat(char *str1, char *str2, char *newStr)
 {
-  int newStrLength = strLen(str1) + strLen(str2) + 1;
   int j = 0;
+  int newStrLength = strLen(str1) + strLen(str2) + 1;
   for (int i = 0; i < strLen(str1); i++)
   {
     newStr[j] = str1[i];
@@ -155,6 +166,23 @@ char *strConcat(char *str1, char *str2, char *newStr)
   return newStr;
 }
 
+// strConcatAppend concatenates two strings by appending the second string to the
+// end of the first string. The first string must be a buffer with enough
+// extra space to append the second. Useful if you need to concatenate alot of
+// strings in a loop
+char *strConcatAppend(char *str1, char *str2)
+{
+  int newStrLength = strLen(str1) + strLen(str2) + 1;
+  int j = strLen(str1);
+  for (int i = 0; i < strLen(str2); i++)
+  {
+    str1[j] = str2[i];
+    j++;
+  }
+  str1[newStrLength] = '\0';
+  return str1;
+}
+
 // hash creates a unique hash from a string. This is the
 // djb2 algorithm http://www.cse.yorku.ca/~oz/hash.html
 unsigned long hash(unsigned char *str)
@@ -168,10 +196,30 @@ unsigned long hash(unsigned char *str)
   return hash;
 }
 
+// getDigitCount returns the number of digits in the given base 10 integer
+int getDigitCount(int num)
+{
+  int multiple = 10;
+  int count = 1;
+  while (num > multiple)
+  {
+    count++;
+    multiple *= 10;
+  }
+  return count;
+}
+
 // intToString converts a base 10 integer to a string.
 char *intToString(int integer, char *newStr)
 {
-  char reverseStr[50];
+  int digitCount = getDigitCount(integer);
+  // check the number doesnt exceed the digit count. This shouldnt be possible
+  // on a 32 bit system but checking just to be safe.
+  if (digitCount > MAX_DIGITS)
+  {
+    return NULL;
+  }
+  char reverseStr[MAX_DIGITS];
   int n = integer;
   int i = 0;
   int j = 0;
@@ -190,19 +238,6 @@ char *intToString(int integer, char *newStr)
   char *resultString = reverseString(reverseStr, newStr);
 
   return resultString;
-}
-
-// getDigitCount returns the number of digits in the given integer
-int getDigitCount(int num)
-{
-  int multiple = 10;
-  int count = 1;
-  while (num > multiple)
-  {
-    count++;
-    multiple *= 10;
-  }
-  return count;
 }
 
 // printInt prints the given integer by converting it to a string.

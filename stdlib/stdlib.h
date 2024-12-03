@@ -2,6 +2,8 @@
 #define STDLIB
 
 #define NULL (void*) 0
+// Maximum number of digits a 32 bit base 10 integer can have
+#define MAX_DIGITS 10
 
 typedef enum { false, true } Bool;
 
@@ -36,6 +38,9 @@ void setFocus();
 // it to the destination address.
 void memoryCopy(char *source, char *destination, int numberOfBytes);
 
+// memoryZero sets the given number bytes in the given pointer to zero
+void memoryZero(char * dst, int numBytes);
+
 // printString makes a syscall to print the provided string to the screen
 void printString(char *strToPrint);
 
@@ -55,6 +60,12 @@ int strCmp(char *string1, char *string2);
 // strConcat concatenates two strings
 char *strConcat(char *str1, char *str2, char dstArr[]);
 
+// strConcatAppend concatenates two strings by appending the second string to the
+// end of the firts string. The first string must be a buffer with enough
+// extra space to append the second. Useful if you need to concatenate alot of 
+// strings in a loop
+char * strConcatAppend(char *str1, char *str2);
+
 // hash creates a unique hash from a string. This is the
 // djb2 algorithm http://www.cse.yorku.ca/~oz/hash.html
 unsigned long hash(unsigned char *str);
@@ -62,7 +73,7 @@ unsigned long hash(unsigned char *str);
 // intToString converts a base 10 integer to a string.
 char *intToString(int integer, char * newStr);
 
-// getDigitCount returns the number of digits in the given integer
+// getDigitCount returns the number of digits in the given base 10 integer
 int getDigitCount(int num);
 
 // printInt prints the given integer by converting it to a string.

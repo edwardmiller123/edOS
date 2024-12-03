@@ -3,7 +3,10 @@
 #include "consts.h"
 #include "../stdlib/stdlib.h"
 
-#define MAX_MESSAGE_LENGTH 32
+// maximum length of a log message
+#define MAX_MESSAGE_LENGTH 64
+#define MAX_MESSAGE_PART_COUNT 10
+#define MAX_MESSAGE_PART_SIZE 64
 
 static LogLevel level = INFO;
 
@@ -94,14 +97,19 @@ void kLogf(LogLevel level, char *msg, int args[], int argCount)
         return;
     }
 
-    const int partLimit = 15;
+    int argsDigitCount = 0;
+    for (int i = 0; i < argCount; i++) {
+        argsDigitCount = getDigitCount(args[i]);
+    }
 
-    if (strLen(msg) > MAX_MESSAGE_LENGTH ) {
+    int msgLength = strLen(msg) + argsDigitCount;
+
+    if (msgLength > MAX_MESSAGE_LENGTH) {
         kLogError("Log message too long");
         return;
     }
 
-    char msgParts[partLimit][MAX_MESSAGE_LENGTH];
+    char msgParts[MAX_MESSAGE_PART_COUNT][MAX_MESSAGE_PART_SIZE];
     int argIdx = 0;
     int partIdx = 0;
     int j = 0;
@@ -125,7 +133,7 @@ void kLogf(LogLevel level, char *msg, int args[], int argCount)
             j++;
         }
 
-        if (partIdx > partLimit)
+        if (partIdx > MAX_MESSAGE_PART_COUNT)
         {
             kLogError("Log message has to many parts");
             return;
@@ -136,12 +144,14 @@ void kLogf(LogLevel level, char *msg, int args[], int argCount)
             return;
         }
     }
+
     // now concatenate the parts of the string
-    char *formattedMsg = msgParts[0];
-    for (int i = 1; i <= partIdx; i++)
+    char *formattedMsg;
+    char newStr[MAX_MESSAGE_LENGTH] = {'\0'};
+    formattedMsg = newStr;
+    for (int i = 0; i < partIdx; i++)
     {
-        char newStr[MAX_MESSAGE_LENGTH];
-        formattedMsg = strConcat(formattedMsg, msgParts[i], newStr);
+        formattedMsg = strConcatAppend(formattedMsg, msgParts[i]);
     }
 
     switch (level)
