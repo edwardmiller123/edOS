@@ -31,6 +31,7 @@ void *keyboardHandler(int input, int functionCode)
         output = readKeyBuffer();
         break;
     case 2:
+    // TODO: the buffer isnt getting cleared correctly from system calls
         resetKeyBuffer();
         break;
     }

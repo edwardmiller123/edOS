@@ -158,7 +158,7 @@ void initThreads()
 
     add(defaultThread);
     runningThread = defaultThread;
-    kLogInfo("Initialised default thread.");
+    kLogInfo("Initialised default thread");
     // the space allocated is never freed as the default thread is always running
     makeInFocus();
 }

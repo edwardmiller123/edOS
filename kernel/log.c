@@ -4,7 +4,7 @@
 #include "../stdlib/stdlib.h"
 
 // maximum length of a log message
-#define MAX_MESSAGE_LENGTH 64
+#define MAX_MESSAGE_LENGTH 100
 #define MAX_MESSAGE_PART_COUNT 10
 #define MAX_MESSAGE_PART_SIZE 64
 
@@ -99,7 +99,7 @@ void kLogf(LogLevel level, char *msg, int args[], int argCount)
 
     int argsDigitCount = 0;
     for (int i = 0; i < argCount; i++) {
-        argsDigitCount = getDigitCount(args[i]);
+        argsDigitCount += getDigitCount(args[i]);
     }
 
     int msgLength = strLen(msg) + argsDigitCount;
@@ -140,7 +140,7 @@ void kLogf(LogLevel level, char *msg, int args[], int argCount)
         }
         if (argIdx > argCount)
         {
-            kLogError("Found to many input args");
+            kLogError("Logger has to many input args");
             return;
         }
     }
@@ -149,7 +149,7 @@ void kLogf(LogLevel level, char *msg, int args[], int argCount)
     char *formattedMsg;
     char newStr[MAX_MESSAGE_LENGTH] = {'\0'};
     formattedMsg = newStr;
-    for (int i = 0; i < partIdx; i++)
+    for (int i = 0; i <= partIdx; i++)
     {
         formattedMsg = strConcatAppend(formattedMsg, msgParts[i]);
     }
