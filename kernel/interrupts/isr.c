@@ -196,6 +196,7 @@ void irqHandler(struct registers r)
 {
     int arg[] = {r.intNumber};
     kLogf(DEBUG, "Kernel Interrupted, IRQ: $", arg, 1);
+
     if (interruptHandlers[r.intNumber] != 0)
     {
         intHdlr handler = interruptHandlers[r.intNumber];

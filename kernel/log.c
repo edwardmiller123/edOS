@@ -98,18 +98,21 @@ void kLogf(LogLevel level, char *msg, int args[], int argCount)
     }
 
     int argsDigitCount = 0;
-    for (int i = 0; i < argCount; i++) {
+    for (int i = 0; i < argCount; i++)
+    {
         argsDigitCount += getDigitCount(args[i]);
     }
 
     int msgLength = strLen(msg) + argsDigitCount;
 
-    if (msgLength > MAX_MESSAGE_LENGTH) {
+    if (msgLength > MAX_MESSAGE_LENGTH)
+    {
         kLogError("Log message too long");
         return;
     }
 
     char msgParts[MAX_MESSAGE_PART_COUNT][MAX_MESSAGE_PART_SIZE];
+
     int argIdx = 0;
     int partIdx = 0;
     int j = 0;
@@ -124,11 +127,16 @@ void kLogf(LogLevel level, char *msg, int args[], int argCount)
             // next array in msgParts
             intToString(args[argIdx], msgParts[partIdx]);
             argIdx++;
-            // skip again to the next part.
-            partIdx++;
         }
         else
         {
+            // Conditionally move on to the next message part if
+            // an argument was just inserted and we still have more string to parse
+            if (j == 0 && partIdx != 0)
+            {
+                partIdx++;
+            }
+
             msgParts[partIdx][j] = msg[i];
             j++;
         }
@@ -149,6 +157,7 @@ void kLogf(LogLevel level, char *msg, int args[], int argCount)
     char *formattedMsg;
     char newStr[MAX_MESSAGE_LENGTH] = {'\0'};
     formattedMsg = newStr;
+
     for (int i = 0; i <= partIdx; i++)
     {
         formattedMsg = strConcatAppend(formattedMsg, msgParts[i]);
