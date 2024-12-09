@@ -54,7 +54,7 @@ void initTSS()
 	// we dont use the IO permission bit map so we just set it to the size of
 	// the TSS
 	newTSS->iopb = 104;
-	void *tssSeg = TSS_SEG;
+	void *tssSeg = (void *)TSS_SEG;
 
 	// load the tss to allow for pivilege level changes (and context switches but
 	// we arent using it for that here)
@@ -67,12 +67,13 @@ void initTSS()
 // address
 void updateRing0Stack(void *newStack)
 {
-	if (newStack == NULL) {
+	if (newStack == NULL)
+	{
 		kLogError("esp0 cant be NULL");
 		return;
 	}
 	TSS *tss = TSS_POSITION;
-	tss->esp0 = newStack;
+	tss->esp0 = (int)newStack;
 	int args[] = {(int)newStack};
 	kLogf(DEBUG, "TSS updated. Esp0 set to $", args, 1);
 }
