@@ -1,7 +1,7 @@
 #include "../stdlib/stdlib.h"
 #include "shell.h"
 
-// echo prints the given argument. The first "program".
+// echo prints the given argument.
 void echo(char *input)
 {
   printString(input);
@@ -72,7 +72,7 @@ void runShell()
 
     if (waitingForCommand == 1)
     {
-      // read the key buffer
+      // read the stdin buffer
       input = userInput(1);
 
       for (int i = 0; i < strLen(input); i++)
@@ -86,7 +86,7 @@ void runShell()
     else
     {
       parseAndRunCommand(input);
-      // clear the key buffer
+      // clear the stdin buffer
       userInput(2);
       waitingForCommand = 1;
       printString("[ edOS.v0.9 ]:> ");

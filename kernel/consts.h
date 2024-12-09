@@ -7,8 +7,7 @@
 #define TSS_POSITION (void *) 0x9000 // at 36.8kb
 // The initial value for the kernel stack. All kernel threads are created above here
 #define KERNEL_STACK (void *) 0x800000 // at 8.39mb
-// The initial stack value for the OS. Since we move quickly to user mode all user
-// mode threads are created above here.
+// The initial value for the user stack. All user mode threads are created above here.
 #define USER_STACK (void *) 0x900000 // at 9.44mb
 #define THREAD_STACK_SIZE (void *)0x3000 // 12.3 kb
 #define HEAP_START (void *) 0x200000 // 2.09mb

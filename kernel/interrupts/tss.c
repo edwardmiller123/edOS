@@ -44,7 +44,10 @@ void initTSS()
 	// hard code the position of the TSS in memory
 	TSS *newTSS = TSS_POSITION;
 
-	// set the values we need.
+	// set the starting values.
+
+	// initial value for esp0 is out of the way so we dont overwrite memory already in use
+	// on the first system call. This value is quickly swapped out so doesnt really matter where it is.
 	newTSS->esp0 = 0x700000;
 	newTSS->ss0 = KERNEL_DATA_SEG;
 
@@ -57,7 +60,7 @@ void initTSS()
 	// we arent using it for that here)
 	__asm__ volatile("ltr %%ax" : : "a"(tssSeg));
 	int args[] = {(int)tssSeg};
-	kLogf(INFO, "TSS segment loaded. Address: $", args, 1);
+	kLogf(INFO, "TSS updated. GDT segment loaded. Address: $", args, 1);
 }
 
 // updateRing0Stack updates the value of esp0 in the TSS to the provided memory
@@ -71,5 +74,5 @@ void updateRing0Stack(void *newStack)
 	TSS *tss = TSS_POSITION;
 	tss->esp0 = newStack;
 	int args[] = {(int)newStack};
-	kLogf(DEBUG, "TSS: esp0 set to $", args, 1);
+	kLogf(DEBUG, "TSS updated. Esp0 set to $", args, 1);
 }
