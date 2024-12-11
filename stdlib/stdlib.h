@@ -38,8 +38,8 @@ void setFocus();
 // it to the destination address.
 void memoryCopy(char *source, char *destination, int numberOfBytes);
 
-// memoryZero sets the given number bytes in the given pointer to zero
-void memoryZero(char * dst, int numBytes);
+// memoryZero sets the given number bytes at the given address to zero
+void * memoryZero(char * dst, int numBytes);
 
 // printString makes a syscall to print the provided string to the screen
 void printString(char *strToPrint);

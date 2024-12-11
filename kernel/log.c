@@ -113,6 +113,13 @@ void kLogf(LogLevel level, char *msg, int args[], int argCount)
 
     char msgParts[MAX_MESSAGE_PART_COUNT][MAX_MESSAGE_PART_SIZE];
 
+    // this is full of garbage values so we zero before writing
+    // our log message
+    for (int i = 0; i < MAX_MESSAGE_PART_COUNT; i++)
+    {
+        memoryZero(msgParts[i], MAX_MESSAGE_PART_SIZE);
+    }
+
     int argIdx = 0;
     int partIdx = 0;
     int j = 0;

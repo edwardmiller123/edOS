@@ -68,10 +68,14 @@ void memoryCopy(char *source, char *destination, int numberOfBytes)
   }
 }
 
-// memoryZero sets the given number bytes in the given pointer to zero
-void memoryZero(char *dst, int numBytes)
+// memoryZero sets the given number bytes at the given address to zero
+void *memoryZero(char *dst, int numBytes)
 {
-  for (int i; i < numBytes; i++)
+  if (dst == NULL)
+  {
+    return NULL;
+  }
+  for (int i = 0; i < numBytes; i++)
   {
     *(dst + i) = 0;
   }
