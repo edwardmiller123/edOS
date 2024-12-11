@@ -2,7 +2,7 @@
 #include "isr.h"
 #include "../log.h"
 #include "../../stdlib/stdlib.h"
-#include "../IO.h"
+#include "../io.h"
 #include "../drivers/screen.h"
 
 intHdlr interruptHandlers[256];

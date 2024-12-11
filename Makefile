@@ -7,8 +7,8 @@ boot_stage_1.bin : boot/boot_stage_1.asm
 boot_stage_2.bin : boot/boot_stage_2.asm
 	nasm -I 'boot' boot/boot_stage_2.asm -f bin -o boot_stage_2.bin
 	
-kernel.bin : kernel_entry.o kernel.o userspace.o shell.o isr.o syscall.o log.o screen.o keyboard.o timer.o threads.o tss.o interrupts.o idt.o IO.o mem.o stdlib.o
-	ld -m elf_i386 -o kernel.bin -Ttext 0x900 kernel_entry.o kernel.o userspace.o shell.o isr.o syscall.o log.o screen.o keyboard.o timer.o threads.o tss.o interrupts.o idt.o IO.o mem.o stdlib.o --oformat binary
+kernel.bin : kernel_entry.o kernel.o userspace.o shell.o isr.o syscall.o log.o screen.o keyboard.o timer.o threads.o tss.o interrupts.o idt.o io.o mem.o stdlib.o
+	ld -m elf_i386 -o kernel.bin -Ttext 0x900 kernel_entry.o kernel.o userspace.o shell.o isr.o syscall.o log.o screen.o keyboard.o timer.o threads.o tss.o interrupts.o idt.o io.o mem.o stdlib.o --oformat binary
 
 kernel_entry.o : boot/kernel_entry.asm
 	nasm boot/kernel_entry.asm -f elf32 -o kernel_entry.o
@@ -34,8 +34,8 @@ threads.o : kernel/threads.c
 mem.o : kernel/mem.c
 	gcc -fno-pie -ffreestanding -m32 -c kernel/mem.c -o mem.o
 
-IO.o : kernel/IO.c
-	gcc -fno-pie -ffreestanding -m32 -c kernel/IO.c -o IO.o
+io.o : kernel/io.c
+	gcc -fno-pie -ffreestanding -m32 -c kernel/io.c -o io.o
 
 syscall.o : kernel/drivers/syscall.c
 	gcc -fno-pie -ffreestanding -m32 -c kernel/drivers/syscall.c -o syscall.o

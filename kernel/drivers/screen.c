@@ -1,5 +1,5 @@
 #include "screen.h"
-#include "../IO.h"
+#include "../io.h"
 #include "../../stdlib/stdlib.h"
 
 // This maps the row and column coordinates to the corresponding memory address in
@@ -32,7 +32,7 @@ int getCursor()
 }
 
 // Sets the new position of the cursor to the provided memory address. Similar to
-// getCursor but instead writing to the I/O registers
+// getCursor but instead writing to the IO registers
 void setCursor(int newCursorAddress)
 {
   newCursorAddress /= 2;
@@ -76,7 +76,6 @@ int handleScreenScroll(int cursorAddress)
 
 // moveCursor moves the cursor in the corresponding direction for the given
 // argument. 0: left, 1: right, 2: up, 3: down.
-// TODO: Implement up and down.
 void moveCursor(int direction)
 {
   int cursorAddress = getCursor();
@@ -139,7 +138,7 @@ void printChar(char character, char attribute_byte)
     cursorAddress += 2;
   }
 
-  // Check to see if we have reached the bottom of the srceen and if so
+  // Check to see if we have reached the bottom of the screen and if so
   // scroll it.
   cursorAddress = handleScreenScroll(cursorAddress);
 
@@ -204,9 +203,9 @@ void kPrintInt(int integer)
   kPrintString("\n");
 }
 
-// clear_screen clears the screen by printing empty spaces at
+// clearScreen clears the screen by printing empty spaces at
 // all points on the screen.
-void clear_screen()
+void clearScreen()
 {
   setCursor(cellToMemAddress(0, 0));
 

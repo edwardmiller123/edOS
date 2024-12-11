@@ -1,10 +1,6 @@
 #ifndef TIMER
 #define TIMER
 
-// timer updates the global runtime using the PIT. It also calls the scheduler
-// to switch between threads
-int timer(struct registers r);
-
 // initTimer initialises the PIT
 void initTimer();
 

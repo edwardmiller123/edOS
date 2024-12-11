@@ -1,6 +1,6 @@
 #include "../../stdlib/stdlib.h"
 #include "../mem.h"
-#include "../IO.h"
+#include "../io.h"
 #include "../log.h"
 #include "screen.h"
 #include "keyboard.h"

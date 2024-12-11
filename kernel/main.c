@@ -19,7 +19,7 @@ void main()
   // initialising other things
   sti();
   // clear boot sector messages
-  clear_screen();
+  clearScreen();
   kPrintStringAt("================================================================================\n", 0, 0);
   kPrintStringAt("=============================| Welcome to edOS! |===============================\n", 0, 1);
   kPrintStringAt("================================================================================\n", 0, 2);

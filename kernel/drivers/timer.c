@@ -1,5 +1,5 @@
 #include "../interrupts/isr.h"
-#include "../IO.h"
+#include "../io.h"
 #include "../threads.h"
 #include "screen.h"
 
@@ -44,7 +44,7 @@
 // The total time the system has been running for in ms
 static int systemUptime = 0;
 
-// timer updates the global runtime using the PIT. It also calls the scheduler
+// timer updates the global run time using the PIT. It also calls the scheduler
 // to switch between threads
 int timer(struct registers r)
 {
