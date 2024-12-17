@@ -1,4 +1,8 @@
 #include "stdlib.h"
+
+// Maximum number of digits a 32 bit base 10 integer can have
+#define MAX_DIGITS 10
+
 // syscall triggers a system call to run the appropriate function based on the provided driver
 // code (DC) and function code (FC).
 // screen: DC = 1
@@ -132,6 +136,25 @@ char *reverseString(char *str, char *newStr)
 // strCmp compares two strings and returns 0 if they are not the same.
 int strCmp(char *string1, char *string2)
 {
+  // check for the case of NULL strings
+  if (string1 == NULL)
+  {
+    if (string2 == NULL)
+    {
+      return 1;
+    }
+    return 0;
+  }
+
+  if (string2 == NULL)
+  {
+    if (string1 == NULL)
+    {
+      return 1;
+    }
+    return 0;
+  }
+
   if (sizeof(string1) != sizeof(string2))
   {
     return 0;
@@ -145,6 +168,12 @@ int strCmp(char *string1, char *string2)
       return 0;
     }
     i++;
+  }
+
+  // check if a string1 is just an exit character
+  if (string1[0] == '\0' && string2[0] != '\0')
+  {
+    return 0;
   }
   return 1;
 }

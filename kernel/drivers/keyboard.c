@@ -450,10 +450,7 @@ void resetKeyBuffer()
     kLogWarning("skipping reset of NULL keybuffer");
     return;
   }
-  for (int i = 0; i < KEY_BUFFER_SIZE; i++)
-  {
-    keyBuffer[i] = 0;
-  }
+  memoryZero(keyBuffer, KEY_BUFFER_SIZE);
   keyBufferFront = 0;
   keyBufferRear = 0;
 }

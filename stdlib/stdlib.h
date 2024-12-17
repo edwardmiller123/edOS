@@ -2,10 +2,8 @@
 #define STDLIB
 
 #define NULL (void*) 0
-// Maximum number of digits a 32 bit base 10 integer can have
-#define MAX_DIGITS 10
 
-typedef enum { false, true } Bool;
+typedef enum { false, true } bool;
 
 // syscall triggers a system call to run the appropriate function based on the provided driver
 // code (DC) and function code (FC).

@@ -1,6 +1,9 @@
 #include "../stdlib/stdlib.h"
 #include "shell.h"
 
+#define PART_COUNT 10
+#define PART_SIZE 10
+
 // echo prints the given argument.
 void echo(char *input)
 {
@@ -15,7 +18,12 @@ void help()
 
 void parseAndRunCommand(char *command)
 {
-  char commandParts[10][10];
+  char commandParts[PART_COUNT][PART_SIZE];
+
+  // zero the memory to remove any garbage already on the stack
+  for (int i = 0; i < PART_COUNT; i++) {
+    memoryZero(commandParts[i], PART_SIZE);
+  }
 
   int argIdx = 0;
   int j = 0;
@@ -62,7 +70,7 @@ void runShell()
 {
   // set the thread running the shell as in focus
   setFocus();
-  char *input = 0;
+  char *input = NULL;
   int shellRunning = 1;
   int waitingForCommand = 1;
   printString("\n[ edOS.v0.9 ]:> ");
