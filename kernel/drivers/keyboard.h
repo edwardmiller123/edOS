@@ -2,6 +2,7 @@
 #define KEYBOARD
 
 #include "../types.h"
+#include "../../stdlib/stdlib.h"
 
 // To talk to the keyboard encoder directly
 // we read data and write command codes both to 0x60.
@@ -50,10 +51,10 @@ void resetKeyBuffer();
 void addToBuffer(char character);
 
 // isBufferEmpty checks whether or not the key buffer is empty
-int isBufferEmpty();
+bool isBufferEmpty();
 
 // isBufferFull checks if the buffer is full
-int isBufferFull();
+bool isBufferFull();
 
 // removeFromBufferRear removes the last character from
 // the buffer

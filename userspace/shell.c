@@ -51,15 +51,15 @@ void parseAndRunCommand(char *command)
   char *baseCommand = commandParts[0];
   char *firstArg = commandParts[1];
 
-  if (strCmp(baseCommand, "echo") == 1)
+  if (strCmp(baseCommand, "echo"))
   {
     echo(firstArg);
   }
-  if (strCmp(baseCommand, "help") == 1)
+  if (strCmp(baseCommand, "help"))
   {
     help();
   }
-  if (strCmp(baseCommand, "test") == 1)
+  if (strCmp(baseCommand, "test"))
   {
     test();
   }

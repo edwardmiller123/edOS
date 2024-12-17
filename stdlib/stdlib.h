@@ -53,7 +53,7 @@ char *strMallocAndStore(char *strToStore);
 char *reverseString(char *str, char* newStr);
 
 // strCmp compares to strings and returns 0 if they are not the same.
-int strCmp(char *string1, char *string2);
+bool strCmp(char *string1, char *string2);
 
 // strConcat concatenates two strings
 char *strConcat(char *str1, char *str2, char dstArr[]);

@@ -5,7 +5,8 @@
 #include "screen.h"
 #include "keyboard.h"
 
-static int heldKey, keyCodeQueuePosition, waitingForKeyCode;
+static int heldKey, keyCodeQueuePosition;
+static bool waitingForKeyCode;
 
 // keyCodeQueue holds the list of key codes from the keyboard waiting to be interpreted
 // by the driver.
@@ -388,7 +389,7 @@ void resetQueue()
     keyCodeQueue[i] = 0;
   }
   keyCodeQueuePosition = 0;
-  waitingForKeyCode = 0;
+  waitingForKeyCode = false;
 }
 
 // setDriverState tells the driver whether to expect more keycodes based on the last keycode sent
@@ -399,7 +400,7 @@ void setDriverState(int keyCode)
   {
   case 0xE0:
     // initial keycode for multi code command
-    waitingForKeyCode = 1;
+    waitingForKeyCode = true;
     break;
   case 0x4B:
     // final code for cursor left pressed
@@ -417,29 +418,29 @@ void setDriverState(int keyCode)
     // final code for cursor down released
   case 0xC8:
     // final code for cursor down released
-    waitingForKeyCode = 0;
+    waitingForKeyCode = false;
     break;
   }
 }
 
 // isBufferEmpty checks whether or not the key buffer is empty
-int isBufferEmpty()
+bool isBufferEmpty()
 {
   if (keyBufferFront == keyBufferRear)
   {
-    return 1;
+    return true;
   }
-  return 0;
+  return false;
 }
 
 // isBufferFull checks if the buffer is full
-int isBufferFull()
+bool isBufferFull()
 {
   if (keyBufferRear == KEY_BUFFER_SIZE)
   {
-    return 1;
+    return true;
   }
-  return 0;
+  return false;
 }
 
 // resetKeyBuffer resets all values in the key buffer to 0;
@@ -487,7 +488,7 @@ void addToBuffer(char character)
 // it to zero
 void removeFromBufferRear()
 {
-  if (isBufferEmpty() == 0)
+  if (isBufferEmpty())
   {
     keyBuffer[keyBufferRear] = 0;
     keyBufferRear--;
@@ -505,7 +506,7 @@ char *readKeyBuffer()
   }
 
   char *readBuffer = keyBuffer;
-  if (isBufferFull() == 1)
+  if (isBufferFull())
   {
     resetKeyBuffer();
   }
@@ -524,7 +525,7 @@ int handleKeyboardInput(struct registers r)
   setDriverState(keyCode);
 
   int character = keycodesToActions(keyCodeQueue);
-  if (waitingForKeyCode == 0)
+  if (!waitingForKeyCode)
   {
     resetQueue();
   }
