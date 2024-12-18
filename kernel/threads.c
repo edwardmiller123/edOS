@@ -8,21 +8,18 @@
 #include "interrupts/isr.h"
 #include "../stdlib/stdlib.h"
 
-// User threads implementation
-// The scheduler runs in ring 0 and schedules both kernel and user threads.
-// User threads will be identical to kernel threads with the addition of a user mode stack
-// and the thread entry func will be in user space. All threads will live in the same list and be switched
-// on irq0 with different behaviour based on the thread type (kernel or user). When switching to a user thread,
-// we put the new stack to switch to on the old stack and let the iret take care of the switch (rather than doing it manually
-// like we do for kernel threads). On every thread switch (no matter which type) we update the current kernel stack in the tss.
+// Thread Implementation:
+// A thread is the current state of a CPU core at any one time e.g the values stored in its registers.
+// This state (along with other info) is stored in a Thread Control Block (TCB) struct. Threads are scheduled using a
+// pre-emptive system. When the timer interrupt fires, the scheduler chooses the next TCB from the activeThreads linked list 
+// and sets it to be the global runningThread variable. The switchThread function is then called which stores the state of the CPU
+// in the old threads TCB and (if the thread has changed) loads the new desired state from the runningThread TCB into the CPU.
+// At the end of every thread switch we run a clean up function to remove any finished threads that are left spinning in the FINISHED state.
+// The scheduling of both kernel and user threads are handled by the same scheduler which runs in the kernel
 
-// Thread implementation:
-// The timer calls the scheduler which updates the running thread TCB with the
-// chosen thread. The scheduler will not make the switch as this is instead the
-// job of the general irq handler.
-// The general irq handler will always put the registers stored in the running thread TCB onto the stack
-// and store the old ones. We also update esp0 in the TSS during the switch. Then when any IRQ
-// returns it will resume the new thread if a thread switch has taken place.
+// NOTE: This usage of the global runningThread will have to change if we support multi-core in the future since the scheduler will have to handle
+// multiple threads on different cores. A solution could be to run only run the timer (and hence the scheduler) on a single core and simply have a global
+// list/struct of "running threads" with a map of each core to a specific thread.
 
 // A linked list containing the active threads
 typedef struct threadList
@@ -44,9 +41,8 @@ static int idCount = 1;
 // makeInFocus sets the currently running thread to store keyboard input in its stdin buffer
 void makeInFocus()
 {
-    // TODO: somehow this is causing ds to not get set correctly when switching threads
     runningThread->inFocus = 1;
-    switchActiveKeyQueue(runningThread->stdin);
+    switchActiveKeyBuffer(runningThread->stdin);
     int args[] = {runningThread->id};
     kLogf(INFO, "Thread $ has the focus", args, 1);
 }
@@ -184,7 +180,7 @@ void *findNewKernelStack()
     TCB *thread = activeThreads.head->nextThread;
     while (thread != (activeThreads.head))
     {
-        if ((thread->kStackPos) > (int)highestStackPosition)
+        if ((int)thread->kStackPos > (int)highestStackPosition)
         {
             highestStackPosition = thread->kStackPos;
         }
@@ -210,10 +206,9 @@ void *findNewUserStack()
     return (void *)((int)highestUStackPosition + (int)THREAD_STACK_SIZE);
 }
 
-// createKThread creates a new TCB and adds it to a linked list of active threads. Takes
-// the function to run in the new thread.
-// It is left up to the scheduler and IRQ handler to actually execute the new thread.
-// New threads are created with a max space of 6kb (0x1800) for now.
+// createKThread creates a new TCB and adds it to a linked list of active threads
+// waiting to be scheduled. Takes the function to run in the new thread.
+// New threads are created with a max space of 0x3000 (12 kib) for now.
 // The memory allocated for a TCB gets freed when we remove it from the list.
 void createKThread(void *threadFunction)
 {
@@ -275,9 +270,8 @@ void createKThread(void *threadFunction)
     newThread->uCanaryAddress = NULL;
 }
 
-// createUThread creates a new TCB for a usermode thread and adds it to a list of active threads. 
-// Takes the function to run in the new thread.
-// It is left up to the scheduler and IRQ handler to actually execute the new thread.
+// createUThread creates a new TCB for a usermode thread and adds it to a list of active threads
+// waiting to be scheduled. Takes the function to run in the new thread.
 // New threads are created with a max space of 12kib (0x3000) for now.
 // The memory allocated for a TCB gets freed when we remove it from the list.
 void createUThread(void *threadFunction)
@@ -379,16 +373,21 @@ ThreadType getThreadType(unsigned int ds)
     return UNKNOWN;
 }
 
-// threadSwitch initiates a thread switch by saving and loading the state of the cpu from
-// the runningThread TCB global. The values of all the registers and the stack of the interrupted
-// function are saved either to runningThread or to the previous TCB in the thread list if we are switching
-// to a new thread.
-// For thread switches that were initiated in ring 0, we push the new threads stack value
-// onto the old stack so it can be popped off into esp by the irq handler and hence switched to as the first
-// action when threadSwitch returns. The register values for the new thread are then pushed onto the new stack so
-// they can also be restored by the irq handler after esp has been switched.
-// For ring 3 thread switches we also push the new user stack and the user segment registers so they can be
-// be popped into the correct registers for us by the iret.
+// threadSwitch initiates a thread switch by saving and loading the state of the CPU from
+// the runningThread TCB global. The irq handler pushes the register values on to the stack, executes the handling
+// code then pops the values back of the stack into the registers to complete the interrupt. The flow for the thread switch
+// therefor consists of the following steps:
+// 1. Check the thread type from ds (e.g user or kernel)
+// 2. Save the old register values in the last threads TCB (this is just the runningThread if there are no others in the active list)
+// 3. Update the TSS with the new kernel stack value
+// 4. Put the value of the new threads kernel stack at the correct place on the old threads kernel stack. The IRQ handler will pop this 
+// into esp once the handling code returns.
+// 5. Put the new register values at the correct places on the new kernel stack. These will then be popped off into the registers
+// by the IRQ handler.
+// 6. Check for and clean up any threads with the FINISHED status.
+// For user threads the only difference is that the TCB contains a kernel and a user stack. If a thread is identified
+// as a user thread then we put some extra values onto the new stack, namely the user stack value and the value of ss.
+// The value of the user stack is loaded into esp by the iret instruction when the IRQ handler returns.
 void threadSwitch(struct registers r)
 {
     // The value of ds will determine which ring the threads involved in the switch are in.

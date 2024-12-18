@@ -16,6 +16,20 @@ void help()
   printString("edOS doesnt do much right now.\nThe only other command is echo.\nUsage: echo {your favourite word}\n");
 }
 
+void userThread2() {
+  for (int i = 1; i <= 3; i++) {
+    printString("UT2: ");
+    printInt(i);
+    sleep(1000);
+  }
+}
+
+// for testing stuff
+void test()
+{
+  createThread(&userThread2);
+}
+
 void parseAndRunCommand(char *command)
 {
   char commandParts[PART_COUNT][PART_SIZE];
@@ -100,18 +114,4 @@ void runShell()
       printString("[ edOS.v0.9 ]:> ");
     }
   }
-}
-
-void userThread2() {
-  for (int i = 1; i <= 3; i++) {
-    printString("UT2: ");
-    printInt(i);
-    sleep(1000);
-  }
-}
-
-// for testing stuff
-void test()
-{
-  createThread(&userThread2);
 }

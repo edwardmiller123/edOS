@@ -39,7 +39,7 @@ void *malloc(int size)
 // free frees the memory associated with the given pointer
 void free(void *ptr)
 {
-  syscall(ptr, 3, 2);
+  syscall((int)ptr, 3, 2);
 }
 
 // userInput makes a syscall to either read the keyboard stdin buffer (code = 1
@@ -53,7 +53,7 @@ char *userInput(int code)
 // createThread runs the given function in a new thread
 void createThread(void *threadFunction)
 {
-  syscall(threadFunction, 5, 2);
+  syscall((int)threadFunction, 5, 2);
 }
 
 // setFocus gives the currently executing thread ownership of the stdin buffer
@@ -88,7 +88,7 @@ void *memoryZero(char *dst, int numBytes)
 // printString makes a syscall to print the provided string to the screen
 void printString(char *strToPrint)
 {
-  syscall(strToPrint, 1, 2);
+  syscall((int)strToPrint, 1, 2);
 }
 
 // strLen returns the length of the provided string
@@ -284,15 +284,10 @@ void printInt(int integer)
 }
 
 // compareIntArrays compares two integer arrays of the same length and returns true if
-// all elements in array1 are equal to those of array2. If the lengths are different it returns false.
+// all elements in array1 are equal to those of array2. Requires the lengths to both be the given
+// length parameter.
 int compareIntArrays(int array1[], int array2[], int arrayLengths)
 {
-  // First check that the arrays are actually the same length
-  if (sizeof(array1) != sizeof(array2))
-  {
-    return 0;
-  }
-
   for (int i = 0; i < arrayLengths; i++)
   {
     if (array1[i] != array2[i])

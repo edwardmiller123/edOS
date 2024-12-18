@@ -5,6 +5,13 @@
 #include "screen.h"
 #include "keyboard.h"
 
+// To talk to the keyboard encoder directly
+// we read data and write command codes both to 0x60.
+#define PS2_DATA_PORT 0x60
+#define PS2_STATUS_AND_COMMAND_REGISTER 0x64
+#define QUEUE_SIZE 6
+#define KEY_BUFFER_SIZE 256
+
 static int heldKey, keyCodeQueuePosition;
 static bool waitingForKeyCode;
 
@@ -31,7 +38,7 @@ KeyboardInput *newKeyboardInput()
 }
 
 // switchActiveKeyQueue updates the currently active key buffer to the given one.
-void switchActiveKeyQueue(KeyboardInput *newInputDst)
+void switchActiveKeyBuffer(KeyboardInput *newInputDst)
 {
   keyBuffer = newInputDst->buffer;
   keyBufferRear = newInputDst->bufferRear;
@@ -115,7 +122,7 @@ unsigned char keyCodeToAscii(int keyCode, int heldKey)
     case 0x03:
       return '"';
     case 0x04:
-      return '£';
+      return (unsigned char)'£';
     case 0x05:
       return '$';
     case 0x06:
@@ -283,6 +290,45 @@ unsigned char keyCodeToAscii(int keyCode, int heldKey)
     }
   }
   return 0;
+}
+
+// removeFromBufferRear removes the last character in the buffer by reseting
+// it to zero
+void removeFromBufferRear()
+{
+  if (isBufferEmpty())
+  {
+    keyBuffer[keyBufferRear] = 0;
+    keyBufferRear--;
+  }
+}
+
+// addToBuffer adds a character to the key buffer
+void addToBuffer(char character)
+{
+  if ((void *)keyBuffer == NULL)
+  {
+    kLogWarning("skipped adding character to NULL keyBuffer");
+    return;
+  }
+
+  if (keyBufferRear <= KEY_BUFFER_SIZE)
+  {
+    if (keyBufferFront <= keyBufferRear)
+    {
+      keyBuffer[keyBufferRear] = character;
+      keyBufferRear++;
+    }
+    else
+    {
+      kLogError("Key buffer overrun. Resetting");
+      resetKeyBuffer();
+    }
+  }
+  else
+  {
+    kLogWarning("skipped adding character as keyBuffer is full");
+  }
 }
 
 // singleKeyCodeHandler converts single keycode keyboard commands into the correspinding action.
@@ -454,45 +500,6 @@ void resetKeyBuffer()
   memoryZero(keyBuffer, KEY_BUFFER_SIZE);
   keyBufferFront = 0;
   keyBufferRear = 0;
-}
-
-// addToBuffer adds a character to the key buffer
-void addToBuffer(char character)
-{
-  if ((void *)keyBuffer == NULL)
-  {
-    kLogWarning("skipped adding character to NULL keyBuffer");
-    return;
-  }
-
-  if (keyBufferRear <= KEY_BUFFER_SIZE)
-  {
-    if (keyBufferFront <= keyBufferRear)
-    {
-      keyBuffer[keyBufferRear] = character;
-      keyBufferRear++;
-    }
-    else
-    {
-      kLogError("Key buffer overrun. Resetting");
-      resetKeyBuffer();
-    }
-  }
-  else
-  {
-    kLogWarning("skipped adding character as keyBuffer is full");
-  }
-}
-
-// removeFromBufferRear removes the last character in the buffer by reseting
-// it to zero
-void removeFromBufferRear()
-{
-  if (isBufferEmpty())
-  {
-    keyBuffer[keyBufferRear] = 0;
-    keyBufferRear--;
-  }
 }
 
 // readKeyBuffer returns the key buffer and clears it if
